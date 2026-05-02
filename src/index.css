@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Spend Sense — premium light financial UI (Smartech Design System style) */
+
+@layer base {
+  :root {
+    /* Surfaces — Soft Cream/Lilac */
+    --background: 33 29% 97%; /* Cream #F7F2EC slightly lightened */
+    --foreground: 247 10% 18%; /* Gray 900 #2B2A33 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 247 10% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 247 10% 18%;
+
+    /* Brand: Purple 600 */
+    --primary: 266 32% 44%; /* #6B4C93 */
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 270 33% 65%; /* Purple 400 #A78BC2 */
+
+    --secondary: 278 33% 95%; /* Lilac 100 #F4EFF7 */
+    --secondary-foreground: 266 32% 44%;
+
+    --muted: 260 14% 93%; /* Gray 100 #EEEAF0 */
+    --muted-foreground: 258 7% 57%; /* Gray 500 #8E8A97 */
+
+    --accent: 177 46% 58%; /* Accent Teal #63C7C2 */
+    --accent-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%; /* Success #22C55E */
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%; /* Warning #F59E0B */
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%; /* Error #EF4444 */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 264 12% 80%; /* Gray 300 #CBC7D1 */
+    --input: 260 14% 93%; /* Gray 100 #EEEAF0 */
+    --ring: 266 32% 44%; /* Purple 600 #6B4C93 */
+
+    --radius: 1.5rem; /* Large 24px radius for the soft look */
+
+    /* Category palette */
+    --cat-food: 20 85% 60%;
+    --cat-shopping: 280 70% 65%;
+    --cat-recharge: 200 85% 60%;
+    --cat-transport: 160 65% 48%;
+    --cat-rent: 0 75% 60%;
+    --cat-medical: 340 70% 60%;
+    --cat-electricity: 45 95% 55%;
+    --cat-others: 220 50% 60%;
+
+    /* Gradients (softer) */
+    --gradient-primary: linear-gradient(135deg, hsl(266 32% 44%), hsl(270 33% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(177 46% 58%), hsl(190 50% 70%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(160 70% 55%));
+    --gradient-warm: linear-gradient(135deg, hsl(33 80% 65%), hsl(10 80% 65%));
+    --gradient-surface: linear-gradient(180deg, hsl(33 29% 97%), hsl(278 33% 95%));
+    --gradient-hero: radial-gradient(ellipse at top, hsl(278 43% 91%) 0%, hsl(33 29% 97%) 60%);
+
+    /* Shadows — soft, elevated */
+    --shadow-sm: 0 1px 2px hsl(247 10% 18% / 0.05);
+    --shadow-md: 0 8px 24px -8px hsl(247 10% 18% / 0.08);
+    --shadow-lg: 0 20px 40px -12px hsl(247 10% 18% / 0.12);
+    --shadow-glow: 0 0 30px -5px hsl(266 32% 44% / 0.2);
+
+    /* Transitions */
+    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 247 10% 18%;
+    --sidebar-primary: 266 32% 44%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 278 33% 95%;
+    --sidebar-accent-foreground: 266 32% 44%;
+    --sidebar-border: 260 14% 93%;
+    --sidebar-ring: 266 32% 44%;
+  }
+
+  .dark {
+    --background: 247 10% 12%;
+    --foreground: 0 0% 98%;
+    --card: 247 10% 16%;
+    --card-foreground: 0 0% 98%;
+    --popover: 247 10% 16%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 270 33% 65%;
+    --primary-foreground: 247 10% 12%;
+    --secondary: 247 10% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 247 10% 20%;
+    --muted-foreground: 258 7% 57%;
+    --accent: 177 46% 58%;
+    --accent-foreground: 247 10% 12%;
+    --border: 247 10% 24%;
+    --input: 247 10% 24%;
+    --ring: 270 33% 65%;
+    --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { font-family: 'Poppins', system-ui, sans-serif; }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20;
+    background-image: var(--gradient-hero);
+    background-attachment: fixed;
+  }
+  h1, h2, h3, h4 { font-family: 'Poppins', system-ui, sans-serif; letter-spacing: -0.01em; }
+}
+
+@layer components {
+  /* Flatten the glass cards and use soft backgrounds */
+  .glass-card {
+    @apply bg-card border border-border/30 rounded-[1.5rem];
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-base);
+  }
+  .glass-card:hover {
+    @apply border-border/50;
+    box-shadow: var(--shadow-md);
+  }
+  .stat-card {
+    @apply relative overflow-hidden rounded-[1.5rem] bg-card border border-border/30 p-6;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-spring);
+  }
+  .stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-primary;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+}
