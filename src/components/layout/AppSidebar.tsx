@@ -60,7 +60,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="rounded-xl bg-gradient-warm p-4 text-white shadow-md-soft">
             <div className="text-xs font-semibold opacity-90">PRO TIP</div>
-            <div className="mt-1 text-sm font-medium leading-snug">Track more, Guess Less</div>
+            <div className="mt-1 text-sm font-medium leading-snug">Track more , Guess Less</div>
           </div>
         )}
         <NavLink to="/budget" className="mt-2 flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-muted-foreground hover:bg-muted group">
