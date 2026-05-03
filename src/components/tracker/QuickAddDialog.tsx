@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAppStore, useActiveBudget } from "@/store/useAppStore";
 import { toast } from "sonner";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 interface Props { open: boolean; onOpenChange: (v: boolean) => void; }
 
@@ -48,7 +49,7 @@ export function QuickAddDialog({ open, onOpenChange }: Props) {
                     categoryId === c.id ? "border-primary bg-primary/10 shadow-glow" : "border-border hover:bg-muted"
                   }`}
                 >
-                  <span className="text-xl">{c.icon}</span>
+                  <CategoryIcon name={c.icon} className="h-5 w-5 mb-0.5" />
                   <span className="truncate font-medium">{c.name}</span>
                 </button>
               ))}

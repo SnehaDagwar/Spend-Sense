@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 export default function Dashboard() {
   const budget = useActiveBudget();
@@ -147,7 +148,7 @@ export default function Dashboard() {
               <div key={c.categoryId} className="rounded-xl border border-border/60 p-3 hover:bg-muted/40 transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg">{c.icon}</span>
+                    <CategoryIcon name={c.icon} className="h-4 w-4" />
                     <span className="font-medium text-sm">{c.name}</span>
                   </div>
                   <span className="text-xs font-semibold tabular-nums">

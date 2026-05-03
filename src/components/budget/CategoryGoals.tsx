@@ -3,6 +3,7 @@ import { formatINR, formatPercent } from "@/utils/formatters";
 import { Progress } from "@/components/ui/progress";
 import { Target, TrendingDown, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 export function CategoryGoals() {
   const budget = useActiveBudget();
@@ -45,7 +46,7 @@ export function CategoryGoals() {
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-xl">{g.icon}</span>
+                <CategoryIcon name={g.icon} className="h-4 w-4" />
                 <span className="font-semibold text-sm">{g.name}</span>
               </div>
               {g.progress >= 100 ? (

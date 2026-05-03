@@ -18,7 +18,7 @@ export const generateInsights = (
       out.push({
         id: uid(), type: "warning", severity: 3,
         categoryId: c.categoryId, category: c.name,
-        title: `${c.icon} ${c.name} budget exceeded`,
+        title: `${c.name} budget exceeded`,
         message: `You've hit ${formatPercent(c.percentUsed)} of your ${c.name} budget — ${formatINR(c.actual - c.planned)} over plan.`,
         actionLabel: "Adjust budget", actionHref: "/budget",
       });
@@ -26,14 +26,14 @@ export const generateInsights = (
       out.push({
         id: uid(), type: "warning", severity: 2,
         categoryId: c.categoryId, category: c.name,
-        title: `${c.icon} ${c.name} at ${formatPercent(c.percentUsed)}`,
+        title: `${c.name} at ${formatPercent(c.percentUsed)}`,
         message: `Only ${formatINR(c.remaining)} left for the rest of the month.`,
       });
     } else if (c.percentUsed <= 25 && stats.daysElapsed > stats.totalDays * 0.5) {
       out.push({
         id: uid(), type: "success", severity: 1,
         categoryId: c.categoryId, category: c.name,
-        title: `${c.icon} Great control on ${c.name}`,
+        title: `Great control on ${c.name}`,
         message: `You're well under budget — keep it up and you'll save ${formatINR(c.remaining)}.`,
       });
     }
@@ -43,7 +43,7 @@ export const generateInsights = (
       out.push({
         id: uid(), type: "prediction", severity: 2,
         categoryId: c.categoryId, category: c.name,
-        title: `📈 ${c.name} on track to overspend`,
+        title: `${c.name} on track to overspend`,
         message: `At this rate, ${c.name} will end at ${formatINR(c.projectedEOM)} — ${formatINR(c.projectedEOM - c.planned)} over budget.`,
       });
     }
@@ -53,7 +53,7 @@ export const generateInsights = (
       out.push({
         id: uid(), type: "tip", severity: 1,
         categoryId: c.categoryId, category: c.name,
-        title: `💰 Safe to spend on ${c.name}`,
+        title: `Safe to spend on ${c.name}`,
         message: `You can safely spend ${formatINR(c.safeDaily)}/day on ${c.name} for the rest of the month.`,
       });
     }
@@ -71,7 +71,7 @@ export const generateInsights = (
       out.push({
         id: uid(), type: "tip", severity: 2,
         categoryId: e.categoryId,
-        title: `👻 Recurring charge detected`,
+        title: `Recurring charge detected`,
         message: `${formatINR(e.amount)} appears as a recurring charge — likely a subscription.`,
       });
     }
@@ -82,7 +82,7 @@ export const generateInsights = (
     const hours = stats.totalActual / hourlyWage;
     out.push({
       id: uid(), type: "tip", severity: 1,
-      title: `⏰ Time to earn`,
+      title: `Time to earn`,
       message: `Your spending this month equals ${hours.toFixed(1)} hours of work at ${formatINR(hourlyWage)}/hr.`,
     });
   }
@@ -92,7 +92,7 @@ export const generateInsights = (
     const ratio = stats.income > 0 ? (stats.projectedTotal / stats.income) * 100 : 0;
     out.push({
       id: uid(), type: "prediction", severity: stats.projectedTotal > stats.totalPlanned ? 3 : 1,
-      title: `🔮 Month-end projection`,
+      title: `Month-end projection`,
       message: `Projected total: ${formatINR(stats.projectedTotal)} (${formatPercent(ratio)} of income). Expected savings: ${formatINR(stats.projectedSavings)}.`,
     });
   }
@@ -104,7 +104,7 @@ export const generateInsights = (
     out.push({
       id: uid(), type: "tip", severity: 1,
       categoryId: top.categoryId, category: top.name,
-      title: `💡 Quick win`,
+      title: `Quick win`,
       message: `Reducing ${top.name} by 30% would save you ${formatINR(save)} this month.`,
     });
   }

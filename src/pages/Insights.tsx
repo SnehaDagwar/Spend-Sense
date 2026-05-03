@@ -14,11 +14,11 @@ const TONE: Record<string, { wrap: string; icon: LucideIcon; iconBg: string }> =
   prediction: { wrap: "from-accent/10 via-primary/5 to-transparent border-accent/30", icon: Sparkles, iconBg: "bg-gradient-accent text-accent-foreground" },
 };
 
-const SECTIONS: { key: "warning" | "success" | "tip" | "prediction"; title: string; emoji: string }[] = [
-  { key: "warning", title: "Warnings", emoji: "⚠️" },
-  { key: "prediction", title: "Predictions", emoji: "🔮" },
-  { key: "tip", title: "Tips", emoji: "💡" },
-  { key: "success", title: "Wins", emoji: "✅" },
+const SECTIONS: { key: "warning" | "success" | "tip" | "prediction"; title: string; icon: LucideIcon }[] = [
+  { key: "warning", title: "Warnings", icon: AlertTriangle },
+  { key: "prediction", title: "Predictions", icon: Sparkles },
+  { key: "tip", title: "Tips", icon: Lightbulb },
+  { key: "success", title: "Wins", icon: CheckCircle2 },
 ];
 
 export default function Insights() {
@@ -46,7 +46,7 @@ export default function Insights() {
         return (
           <section key={sec.key} className="space-y-3">
             <h2 className="font-display text-lg font-bold flex items-center gap-2">
-              <span>{sec.emoji}</span> {sec.title}
+              <sec.icon className="h-5 w-5 text-primary" /> {sec.title}
               <span className="text-xs font-medium text-muted-foreground bg-muted rounded-full px-2 py-0.5">{items.length}</span>
             </h2>
             <div className="grid gap-3 md:grid-cols-2">
@@ -83,7 +83,9 @@ export default function Insights() {
 
       {insights.length === 0 && (
         <div className="glass-card p-12 text-center">
-          <div className="text-5xl mb-3">🧠</div>
+          <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="h-8 w-8 text-primary" />
+          </div>
           <h3 className="font-display text-lg font-bold mb-1">Add some expenses</h3>
           <p className="text-sm text-muted-foreground mb-4">We'll generate smart insights as soon as you log a few transactions.</p>
           <Link to="/tracker"><Button className="bg-gradient-primary shadow-glow">Go to tracker</Button></Link>

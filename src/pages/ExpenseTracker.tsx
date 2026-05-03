@@ -4,11 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { formatINR } from "@/utils/formatters";
-import { Search, Trash2, Pencil, Check, X } from "lucide-react";
+import * as Icons from "lucide-react";
+import { Search, Trash2, Pencil, Check, X, Receipt } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 export default function ExpenseTracker() {
   const budget = useActiveBudget();
@@ -65,12 +67,12 @@ export default function ExpenseTracker() {
                 <button
                   key={c.id}
                   onClick={() => setCategoryId(c.id)}
-                  className={`flex flex-col items-center gap-0.5 rounded-lg border p-2 text-[10px] transition-all ${
+                  className={`flex flex-col items-center gap-1 rounded-lg border p-2 text-[10px] transition-all ${
                     categoryId === c.id ? "border-primary bg-primary/10 shadow-glow" : "border-border hover:bg-muted"
                   }`}
                 >
-                  <span className="text-base">{c.icon}</span>
-                  <span className="truncate w-full text-center">{c.name}</span>
+                  <CategoryIcon name={c.icon} className="h-4 w-4" />
+                  <span className="truncate w-full text-center mt-1">{c.name}</span>
                 </button>
               ))}
             </div>
@@ -99,7 +101,7 @@ export default function ExpenseTracker() {
               return (
                 <div key={c.id}>
                   <div className="flex items-center justify-between text-xs mb-0.5">
-                    <span>{c.icon} {c.name}</span>
+                    <span className="flex items-center gap-1.5"><CategoryIcon name={c.icon} className="h-3 w-3" /> {c.name}</span>
                     <span className="tabular-nums">{formatINR(actual, { compact: true })} / {formatINR(c.planned, { compact: true })}</span>
                   </div>
                   <Progress
@@ -125,8 +127,8 @@ export default function ExpenseTracker() {
             <div className="flex gap-1.5 flex-wrap">
               <button onClick={() => setFilterCat("all")} className={`text-xs px-3 py-1.5 rounded-lg border ${filterCat === "all" ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted"}`}>All</button>
               {budget.categories.map((c) => (
-                <button key={c.id} onClick={() => setFilterCat(c.id)} className={`text-xs px-3 py-1.5 rounded-lg border ${filterCat === c.id ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted"}`}>
-                  {c.icon} {c.name}
+                <button key={c.id} onClick={() => setFilterCat(c.id)} className={`text-xs px-3 py-1.5 rounded-lg border flex items-center gap-1.5 ${filterCat === c.id ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted"}`}>
+                  <CategoryIcon name={c.icon} className={`h-3 w-3 ${filterCat === c.id ? "text-primary-foreground" : "text-primary"}`} /> {c.name}
                 </button>
               ))}
             </div>
@@ -135,7 +137,9 @@ export default function ExpenseTracker() {
           <div className="space-y-2 max-h-[600px] overflow-auto scrollbar-thin pr-1">
             {filtered.length === 0 && (
               <div className="text-center py-12 text-muted-foreground">
-                <div className="text-4xl mb-2">📭</div>
+                <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Receipt className="h-8 w-8 opacity-20" />
+                </div>
                 <div className="text-sm">No expenses yet. Add your first one!</div>
               </div>
             )}
@@ -150,8 +154,8 @@ export default function ExpenseTracker() {
                     initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }}
                     className="flex items-center gap-3 rounded-xl border border-border/60 p-3 hover:bg-muted/40 transition-colors group"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg" style={{ background: `${c?.color}20` }}>
-                      {c?.icon ?? "💸"}
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10" style={{ color: c?.color }}>
+                      {c ? <CategoryIcon name={c.icon} className="h-5 w-5" /> : <Receipt className="h-5 w-5 text-muted-foreground" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">

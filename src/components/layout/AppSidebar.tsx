@@ -43,9 +43,9 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)} className="h-11 rounded-xl data-[active=true]:bg-gradient-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-glow">
+                  <SidebarMenuButton asChild isActive={isActive(item.url)} className="group h-11 rounded-xl data-[active=true]:bg-gradient-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-glow">
                     <NavLink to={item.url} className="flex items-center gap-3">
-                      <item.icon className="h-[18px] w-[18px] shrink-0" />
+                      <item.icon className="h-[18px] w-[18px] shrink-0 text-primary group-data-[active=true]:text-primary-foreground transition-colors" />
                       {!collapsed && <span className="font-medium">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -63,9 +63,9 @@ export function AppSidebar() {
             <div className="mt-1 text-sm font-medium leading-snug">Track more guess Less</div>
           </div>
         )}
-        <NavLink to="/budget" className="mt-2 flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-muted-foreground hover:bg-muted">
-          <Settings className="h-4 w-4" />
-          {!collapsed && <span>Settings</span>}
+        <NavLink to="/budget" className="mt-2 flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-muted-foreground hover:bg-muted group">
+          <Settings className="h-4 w-4 text-primary" />
+          {!collapsed && <span className="group-hover:text-foreground transition-colors">Settings</span>}
         </NavLink>
       </SidebarFooter>
     </Sidebar>

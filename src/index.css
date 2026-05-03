@@ -144,6 +144,24 @@
   }
 }
 
+@layer base {
+  /* Apply purple default to icons matching the soft, rounded aesthetic */
+  .lucide {
+    stroke-width: 2.25px;
+  }
+  /* When the parent doesn't set a specific text color, default to primary */
+  :root {
+    --icon-fallback-color: hsl(var(--primary));
+  }
+  /* Using a specificity trick to set fallback color if currentColor is inherited from body */
+  body {
+    --is-default-text: 1;
+  }
+  [class*="text-"] {
+    --is-default-text: 0;
+  }
+}
+
 @layer utilities {
   .text-balance { text-wrap: balance; }
   .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }

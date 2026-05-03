@@ -117,7 +117,23 @@ export const useAppStore = create<AppState>()(
           hourlyWage: 300,
         }),
     }),
-    { name: "spend-sense-store-v1" }
+    { 
+      name: "spend-sense-store-v1",
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Sync default category icons with constants (fixes old emoji data)
+          Object.values(state.budgets).forEach((budget) => {
+            budget.categories = budget.categories.map((cat) => {
+              const defaultCat = DEFAULT_CATEGORIES.find((dc) => dc.id === cat.id);
+              if (defaultCat && !cat.isCustom) {
+                return { ...cat, icon: defaultCat.icon };
+              }
+              return cat;
+            });
+          });
+        }
+      },
+    }
   )
 );
 

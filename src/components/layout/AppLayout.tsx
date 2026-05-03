@@ -37,14 +37,14 @@ export default function AppLayout() {
             </div>
             <Button
               onClick={() => setQuickOpen(true)}
-              className="bg-gradient-primary hover:opacity-95 shadow-glow rounded-xl gap-1.5 hidden sm:inline-flex"
+              className="bg-gradient-primary hover:opacity-95 shadow-glow rounded-xl gap-1.5 hidden sm:inline-flex text-white"
             >
               <Plus className="h-4 w-4" /> Add expense
             </Button>
             <Button
               size="icon"
               onClick={() => setQuickOpen(true)}
-              className="bg-gradient-primary hover:opacity-95 shadow-glow rounded-xl sm:hidden"
+              className="bg-gradient-primary hover:opacity-95 shadow-glow rounded-xl sm:hidden text-white"
             >
               <Plus className="h-4 w-4" />
             </Button>

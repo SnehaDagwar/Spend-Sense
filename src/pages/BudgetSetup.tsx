@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { CategoryGoals } from "@/components/budget/CategoryGoals";
+import { CategoryIcon, ICON_MAP } from "@/components/ui/CategoryIcon";
 
 const shiftMonth = (m: string, by: number) => {
   const [y, mo] = m.split("-").map(Number);
@@ -23,7 +24,7 @@ export default function BudgetSetup() {
   const { activeMonth, setActiveMonth, setIncome, setCategoryPlanned, addCategory, removeCategory, hourlyWage, setHourlyWage } = useAppStore();
   const [addOpen, setAddOpen] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newIcon, setNewIcon] = useState("✨");
+  const [newIcon, setNewIcon] = useState("Home");
   const [newPlanned, setNewPlanned] = useState("");
 
   const totalPlanned = budget.categories.reduce((s, c) => s + c.planned, 0);
@@ -78,7 +79,9 @@ export default function BudgetSetup() {
             {budget.categories.map((c) => (
               <div key={c.id} className="rounded-xl border border-border/60 p-4 hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg text-xl" style={{ background: `${c.color}20` }}>{c.icon}</div>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10" style={{ color: c.color }}>
+                    <CategoryIcon name={c.icon} className="h-5 w-5" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold">{c.name}</div>
                     <div className="text-xs text-muted-foreground">Planned: {formatINR(c.planned)}</div>
@@ -123,7 +126,7 @@ export default function BudgetSetup() {
               <div key={d.name} className="flex items-center justify-between text-xs py-1">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: d.color }} />
-                  <span className="truncate">{d.icon} {d.name}</span>
+                  <span className="truncate flex items-center gap-1.5"><CategoryIcon name={d.icon} className="h-3 w-3" /> {d.name}</span>
                 </div>
                 <span className="tabular-nums font-medium">{formatINR(d.value, { compact: true })}</span>
               </div>
@@ -138,17 +141,27 @@ export default function BudgetSetup() {
           <div className="space-y-4">
             <div>
               <Label className="text-xs uppercase tracking-wider text-muted-foreground">Name</Label>
-              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Gym" />
+              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Gym" className="rounded-xl" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Icon (emoji)</Label>
-                <Input value={newIcon} onChange={(e) => setNewIcon(e.target.value)} maxLength={2} />
+            <div>
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground mb-2 block">Select Icon (from reference)</Label>
+              <div className="grid grid-cols-6 gap-2 max-h-40 overflow-y-auto p-1 scrollbar-thin">
+                {Object.keys(ICON_MAP).map((iconName) => (
+                  <button
+                    key={iconName}
+                    onClick={() => setNewIcon(iconName)}
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${
+                      newIcon === iconName ? "border-primary bg-primary/10 shadow-glow" : "border-border hover:bg-muted"
+                    }`}
+                  >
+                    <CategoryIcon name={iconName} className="h-5 w-5" />
+                  </button>
+                ))}
               </div>
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Planned (₹)</Label>
-                <Input type="number" value={newPlanned} onChange={(e) => setNewPlanned(e.target.value)} />
-              </div>
+            </div>
+            <div>
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">Planned (₹)</Label>
+              <Input type="number" value={newPlanned} onChange={(e) => setNewPlanned(e.target.value)} placeholder="0" className="rounded-xl" />
             </div>
           </div>
           <DialogFooter>
@@ -163,7 +176,7 @@ export default function BudgetSetup() {
                   color: `hsl(${Math.floor(Math.random() * 360)} 70% 60%)`,
                   planned: parseFloat(newPlanned) || 0,
                 });
-                setNewName(""); setNewIcon("✨"); setNewPlanned("");
+                setNewName(""); setNewIcon("Home"); setNewPlanned("");
                 setAddOpen(false);
                 toast.success("Category added");
               }}
