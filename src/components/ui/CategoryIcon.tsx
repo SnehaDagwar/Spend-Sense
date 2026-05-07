@@ -39,7 +39,10 @@ import {
   XCircle,
   
   // Fallback
-  HelpCircle
+  HelpCircle,
+  
+  // Custom
+  Dumbbell
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -75,6 +78,7 @@ export const ICON_MAP: Record<string, any> = {
   MoreVertical,
   CheckCircle2,
   XCircle,
+  Dumbbell,
 };
 
 interface CategoryIconProps {
@@ -83,7 +87,9 @@ interface CategoryIconProps {
 }
 
 export function CategoryIcon({ name, className }: CategoryIconProps) {
-  const IconComponent = ICON_MAP[name];
+  // Map common custom icon names to valid lucide components
+  const normalizedName = name?.toLowerCase() === "gym" || name === "🏋️" ? "Dumbbell" : name;
+  const IconComponent = ICON_MAP[normalizedName] || ICON_MAP[name];
 
   if (!IconComponent) {
     if (name && name.length <= 2) {
