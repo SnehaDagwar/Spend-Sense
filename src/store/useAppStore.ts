@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Expense, MonthlyBudget, CategoryBudget } from "@/types";
+import type { Expense, MonthlyBudget, CategoryBudget, SavingsGoal } from "@/types";
 import { DEFAULT_CATEGORIES, SUGGESTED_PLAN } from "@/constants/categories";
 import { currentMonth } from "@/utils/formatters";
 import { uid } from "@/utils/storage";
@@ -10,6 +10,8 @@ interface AppState {
   budgets: Record<string, MonthlyBudget>; // keyed by month
   expenses: Expense[];
   hourlyWage: number;
+  goals: SavingsGoal[];
+  savingsStreak: number;
 
   setActiveMonth: (month: string) => void;
   setHourlyWage: (wage: number) => void;
@@ -22,6 +24,10 @@ interface AppState {
   addExpense: (e: Omit<Expense, "id" | "month">) => void;
   updateExpense: (id: string, patch: Partial<Expense>) => void;
   deleteExpense: (id: string) => void;
+
+  addGoal: (goal: Omit<SavingsGoal, "id">) => void;
+  updateGoal: (id: string, patch: Partial<SavingsGoal>) => void;
+  deleteGoal: (id: string) => void;
 
   resetAll: () => void;
 }
@@ -40,6 +46,28 @@ export const useAppStore = create<AppState>()(
       budgets: { [currentMonth()]: seedBudget(currentMonth()) },
       expenses: [],
       hourlyWage: 300,
+      goals: [
+        {
+          id: uid(),
+          name: "Emergency Fund",
+          icon: "ShieldAlert",
+          targetAmount: 10000,
+          currentAmount: 4500,
+          monthlyContribution: 500,
+          color: "hsl(142.1 76.2% 36.3%)", // Green
+        },
+        {
+          id: uid(),
+          name: "Vacation",
+          icon: "Plane",
+          targetAmount: 3000,
+          currentAmount: 800,
+          monthlyContribution: 200,
+          targetDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(),
+          color: "hsl(217.2 91.2% 59.8%)", // Blue
+        }
+      ],
+      savingsStreak: 4,
 
       setActiveMonth: (month) => {
         const { budgets } = get();
@@ -109,12 +137,26 @@ export const useAppStore = create<AppState>()(
 
       deleteExpense: (id) => set({ expenses: get().expenses.filter((e) => e.id !== id) }),
 
+      addGoal: (goal) => {
+        set({ goals: [...get().goals, { ...goal, id: uid() }] });
+      },
+
+      updateGoal: (id, patch) => {
+        set({
+          goals: get().goals.map((g) => (g.id === id ? { ...g, ...patch } : g)),
+        });
+      },
+
+      deleteGoal: (id) => set({ goals: get().goals.filter((g) => g.id !== id) }),
+
       resetAll: () =>
         set({
           activeMonth: currentMonth(),
           budgets: { [currentMonth()]: seedBudget(currentMonth()) },
           expenses: [],
           hourlyWage: 300,
+          goals: [],
+          savingsStreak: 0,
         }),
     }),
     { 

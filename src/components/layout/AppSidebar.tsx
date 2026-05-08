@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wallet, Receipt, BarChart3, Sparkles, FileText, Settings } from "lucide-react";
+import { LayoutDashboard, Wallet, Receipt, BarChart3, Sparkles, FileText, Settings, Target } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar,
@@ -11,6 +11,7 @@ const items = [
   { title: "Tracker", url: "/tracker", icon: Receipt },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Insights", url: "/insights", icon: Sparkles },
+  { title: "Goals", url: "/goals", icon: Target },
   { title: "Reports", url: "/reports", icon: FileText },
 ];
 

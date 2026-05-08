@@ -36,3 +36,14 @@ export interface InsightMessage {
   actionLabel?: string;
   actionHref?: string;
 }
+
+export interface SavingsGoal {
+  id: string;
+  name: string;
+  icon: string;
+  targetAmount: number;
+  currentAmount: number;
+  monthlyContribution: number;
+  targetDate?: string;
+  color?: string;
+}

@@ -10,6 +10,7 @@ import ExpenseTracker from "./pages/ExpenseTracker";
 import Analytics from "./pages/Analytics";
 import Insights from "./pages/Insights";
 import Reports from "./pages/Reports";
+import SavingsGoals from "./pages/SavingsGoals";
 import NotFound from "./pages/NotFound.tsx";
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -28,6 +29,7 @@ const AnimatedRoutes = () => {
           <Route path="/analytics" element={<PageWrapper><Analytics /></PageWrapper>} />
           <Route path="/insights" element={<PageWrapper><Insights /></PageWrapper>} />
           <Route path="/reports" element={<PageWrapper><Reports /></PageWrapper>} />
+          <Route path="/goals" element={<PageWrapper><SavingsGoals /></PageWrapper>} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
