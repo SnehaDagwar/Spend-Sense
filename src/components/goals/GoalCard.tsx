@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { LucideIcon, Target, ShieldAlert, Plane, Home, Car, GraduationCap, Laptop } from "lucide-react";
 import { motion } from "framer-motion";
 import { format, addMonths, isAfter } from "date-fns";
+import { Link } from "react-router-dom";
 
 const iconMap: Record<string, LucideIcon> = {
   Target,
@@ -60,9 +61,11 @@ export function GoalCard({ goal }: GoalCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
+      className="h-full"
     >
-      <Card className="h-full overflow-hidden hover:shadow-md transition-shadow">
-        <CardContent className="p-6 flex flex-col h-full">
+      <Link to={`/goals/${goal.id}`} className="block h-full">
+        <Card className="h-full overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+          <CardContent className="p-6 flex flex-col h-full">
           <div className="flex justify-between items-start mb-6">
             <div className="flex items-center gap-3">
               <div
@@ -122,6 +125,7 @@ export function GoalCard({ goal }: GoalCardProps) {
           </div>
         </CardContent>
       </Card>
+      </Link>
     </motion.div>
   );
 }

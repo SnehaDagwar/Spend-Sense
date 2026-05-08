@@ -28,6 +28,7 @@ interface AppState {
   addGoal: (goal: Omit<SavingsGoal, "id">) => void;
   updateGoal: (id: string, patch: Partial<SavingsGoal>) => void;
   deleteGoal: (id: string) => void;
+  addContribution: (goalId: string, amount: number) => void;
 
   resetAll: () => void;
 }
@@ -55,6 +56,12 @@ export const useAppStore = create<AppState>()(
           currentAmount: 4500,
           monthlyContribution: 500,
           color: "hsl(142.1 76.2% 36.3%)", // Green
+          history: [
+            { date: "2026-01-15", amount: 1000 },
+            { date: "2026-02-12", amount: 1200 },
+            { date: "2026-03-10", amount: 1300 },
+            { date: "2026-04-05", amount: 1000 },
+          ],
         },
         {
           id: uid(),
@@ -65,6 +72,10 @@ export const useAppStore = create<AppState>()(
           monthlyContribution: 200,
           targetDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(),
           color: "hsl(217.2 91.2% 59.8%)", // Blue
+          history: [
+            { date: "2026-03-20", amount: 300 },
+            { date: "2026-04-18", amount: 500 },
+          ],
         }
       ],
       savingsStreak: 4,
@@ -138,7 +149,7 @@ export const useAppStore = create<AppState>()(
       deleteExpense: (id) => set({ expenses: get().expenses.filter((e) => e.id !== id) }),
 
       addGoal: (goal) => {
-        set({ goals: [...get().goals, { ...goal, id: uid() }] });
+        set({ goals: [...get().goals, { ...goal, id: uid(), history: [] }] });
       },
 
       updateGoal: (id, patch) => {
@@ -148,6 +159,19 @@ export const useAppStore = create<AppState>()(
       },
 
       deleteGoal: (id) => set({ goals: get().goals.filter((g) => g.id !== id) }),
+
+      addContribution: (goalId, amount) => {
+        set({
+          goals: get().goals.map((g) => {
+            if (g.id !== goalId) return g;
+            return {
+              ...g,
+              currentAmount: g.currentAmount + amount,
+              history: [...g.history, { date: new Date().toISOString(), amount }],
+            };
+          }),
+        });
+      },
 
       resetAll: () =>
         set({

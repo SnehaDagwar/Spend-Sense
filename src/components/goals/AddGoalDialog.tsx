@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { useAppStore } from "@/store/useAppStore";
 import { toast } from "sonner";
 import { Target, ShieldAlert, Plane, Home, Car, GraduationCap, Laptop } from "lucide-react";
+import { SavingsGoal } from "@/types";
+import { useEffect } from "react";
 
 const availableIcons = [
   { name: "Target", icon: Target },
@@ -29,10 +31,12 @@ const availableColors = [
 interface AddGoalDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editingGoal?: SavingsGoal;
 }
 
-export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
+export function AddGoalDialog({ open, onOpenChange, editingGoal }: AddGoalDialogProps) {
   const addGoal = useAppStore((state) => state.addGoal);
+  const updateGoal = useAppStore((state) => state.updateGoal);
 
   const [name, setName] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
@@ -42,6 +46,26 @@ export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
   const [selectedIcon, setSelectedIcon] = useState("Target");
   const [selectedColor, setSelectedColor] = useState(availableColors[0]);
 
+  useEffect(() => {
+    if (editingGoal) {
+      setName(editingGoal.name);
+      setTargetAmount(String(editingGoal.targetAmount));
+      setCurrentAmount(String(editingGoal.currentAmount));
+      setMonthlyContribution(String(editingGoal.monthlyContribution));
+      setTargetDate(editingGoal.targetDate ? editingGoal.targetDate.slice(0, 10) : "");
+      setSelectedIcon(editingGoal.icon);
+      setSelectedColor(editingGoal.color || availableColors[0]);
+    } else {
+      setName("");
+      setTargetAmount("");
+      setCurrentAmount("");
+      setMonthlyContribution("");
+      setTargetDate("");
+      setSelectedIcon("Target");
+      setSelectedColor(availableColors[0]);
+    }
+  }, [editingGoal, open]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -50,17 +74,29 @@ export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
       return;
     }
 
-    addGoal({
-      name,
-      icon: selectedIcon,
-      targetAmount: Number(targetAmount),
-      currentAmount: Number(currentAmount) || 0,
-      monthlyContribution: Number(monthlyContribution),
-      targetDate: targetDate ? new Date(targetDate).toISOString() : undefined,
-      color: selectedColor,
-    });
-
-    toast.success("Goal added successfully!");
+    if (editingGoal) {
+      updateGoal(editingGoal.id, {
+        name,
+        icon: selectedIcon,
+        targetAmount: Number(targetAmount),
+        currentAmount: Number(currentAmount),
+        monthlyContribution: Number(monthlyContribution),
+        targetDate: targetDate ? new Date(targetDate).toISOString() : undefined,
+        color: selectedColor,
+      });
+      toast.success("Goal updated successfully!");
+    } else {
+      addGoal({
+        name,
+        icon: selectedIcon,
+        targetAmount: Number(targetAmount),
+        currentAmount: Number(currentAmount) || 0,
+        monthlyContribution: Number(monthlyContribution),
+        targetDate: targetDate ? new Date(targetDate).toISOString() : undefined,
+        color: selectedColor,
+      });
+      toast.success("Goal added successfully!");
+    }
     onOpenChange(false);
     
     // Reset form
@@ -77,9 +113,9 @@ export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Savings Goal</DialogTitle>
+          <DialogTitle>{editingGoal ? "Edit Savings Goal" : "Add New Savings Goal"}</DialogTitle>
           <DialogDescription>
-            Create a new goal to track your savings progress.
+            {editingGoal ? "Update your goal parameters and target." : "Create a new goal to track your savings progress."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
@@ -183,7 +219,7 @@ export function AddGoalDialog({ open, onOpenChange }: AddGoalDialogProps) {
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Add Goal</Button>
+            <Button type="submit">{editingGoal ? "Save Changes" : "Add Goal"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

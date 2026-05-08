@@ -37,6 +37,11 @@ export interface InsightMessage {
   actionHref?: string;
 }
 
+export interface GoalContribution {
+  date: string; // ISO date
+  amount: number;
+}
+
 export interface SavingsGoal {
   id: string;
   name: string;
@@ -46,4 +51,5 @@ export interface SavingsGoal {
   monthlyContribution: number;
   targetDate?: string;
   color?: string;
+  history: GoalContribution[];
 }

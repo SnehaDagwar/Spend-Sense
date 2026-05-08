@@ -11,6 +11,7 @@ import Analytics from "./pages/Analytics";
 import Insights from "./pages/Insights";
 import Reports from "./pages/Reports";
 import SavingsGoals from "./pages/SavingsGoals";
+import GoalDetail from "./pages/GoalDetail";
 import NotFound from "./pages/NotFound.tsx";
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -30,6 +31,7 @@ const AnimatedRoutes = () => {
           <Route path="/insights" element={<PageWrapper><Insights /></PageWrapper>} />
           <Route path="/reports" element={<PageWrapper><Reports /></PageWrapper>} />
           <Route path="/goals" element={<PageWrapper><SavingsGoals /></PageWrapper>} />
+          <Route path="/goals/:id" element={<PageWrapper><GoalDetail /></PageWrapper>} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
