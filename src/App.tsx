@@ -16,11 +16,39 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound.tsx";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useAppStore } from "@/store/useAppStore";
+import Onboarding from "./pages/Onboarding";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const { settings } = useAppStore();
+  const { onboardingCompleted, isLoggedIn } = settings;
+
+  // If onboarding not completed, only allow access to Onboarding page
+  if (!onboardingCompleted) {
+    return (
+      <AnimatePresence mode="wait">
+        <Routes location={location} key="onboarding">
+          <Route path="*" element={<Onboarding />} />
+        </Routes>
+      </AnimatePresence>
+    );
+  }
+
+  // If not logged in (local session), show login screen
+  if (!isLoggedIn) {
+    return (
+      <AnimatePresence mode="wait">
+        <Routes location={location} key="login">
+          <Route path="*" element={<Login />} />
+        </Routes>
+      </AnimatePresence>
+    );
+  }
+
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
@@ -40,6 +68,7 @@ const AnimatedRoutes = () => {
     </AnimatePresence>
   );
 };
+
 
 const PageWrapper = ({ children }: { children: React.ReactNode }) => (
   <motion.div

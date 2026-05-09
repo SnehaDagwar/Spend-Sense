@@ -16,11 +16,32 @@ import { CategoryIcon } from "@/components/ui/CategoryIcon";
 export default function Dashboard() {
   const budget = useActiveBudget();
   const expenses = useMonthExpenses();
+  const settings = useAppStore((s) => s.settings);
+  const { userName, monthlySavingTarget } = settings.profile;
+  const userType = settings.userType;
+  
   const hourlyWage = useAppStore((s) => s.hourlyWage);
   const allExpenses = useAppStore((s) => s.expenses);
   const activeMonth = useAppStore((s) => s.activeMonth);
 
   const stats = useMemo(() => computeStats(budget, expenses), [budget, expenses]);
+  
+  // Profile specific context
+  const profileContext = useMemo(() => {
+    switch (userType) {
+      case "Student":
+        return { label: "Daily Spending Alert", value: formatINR(stats.income / stats.totalDays), desc: "Suggested max per day" };
+      case "Freelancer":
+        return { label: "Stability Score", value: "85%", desc: "Based on income frequency" };
+      case "Family":
+        return { label: "Shared Goal Progress", value: formatINR(stats.savings), desc: "Total family savings" };
+      case "Professional":
+        return { label: "Investment Potential", value: formatINR(stats.income * 0.15), desc: "Suggested for portfolio" };
+      default:
+        return null;
+    }
+  }, [userType, stats]);
+
   const insights = useMemo(() => {
     const prevMonth = (() => {
       const [y, m] = activeMonth.split("-").map(Number);
@@ -56,23 +77,45 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in">
       {/* Welcome Section */}
-      <div className="flex flex-col space-y-1">
-        <motion.h1 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-2xl md:text-3xl font-display font-bold tracking-tight"
-        >
-          Hi Sneha! <span className="inline-block animate-wave cursor-default">👋</span>
-        </motion.h1>
-        <motion.p 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-muted-foreground text-sm md:text-base"
-        >
-          Welcome back to your financial overview.
-        </motion.p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="space-y-1">
+          <motion.h1 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-2xl md:text-3xl font-display font-bold tracking-tight"
+          >
+            Hi {userName}! <span className="inline-block animate-wave cursor-default">👋</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-muted-foreground text-sm md:text-base flex items-center gap-2"
+          >
+            Welcome back to your <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">{userType}</span> dashboard.
+          </motion.p>
+        </div>
+        
+        {profileContext && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="hidden sm:flex items-center gap-3 bg-white/50 border border-white/20 p-3 rounded-2xl shadow-sm"
+          >
+            <div className="bg-primary/10 p-2 rounded-xl">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <div className="text-[10px] uppercase font-bold text-muted-foreground leading-none mb-1">{profileContext.label}</div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-bold text-sm">{profileContext.value}</span>
+                <span className="text-[10px] text-muted-foreground">{profileContext.desc}</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
+
 
       {/* Stats grid */}
       <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">

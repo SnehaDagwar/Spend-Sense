@@ -3,7 +3,7 @@ import { useAppStore, useActiveBudget, useMonthExpenses } from "@/store/useAppSt
 import { computeStats } from "@/engine/predictionEngine";
 import { formatINR, formatPercent, monthLabel } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
-import { Download, FileSpreadsheet, FileText } from "lucide-react";
+import { Download, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -85,25 +85,12 @@ export default function Reports() {
     toast.success("PDF downloaded");
   };
 
-  const exportCSV = () => {
-    const rows = [["Date", "Category", "Amount", "Note"]];
-    expenses.forEach((e) => {
-      const cat = budget.categories.find((c) => c.id === e.categoryId)?.name ?? "Unknown";
-      rows.push([e.date, cat, String(e.amount), e.note.replace(/,/g, ";")]);
-    });
-    const csv = rows.map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `spend-sense-${activeMonth}.csv`; a.click();
-    URL.revokeObjectURL(url);
-    toast.success("CSV downloaded");
-  };
+
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 animate-fade-in">
       <div className="flex flex-wrap gap-3 justify-end">
-        <Button variant="outline" onClick={exportCSV} className="gap-2 rounded-xl"><FileSpreadsheet className="h-4 w-4" /> Export CSV</Button>
+
         <Button onClick={exportPDF} className="gap-2 rounded-xl bg-gradient-primary shadow-glow"><Download className="h-4 w-4" /> Export PDF</Button>
       </div>
 

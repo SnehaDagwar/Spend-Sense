@@ -31,7 +31,10 @@ interface AppState {
   deleteGoal: (id: string) => void;
   addContribution: (goalId: string, amount: number) => void;
   updateSettings: (settings: Partial<UserSettings> | ((s: UserSettings) => UserSettings)) => void;
-
+  completeOnboarding: (data: { userName: string, income: number, currency: any, type: any, target?: number }) => void;
+  login: () => void;
+  logout: () => void;
+  resetOnboarding: () => void;
   resetAll: () => void;
 }
 
@@ -43,8 +46,10 @@ const seedBudget = (month: string): MonthlyBudget => ({
 });
 
 const defaultSettings: UserSettings = {
+  onboardingCompleted: false,
+  isLoggedIn: false,
   profile: {
-    userName: "Sneha !",
+    userName: "New User",
     defaultMonthlyIncome: 50000,
     currency: "INR",
     financialGoalsPreference: "Balanced",
@@ -69,38 +74,8 @@ export const useAppStore = create<AppState>()(
       budgets: { [currentMonth()]: seedBudget(currentMonth()) },
       expenses: [],
       hourlyWage: 300,
-      goals: [
-        {
-          id: uid(),
-          name: "Emergency Fund",
-          icon: "ShieldAlert",
-          targetAmount: 10000,
-          currentAmount: 4500,
-          monthlyContribution: 500,
-          color: "hsl(142.1 76.2% 36.3%)", // Green
-          history: [
-            { date: "2026-01-15", amount: 1000 },
-            { date: "2026-02-12", amount: 1200 },
-            { date: "2026-03-10", amount: 1300 },
-            { date: "2026-04-05", amount: 1000 },
-          ],
-        },
-        {
-          id: uid(),
-          name: "Vacation",
-          icon: "Plane",
-          targetAmount: 3000,
-          currentAmount: 800,
-          monthlyContribution: 200,
-          targetDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(),
-          color: "hsl(217.2 91.2% 59.8%)", // Blue
-          history: [
-            { date: "2026-03-20", amount: 300 },
-            { date: "2026-04-18", amount: 500 },
-          ],
-        }
-      ],
-      savingsStreak: 4,
+      goals: [],
+      savingsStreak: 0,
       settings: defaultSettings,
 
       setActiveMonth: (month) => {
@@ -202,6 +177,48 @@ export const useAppStore = create<AppState>()(
         set({ settings: newSettings });
       },
 
+      completeOnboarding: (data) => {
+        const { settings } = get();
+        set({
+          settings: {
+            ...settings,
+            onboardingCompleted: true,
+            isLoggedIn: true,
+            userType: data.type,
+            profile: {
+              ...settings.profile,
+              userName: data.userName,
+              defaultMonthlyIncome: data.income,
+              currency: data.currency,
+              monthlySavingTarget: data.target,
+            }
+          },
+          // Also update the current month's budget income
+          budgets: {
+            ...get().budgets,
+            [currentMonth()]: {
+              ...get().budgets[currentMonth()],
+              income: data.income,
+            }
+          }
+        });
+      },
+
+      login: () => {
+        const { settings } = get();
+        set({ settings: { ...settings, isLoggedIn: true } });
+      },
+
+      logout: () => {
+        const { settings } = get();
+        set({ settings: { ...settings, isLoggedIn: false } });
+      },
+
+      resetOnboarding: () => {
+        const { settings } = get();
+        set({ settings: { ...settings, onboardingCompleted: false, isLoggedIn: false } });
+      },
+
       resetAll: () =>
         set({
           activeMonth: currentMonth(),
@@ -213,6 +230,7 @@ export const useAppStore = create<AppState>()(
           settings: defaultSettings,
         }),
     }),
+
     { 
       name: "spend-sense-store-v1",
       onRehydrateStorage: () => (state) => {

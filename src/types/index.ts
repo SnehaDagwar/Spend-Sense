@@ -54,7 +54,12 @@ export interface SavingsGoal {
   history: GoalContribution[];
 }
 
+export type UserType = "Student" | "Family" | "Professional" | "Freelancer";
+
 export interface UserSettings {
+  onboardingCompleted: boolean;
+  isLoggedIn: boolean;
+  userType?: UserType;
   profile: {
     userName: string;
     defaultMonthlyIncome: number;
@@ -62,6 +67,7 @@ export interface UserSettings {
     financialGoalsPreference: string;
     preferredStartDay: number;
     avatar?: string;
+    monthlySavingTarget?: number;
   };
   notifications: {
     budgetLimit: boolean;
@@ -75,3 +81,4 @@ export interface UserSettings {
     customTime?: string;
   };
 }
+
