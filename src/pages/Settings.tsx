@@ -12,7 +12,8 @@ import {
   ShieldCheck,
   Zap,
   Clock,
-  Layout
+  Layout,
+  Trophy
 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -224,8 +225,10 @@ const Settings = () => {
                     {/* Notification Toggles */}
                     <div className="space-y-6">
                       <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group">
-                        <div className="flex items-center gap-3">
-                          <Zap className="h-5 w-5 text-amber-400 group-hover:scale-110 transition-transform" />
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Zap className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                          </div>
                           <div>
                             <Label className="font-semibold">Budget Limit Alerts</Label>
                             <p className="text-xs text-muted-foreground">Notify when reaching 80% of budget</p>
@@ -238,8 +241,10 @@ const Settings = () => {
                       </div>
                       
                       <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group">
-                        <div className="flex items-center gap-3">
-                          <ShieldCheck className="h-5 w-5 text-rose-400 group-hover:scale-110 transition-transform" />
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <ShieldCheck className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                          </div>
                           <div>
                             <Label className="font-semibold">Overspending Alerts</Label>
                             <p className="text-xs text-muted-foreground">Notify immediately on overspend</p>
@@ -252,8 +257,10 @@ const Settings = () => {
                       </div>
 
                       <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group">
-                        <div className="flex items-center gap-3">
-                          <Target className="h-5 w-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Target className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                          </div>
                           <div>
                             <Label className="font-semibold">Goal Reminders</Label>
                             <p className="text-xs text-muted-foreground">Stay on track with your goals</p>
@@ -268,8 +275,10 @@ const Settings = () => {
 
                     <div className="space-y-6">
                       <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group">
-                        <div className="flex items-center gap-3">
-                          <Layout className="h-5 w-5 text-blue-400 group-hover:scale-110 transition-transform" />
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Layout className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                          </div>
                           <div>
                             <Label className="font-semibold">Weekly Financial Summaries</Label>
                             <p className="text-xs text-muted-foreground">Get a recap of your week</p>
@@ -282,8 +291,10 @@ const Settings = () => {
                       </div>
 
                       <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group">
-                        <div className="flex items-center gap-3">
-                          <Clock className="h-5 w-5 text-purple-400 group-hover:scale-110 transition-transform" />
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Clock className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                          </div>
                           <div>
                             <Label className="font-semibold">Daily Spending Reminders</Label>
                             <p className="text-xs text-muted-foreground">Log your expenses daily</p>
@@ -296,8 +307,10 @@ const Settings = () => {
                       </div>
 
                       <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group">
-                        <div className="flex items-center gap-3">
-                          <Target className="h-5 w-5 text-orange-400 group-hover:scale-110 transition-transform" />
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Trophy className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                          </div>
                           <div>
                             <Label className="font-semibold">Achievement Notifications</Label>
                             <p className="text-xs text-muted-foreground">Celebrate your milestones</p>
