@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "sonner";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 // jsPDF's built-in Helvetica font does not support the ₹ Unicode symbol.
 // This formatter produces ASCII-safe output for PDF tables.
@@ -121,9 +122,10 @@ export default function Reports() {
           <h3 className="font-display font-bold mb-3">Top spending categories</h3>
           <div className="space-y-2">
             {topCats.map((c, i) => (
-              <div key={c.categoryId} className="flex items-center gap-3 rounded-xl border border-border/60 p-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg text-base font-bold text-muted-foreground bg-muted">#{i + 1}</div>
-                <div className="text-xl">{c.icon}</div>
+              <div key={c.categoryId} className="flex items-center gap-3 rounded-xl border border-border/60 p-3 hover:bg-muted/30 transition-colors">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <CategoryIcon name={c.icon} className="h-5 w-5 text-primary" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm">{c.name}</div>
                   <div className="text-xs text-muted-foreground">{formatPercent((c.actual / stats.totalActual) * 100)} of total · {formatPercent(c.percentUsed)} of budget</div>
