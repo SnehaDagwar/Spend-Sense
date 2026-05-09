@@ -53,3 +53,25 @@ export interface SavingsGoal {
   color?: string;
   history: GoalContribution[];
 }
+
+export interface UserSettings {
+  profile: {
+    userName: string;
+    defaultMonthlyIncome: number;
+    currency: "INR" | "USD" | "EUR";
+    financialGoalsPreference: string;
+    preferredStartDay: number;
+    avatar?: string;
+  };
+  notifications: {
+    budgetLimit: boolean;
+    overspending: boolean;
+    goalReminders: boolean;
+    dailySpending: boolean;
+    weeklySummary: boolean;
+    achievements: boolean;
+    subscriptionRenewal: boolean;
+    timing: "Morning" | "Evening" | "Custom";
+    customTime?: string;
+  };
+}

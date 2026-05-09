@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Expense, MonthlyBudget, CategoryBudget, SavingsGoal } from "@/types";
+import type { Expense, MonthlyBudget, CategoryBudget, SavingsGoal, UserSettings } from "@/types";
 import { DEFAULT_CATEGORIES, SUGGESTED_PLAN } from "@/constants/categories";
 import { currentMonth } from "@/utils/formatters";
 import { uid } from "@/utils/storage";
@@ -12,6 +12,7 @@ interface AppState {
   hourlyWage: number;
   goals: SavingsGoal[];
   savingsStreak: number;
+  settings: UserSettings;
 
   setActiveMonth: (month: string) => void;
   setHourlyWage: (wage: number) => void;
@@ -29,6 +30,7 @@ interface AppState {
   updateGoal: (id: string, patch: Partial<SavingsGoal>) => void;
   deleteGoal: (id: string) => void;
   addContribution: (goalId: string, amount: number) => void;
+  updateSettings: (settings: Partial<UserSettings> | ((s: UserSettings) => UserSettings)) => void;
 
   resetAll: () => void;
 }
@@ -39,6 +41,26 @@ const seedBudget = (month: string): MonthlyBudget => ({
   income: 50000,
   categories: DEFAULT_CATEGORIES.map((c) => ({ ...c, planned: SUGGESTED_PLAN[c.id] ?? 1000 })),
 });
+
+const defaultSettings: UserSettings = {
+  profile: {
+    userName: "Sneha !",
+    defaultMonthlyIncome: 50000,
+    currency: "INR",
+    financialGoalsPreference: "Balanced",
+    preferredStartDay: 1,
+  },
+  notifications: {
+    budgetLimit: true,
+    overspending: true,
+    goalReminders: true,
+    dailySpending: false,
+    weeklySummary: true,
+    achievements: true,
+    subscriptionRenewal: true,
+    timing: "Evening",
+  },
+};
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -79,6 +101,7 @@ export const useAppStore = create<AppState>()(
         }
       ],
       savingsStreak: 4,
+      settings: defaultSettings,
 
       setActiveMonth: (month) => {
         const { budgets } = get();
@@ -173,6 +196,12 @@ export const useAppStore = create<AppState>()(
         });
       },
 
+      updateSettings: (updater) => {
+        const { settings } = get();
+        const newSettings = typeof updater === "function" ? updater(settings) : { ...settings, ...updater };
+        set({ settings: newSettings });
+      },
+
       resetAll: () =>
         set({
           activeMonth: currentMonth(),
@@ -181,6 +210,7 @@ export const useAppStore = create<AppState>()(
           hourlyWage: 300,
           goals: [],
           savingsStreak: 0,
+          settings: defaultSettings,
         }),
     }),
     { 
