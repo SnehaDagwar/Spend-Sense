@@ -2,7 +2,6 @@
 
 Spend Sense is a privacy-first personal finance intelligence app for tracking budgets, expenses, savings goals, and month-end projections. It helps you understand where your money is going, spot risky spending patterns early, and turn everyday transactions into practical financial decisions.
 
-Everything runs in the browser. There is no backend, no account system, and no cloud sync.
 
 ## What makes Spend Sense different
 
