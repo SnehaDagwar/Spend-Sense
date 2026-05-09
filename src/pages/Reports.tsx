@@ -9,6 +9,16 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "sonner";
 
+// jsPDF's built-in Helvetica font does not support the ₹ Unicode symbol.
+// This formatter produces ASCII-safe output for PDF tables.
+const fmtPDF = (n: number): string => {
+  const abs = Math.abs(n);
+  const formatted = new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(abs);
+  return `${n < 0 ? "-" : ""}Rs. ${formatted}`;
+};
+
 export default function Reports() {
   const budget = useActiveBudget();
   const expenses = useMonthExpenses();
@@ -42,11 +52,11 @@ export default function Reports() {
       startY: 38,
       head: [["Metric", "Value"]],
       body: [
-        ["Income", formatINR(stats.income)],
-        ["Total Spent", formatINR(stats.totalActual)],
-        ["Total Saved", formatINR(stats.savings)],
+        ["Income", fmtPDF(stats.income)],
+        ["Total Spent", fmtPDF(stats.totalActual)],
+        ["Total Saved", fmtPDF(stats.savings)],
         ["Savings Rate", formatPercent(stats.savingsRate, 1)],
-        ["Projected EOM", formatINR(stats.projectedTotal)],
+        ["Projected EOM", fmtPDF(stats.projectedTotal)],
         ["Days Elapsed", `${stats.daysElapsed} / ${stats.totalDays}`],
       ],
       theme: "grid",
@@ -59,11 +69,12 @@ export default function Reports() {
     autoTable(doc, {
       startY: lastY + 10,
       head: [["Category", "Planned", "Actual", "Remaining", "% Used"]],
+      // Strip Lucide icon names (e.g. "UtensilsCrossed") — use only the category name
       body: stats.byCategory.map((c) => [
-        `${c.icon} ${c.name}`,
-        formatINR(c.planned),
-        formatINR(c.actual),
-        formatINR(c.remaining),
+        c.name,
+        fmtPDF(c.planned),
+        fmtPDF(c.actual),
+        fmtPDF(c.remaining),
         formatPercent(c.percentUsed),
       ]),
       theme: "striped",
