@@ -206,7 +206,12 @@ export default function Dashboard() {
             <Link to="/budget"><Button variant="ghost" size="sm">Manage</Button></Link>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {stats.byCategory.slice(0, 6).map((c) => (
+            {stats.byCategory.filter(c => c.planned > 0 || c.actual > 0).length === 0 && (
+              <div className="col-span-full py-8 text-center text-sm text-muted-foreground italic">
+                No active categories. Set your budget to start tracking.
+              </div>
+            )}
+            {stats.byCategory.filter(c => c.planned > 0 || c.actual > 0).slice(0, 6).map((c) => (
               <div key={c.categoryId} className="rounded-xl border border-border/60 p-3 hover:bg-muted/40 transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">

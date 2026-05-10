@@ -42,7 +42,7 @@ const seedBudget = (month: string): MonthlyBudget => ({
   id: uid(),
   month,
   income: 50000,
-  categories: DEFAULT_CATEGORIES.map((c) => ({ ...c, planned: SUGGESTED_PLAN[c.id] ?? 1000 })),
+  categories: DEFAULT_CATEGORIES.map((c) => ({ ...c, planned: 0 })),
 });
 
 const defaultSettings: UserSettings = {
