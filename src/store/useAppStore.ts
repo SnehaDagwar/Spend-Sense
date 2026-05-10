@@ -41,7 +41,7 @@ interface AppState {
 const seedBudget = (month: string): MonthlyBudget => ({
   id: uid(),
   month,
-  income: 50000,
+  income: 0,
   categories: DEFAULT_CATEGORIES.map((c) => ({ ...c, planned: 0 })),
 });
 

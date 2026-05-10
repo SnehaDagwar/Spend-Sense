@@ -37,7 +37,7 @@ export default function Reports() {
       const exp = allExpenses.filter((e) => e.month === m);
       const s = computeStats(b, exp);
       return { month: m, label: monthLabel(m), spent: s.totalActual, income: s.income, saved: s.savings, savingsRate: s.savingsRate };
-    });
+    }).filter(m => m.income > 0 || m.spent > 0);
   }, [budgets, allExpenses]);
 
   const topCats = [...stats.byCategory].filter((c) => c.actual > 0).sort((a, b) => b.actual - a.actual).slice(0, 5);
