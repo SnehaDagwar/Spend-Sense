@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Expense, MonthlyBudget, CategoryBudget, SavingsGoal, UserSettings } from "@/types";
+import type { Expense, MonthlyBudget, CategoryBudget, SavingsGoal, UserSettings, Badge, Challenge } from "@/types";
 import { DEFAULT_CATEGORIES, SUGGESTED_PLAN } from "@/constants/categories";
 import { currentMonth } from "@/utils/formatters";
 import { uid } from "@/utils/storage";
@@ -12,6 +12,10 @@ interface AppState {
   hourlyWage: number;
   goals: SavingsGoal[];
   savingsStreak: number;
+  xp: number;
+  level: number;
+  badges: Badge[];
+  challenges: Challenge[];
   settings: UserSettings;
 
   setActiveMonth: (month: string) => void;
@@ -30,6 +34,13 @@ interface AppState {
   updateGoal: (id: string, patch: Partial<SavingsGoal>) => void;
   deleteGoal: (id: string) => void;
   addContribution: (goalId: string, amount: number) => void;
+
+  addXP: (amount: number) => void;
+  completeChallenge: (id: string) => void;
+  claimChallenge: (id: string) => void;
+  unlockBadge: (badge: Badge) => void;
+  generateDailyChallenges: () => void;
+
   updateSettings: (settings: Partial<UserSettings> | ((s: UserSettings) => UserSettings)) => void;
   completeOnboarding: (data: { userName: string, income: number, currency: any, type: any, target?: number }) => void;
   login: () => void;
@@ -76,6 +87,10 @@ export const useAppStore = create<AppState>()(
       hourlyWage: 300,
       goals: [],
       savingsStreak: 0,
+      xp: 0,
+      level: 1,
+      badges: [],
+      challenges: [],
       settings: defaultSettings,
 
       setActiveMonth: (month) => {
@@ -169,6 +184,89 @@ export const useAppStore = create<AppState>()(
             };
           }),
         });
+      },
+
+      addXP: (amount) => {
+        const { xp, level } = get();
+        const newXP = xp + amount;
+        const xpForNextLevel = level * 1000;
+        
+        if (newXP >= xpForNextLevel) {
+          set({ xp: newXP - xpForNextLevel, level: level + 1 });
+        } else {
+          set({ xp: newXP });
+        }
+      },
+
+      completeChallenge: (id) => {
+        set({
+          challenges: get().challenges.map((c) => 
+            c.id === id ? { ...c, status: 'completed' } : c
+          )
+        });
+      },
+
+      claimChallenge: (id) => {
+        const { challenges, addXP } = get();
+        const challenge = challenges.find(c => c.id === id);
+        if (challenge && challenge.status === 'completed') {
+          addXP(challenge.rewardXP);
+          set({
+            challenges: challenges.map(c => 
+              c.id === id ? { ...c, status: 'claimed' } : c
+            )
+          });
+        }
+      },
+
+      unlockBadge: (badge) => {
+        const { badges } = get();
+        if (!badges.find(b => b.id === badge.id)) {
+          set({ badges: [...badges, { ...badge, unlockedAt: new Date().toISOString() }] });
+        }
+      },
+
+      generateDailyChallenges: () => {
+        const today = new Date().toISOString().split('T')[0];
+        const { challenges } = get();
+        
+        // Don't regenerate if we already have active challenges for today
+        if (challenges.some(c => c.date === today)) return;
+
+        const newChallenges: Challenge[] = [
+          {
+            id: uid(),
+            title: "Disciplined Spender",
+            description: "Spend less than ₹200 today",
+            rewardXP: 150,
+            type: 'spending_limit',
+            targetValue: 200,
+            date: today,
+            status: 'active'
+          },
+          {
+            id: uid(),
+            title: "Home Cooked",
+            description: "No food delivery today",
+            rewardXP: 100,
+            type: 'no_category',
+            categoryId: 'food',
+            date: today,
+            status: 'active'
+          },
+          {
+            id: uid(),
+            title: "Tiny Saver",
+            description: "Save ₹100 today",
+            rewardXP: 120,
+            type: 'save_amount',
+            targetValue: 100,
+            date: today,
+            status: 'active'
+          }
+        ];
+
+        set({ challenges: [...challenges, ...newChallenges] });
       },
 
       updateSettings: (updater) => {

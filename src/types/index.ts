@@ -82,3 +82,23 @@ export interface UserSettings {
   };
 }
 
+export interface Badge {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  unlockedAt?: string;
+  category: "streaks" | "savings" | "discipline" | "social";
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  rewardXP: number;
+  type: 'spending_limit' | 'no_category' | 'save_amount' | 'zero_spend';
+  targetValue?: number;
+  categoryId?: string;
+  date: string; // YYYY-MM-DD
+  status: 'active' | 'completed' | 'claimed';
+}
