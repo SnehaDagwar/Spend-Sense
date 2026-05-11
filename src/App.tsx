@@ -12,6 +12,7 @@ import Insights from "./pages/Insights";
 import Reports from "./pages/Reports";
 import SavingsGoals from "./pages/SavingsGoals";
 import GoalDetail from "./pages/GoalDetail";
+import Streaks from "./pages/Streaks";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -61,6 +62,7 @@ const AnimatedRoutes = () => {
           <Route path="/reports" element={<PageWrapper><Reports /></PageWrapper>} />
           <Route path="/goals" element={<PageWrapper><SavingsGoals /></PageWrapper>} />
           <Route path="/goals/:id" element={<PageWrapper><GoalDetail /></PageWrapper>} />
+          <Route path="/streaks" element={<PageWrapper><Streaks /></PageWrapper>} />
           <Route path="/settings" element={<PageWrapper><Settings /></PageWrapper>} />
         </Route>
         <Route path="*" element={<NotFound />} />

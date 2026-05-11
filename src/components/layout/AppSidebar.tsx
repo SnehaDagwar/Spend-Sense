@@ -8,7 +8,8 @@ import {
   FileText, 
   Settings, 
   Target,
-  Lightbulb
+  Lightbulb,
+  Flame
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -23,6 +24,7 @@ const items = [
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Insights", url: "/insights", icon: Sparkles },
   { title: "Goals", url: "/goals", icon: Target },
+  { title: "Streaks", url: "/streaks", icon: Flame },
   { title: "Reports", url: "/reports", icon: FileText },
 ];
 
