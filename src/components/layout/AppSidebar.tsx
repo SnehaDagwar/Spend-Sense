@@ -101,7 +101,7 @@ export function AppSidebar() {
               </div>
               <span className="text-[10px] font-bold tracking-widest uppercase opacity-80">Pro Tip</span>
             </div>
-            <div className="text-sm font-medium leading-snug">Track More , Guess Less</div>
+            <div className="text-sm font-medium leading-snug">Track More, Guess Less</div>
           </div>
         )}
         
