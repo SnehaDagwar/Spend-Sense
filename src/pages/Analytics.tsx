@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import { formatINR } from "@/utils/formatters";
 import { motion } from "framer-motion";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 const tooltipStyle = { borderRadius: 12, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 };
 
@@ -52,7 +53,10 @@ export default function Analytics() {
                 return (
                   <div key={d.name}>
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="font-medium">{d.icon} {d.name}</span>
+                      <span className="font-medium flex items-center gap-2">
+                        <CategoryIcon name={d.icon} className="h-4 w-4" />
+                        {d.name}
+                      </span>
                       <span className="tabular-nums">{formatINR(d.value)} <span className="text-xs text-muted-foreground">({pct.toFixed(0)}%)</span></span>
                     </div>
                     <div className="h-2 rounded-full bg-muted overflow-hidden">
