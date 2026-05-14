@@ -9,8 +9,8 @@ export default {
     container: { center: true, padding: "2rem", screens: { "2xl": "1400px" } },
     extend: {
       fontFamily: {
-        sans: ['Poppins', 'system-ui', 'sans-serif'],
-        display: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Outfit', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -65,11 +65,16 @@ export default {
         'md-soft': 'var(--shadow-md)',
         'lg-soft': 'var(--shadow-lg)',
         'glow': 'var(--shadow-glow)',
+        'glass': '0 4px 30px rgba(0, 0, 0, 0.05)',
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 4px)",
-        sm: "calc(var(--radius) - 8px)",
+        '4xl': "calc(var(--radius) + 16px)",
+        '3xl': "calc(var(--radius) + 8px)",
+        '2xl': "var(--radius)",
+        xl: "calc(var(--radius) - 4px)",
+        lg: "calc(var(--radius) - 8px)",
+        md: "calc(var(--radius) - 12px)",
+        sm: "calc(var(--radius) - 16px)",
       },
       keyframes: {
         "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },

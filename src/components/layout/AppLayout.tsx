@@ -30,22 +30,22 @@ export default function AppLayout() {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-30 h-16 flex items-center gap-4 border-b border-border/60 bg-background/80 backdrop-blur-xl px-4 md:px-6">
-            <SidebarTrigger className="rounded-lg" />
-            <div className="min-w-0 flex-1">
-              <h1 className="font-display text-lg md:text-xl font-bold leading-none truncate">{meta.title}</h1>
-              <p className="text-xs text-muted-foreground mt-0.5 truncate">{meta.sub} · {monthLabel(activeMonth)}</p>
+          <header className="sticky top-0 z-30 h-20 flex items-center gap-4 bg-white/30 backdrop-blur-3xl px-4 md:px-8 border-b border-white/20">
+            <SidebarTrigger className="rounded-full bg-white/50 hover:bg-white/80" />
+            <div className="min-w-0 flex-1 pl-2">
+              <h1 className="font-display text-2xl md:text-3xl font-bold leading-none truncate text-foreground/90">{meta.title}</h1>
+              <p className="text-sm font-medium text-muted-foreground mt-1 truncate">{meta.sub} · {monthLabel(activeMonth)}</p>
             </div>
             <Button
               onClick={() => setQuickOpen(true)}
-              className="bg-gradient-primary hover:opacity-95 shadow-glow rounded-xl gap-1.5 hidden sm:inline-flex text-white"
+              className="gap-2 hidden sm:inline-flex"
             >
               <Plus className="h-4 w-4" /> Add expense
             </Button>
             <Button
               size="icon"
               onClick={() => setQuickOpen(true)}
-              className="bg-gradient-primary hover:opacity-95 shadow-glow rounded-xl sm:hidden text-white"
+              className="sm:hidden"
             >
               <Plus className="h-4 w-4" />
             </Button>

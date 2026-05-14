@@ -24,20 +24,17 @@ export function StatCard({ label, value, sub, icon, accent = "primary", delay = 
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
-      className="stat-card"
+      className="stat-card flex flex-col justify-between"
     >
-      <div className={cn("absolute inset-x-0 top-0 h-1", accents[accent])} />
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
-          <div className="mt-2 font-display text-2xl md:text-3xl font-bold leading-none">{value}</div>
-          {sub && <div className="mt-2 text-xs text-muted-foreground">{sub}</div>}
+      {icon && (
+        <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-glow mb-4", accents[accent])}>
+          {icon}
         </div>
-        {icon && (
-          <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-md-soft", accents[accent])}>
-            {icon}
-          </div>
-        )}
+      )}
+      <div className="min-w-0">
+        <div className="text-sm font-semibold tracking-tight text-foreground/80">{label}</div>
+        <div className="mt-1 font-display text-3xl font-bold leading-none">{value}</div>
+        {sub && <div className="mt-2 text-xs font-medium text-muted-foreground">{sub}</div>}
       </div>
     </motion.div>
   );
