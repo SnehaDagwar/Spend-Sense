@@ -102,12 +102,12 @@ const Onboarding = () => {
                 initial={{ scale: 0, rotate: -20 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", damping: 12 }}
-                className="h-20 w-20 rounded-2xl bg-gradient-primary shadow-glow flex items-center justify-center mb-6"
+                className="h-20 w-20 rounded-2xl bg-gradient-accent shadow-glow flex items-center justify-center mb-6"
               >
                 <Sparkles className="h-10 w-10 text-white" />
               </motion.div>
               <h1 className="text-4xl sm:text-6xl font-display font-bold tracking-tight">
-                <span className="gradient-text">Spend Sense</span>
+                <span className="bg-clip-text text-transparent bg-gradient-accent">Spend Sense</span>
               </h1>
               <p className="mt-4 text-xl sm:text-2xl text-muted-foreground font-medium">
                 Your AI-powered personal finance intelligence system

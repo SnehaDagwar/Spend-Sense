@@ -41,12 +41,12 @@ export function AppSidebar() {
     >
       <SidebarHeader className="px-4 py-6">
         <NavLink to="/" className="flex items-center gap-3 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-primary shadow-glow group-hover:scale-105 transition-transform duration-300">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-accent shadow-glow group-hover:scale-105 transition-transform duration-300">
+            <Sparkles className="h-5 w-5 text-white" />
           </div>
           {!collapsed && (
             <div className="leading-tight">
-              <div className="font-display text-xl font-bold gradient-text tracking-tight">Spend Sense</div>
+              <div className="font-display text-xl font-bold bg-clip-text text-transparent bg-gradient-accent tracking-tight">Spend Sense</div>
               <div className="text-[10px] text-muted-foreground font-semibold tracking-[0.1em] uppercase opacity-80">Understand your spending</div>
             </div>
           )}

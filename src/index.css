@@ -18,10 +18,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 18%;
 
-    /* Brand: Sage & Earth Tones */
-    --primary: 82 19% 62%; /* Sage #A3B18A */
+    /* Brand: Brighter Sage & Earth Tones */
+    --primary: 85 30% 55%; /* More vibrant Sage #9DB070 */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 82 20% 80%;
+    --primary-glow: 85 40% 75%;
 
     --secondary: 35 33% 75%; /* Sand #D6C4AB */
     --secondary-foreground: 0 0% 18%;
@@ -58,7 +58,7 @@
     --cat-others: 0 0% 70%;       /* Gray */
 
     /* Gradients — Warm & Soft */
-    --gradient-primary: linear-gradient(135deg, hsl(82 19% 62%), hsl(82 19% 70%));
+    --gradient-primary: linear-gradient(135deg, hsl(85 30% 55%), hsl(85 35% 65%));
     --gradient-accent: linear-gradient(135deg, hsl(21 68% 69%), hsl(21 68% 75%));
     --gradient-success: linear-gradient(135deg, hsl(145 35% 55%), hsl(145 35% 65%));
     --gradient-warm: linear-gradient(135deg, hsl(42 43% 84%), hsl(35 33% 75%));

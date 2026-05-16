@@ -29,10 +29,10 @@ const Login = () => {
         className="max-w-md w-full space-y-8"
       >
         <div className="flex flex-col items-center mb-8">
-          <div className="h-16 w-16 rounded-2xl bg-gradient-primary shadow-glow flex items-center justify-center mb-4">
+          <div className="h-16 w-16 rounded-2xl bg-gradient-accent shadow-glow flex items-center justify-center mb-4">
             <Sparkles className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-3xl font-display font-bold tracking-tight">Spend Sense</h1>
+          <h1 className="text-3xl font-display font-bold tracking-tight bg-clip-text text-transparent bg-gradient-accent">Spend Sense</h1>
         </div>
 
         <Card className="glass-card p-8 text-center space-y-6 relative overflow-hidden group">
