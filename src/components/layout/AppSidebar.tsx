@@ -93,7 +93,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="px-3 pb-6 gap-4">
         {!collapsed && (
-          <div className="relative group overflow-hidden rounded-3xl bg-gradient-primary p-5 text-white shadow-glow">
+          <div className="relative group overflow-hidden rounded-2xl bg-gradient-primary p-5 text-white shadow-glow">
             <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/20 blur-2xl group-hover:bg-white/30 transition-colors" />
             <div className="flex flex-col gap-2 relative z-10">
               <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-white/20 mb-1">

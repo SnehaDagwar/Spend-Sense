@@ -95,7 +95,7 @@ const Streaks = () => {
             label="Days"
             message={`${loggingStreak}-day disciplined logger streak!`}
             icon={Flame}
-            color="from-orange-500 to-red-500"
+            color="from-accent to-accent/70"
             delay={0}
           />
           <StreakCard
@@ -104,7 +104,7 @@ const Streaks = () => {
             label="Days"
             message="You avoided unnecessary spending today!"
             icon={ShieldCheck}
-            color="from-emerald-500 to-teal-600"
+            color="from-success to-success/70"
             delay={0.1}
           />
           <StreakCard
@@ -113,7 +113,7 @@ const Streaks = () => {
             label="Months"
             message={`You stayed under budget for ${budgetStreak} months.`}
             icon={Target}
-            color="from-indigo-500 to-purple-600"
+            color="from-primary to-secondary"
             delay={0.2}
           />
         </motion.div>
@@ -128,7 +128,7 @@ const Streaks = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="rounded-3xl bg-gradient-to-br from-primary/10 via-secondary/5 to-primary/5 p-8 border border-primary/10 relative overflow-hidden group"
+        className="rounded-2xl bg-gradient-to-br from-primary/10 via-secondary/5 to-primary/5 p-8 border border-primary/10 relative overflow-hidden group"
       >
         <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
           <TrendingUp className="h-32 w-32 text-primary" />

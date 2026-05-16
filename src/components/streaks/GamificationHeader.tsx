@@ -11,10 +11,10 @@ export const GamificationHeader = () => {
   const progress = (xp / xpForNextLevel) * 100;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white shadow-xl mb-8">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-secondary p-8 text-white shadow-xl mb-8">
       {/* Decorative Elements */}
       <div className="absolute -right-8 -top-8 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-      <div className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-pink-500/20 blur-2xl" />
+      <div className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-accent/20 blur-2xl" />
       
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
@@ -22,8 +22,8 @@ export const GamificationHeader = () => {
             <div className="h-20 w-20 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
               <span className="text-3xl font-black">{level}</span>
             </div>
-            <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-yellow-400 flex items-center justify-center shadow-lg border-2 border-purple-600">
-              <Star className="h-4 w-4 text-purple-700 fill-purple-700" />
+            <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-accent flex items-center justify-center shadow-lg border-2 border-primary">
+              <Star className="h-4 w-4 text-white fill-white" />
             </div>
           </div>
           
@@ -46,7 +46,7 @@ export const GamificationHeader = () => {
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="h-full bg-gradient-to-r from-yellow-300 to-yellow-500 shadow-[0_0_15px_rgba(253,224,71,0.5)]"
+              className="h-full bg-gradient-to-r from-muted to-white shadow-[0_0_15px_rgba(255,255,255,0.3)]"
             />
           </div>
           <p className="text-[10px] mt-2 font-bold uppercase tracking-[0.2em] opacity-60 text-right">

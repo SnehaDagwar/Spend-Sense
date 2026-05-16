@@ -20,12 +20,12 @@ const availableIcons = [
 ];
 
 const availableColors = [
-  "hsl(142.1 76.2% 36.3%)", // Green
-  "hsl(217.2 91.2% 59.8%)", // Blue
-  "hsl(271.5 81.3% 55.9%)", // Purple
-  "hsl(0 84.2% 60.2%)", // Red
-  "hsl(31.4 89.6% 53.3%)", // Orange
-  "hsl(330 81.3% 60%)", // Pink
+  "hsl(82 19% 62%)",  // Sage
+  "hsl(35 33% 75%)",  // Sand
+  "hsl(21 68% 69%)",  // Terracotta
+  "hsl(190 20% 70%)", // Muted Blue
+  "hsl(145 35% 55%)", // Muted Green
+  "hsl(42 43% 84%)",  // Warm Beige
 ];
 
 interface AddGoalDialogProps {

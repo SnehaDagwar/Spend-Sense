@@ -47,28 +47,28 @@ const Onboarding = () => {
       icon: GraduationCap, 
       title: "Student", 
       description: "Track pocket money, hostel expenses, subscriptions, and savings goals.",
-      color: "bg-blue-500/10 text-blue-600 border-blue-200"
+      color: "bg-primary/10 text-primary border-primary/20"
     },
     { 
       type: "Family", 
       icon: Users, 
       title: "Family", 
       description: "Manage household budgets, family expenses, groceries, and shared goals.",
-      color: "bg-emerald-500/10 text-emerald-600 border-emerald-200"
+      color: "bg-secondary/10 text-secondary border-secondary/20"
     },
     { 
       type: "Professional", 
       icon: Briefcase, 
       title: "Professional", 
       description: "Track salary spending, investments, subscriptions, and monthly planning.",
-      color: "bg-purple-500/10 text-purple-600 border-purple-200"
+      color: "bg-muted text-muted-foreground border-border"
     },
     { 
       type: "Freelancer", 
       icon: Laptop, 
       title: "Freelancer", 
       description: "Manage irregular income, project earnings, and financial stability.",
-      color: "bg-orange-500/10 text-orange-600 border-orange-200"
+      color: "bg-accent/10 text-accent border-accent/20"
     },
   ];
 
@@ -102,7 +102,7 @@ const Onboarding = () => {
                 initial={{ scale: 0, rotate: -20 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", damping: 12 }}
-                className="h-20 w-20 rounded-3xl bg-gradient-primary shadow-glow flex items-center justify-center mb-6"
+                className="h-20 w-20 rounded-2xl bg-gradient-primary shadow-glow flex items-center justify-center mb-6"
               >
                 <Sparkles className="h-10 w-10 text-white" />
               </motion.div>
@@ -152,7 +152,7 @@ const Onboarding = () => {
                   key={item.type}
                   onClick={() => setFormData({ ...formData, type: item.type })}
                   className={cn(
-                    "relative p-6 cursor-pointer border-2 transition-all duration-300 rounded-3xl overflow-hidden group hover:shadow-xl",
+                    "relative p-6 cursor-pointer border-2 transition-all duration-300 rounded-2xl overflow-hidden group hover:shadow-xl",
                     formData.type === item.type 
                       ? "border-primary bg-primary/5 shadow-glow-sm" 
                       : "border-transparent bg-white/50 hover:border-primary/20"
