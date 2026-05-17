@@ -5,7 +5,7 @@ import { generateInsights } from "@/engine/insightEngine";
 import { StatCard } from "@/components/ui/stat-card";
 import { VelocityRing } from "@/components/ui/velocity-ring";
 import { formatINR, formatPercent } from "@/utils/formatters";
-import { Wallet, TrendingDown, PiggyBank, Receipt, ArrowUpRight, Sparkles } from "lucide-react";
+import { Wallet, TrendingDown, PiggyBank, Receipt, ArrowUpRight, Sparkles, Hand } from "lucide-react";
 import { BarChart, Bar, ResponsiveContainer, XAxis, Tooltip, Cell } from "recharts";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -84,7 +84,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             className="text-2xl md:text-3xl font-display font-bold tracking-tight"
           >
-            Hi {userName}! <span className="inline-block animate-wave cursor-default">👋</span>
+            Hi {userName}! <Hand className="inline-block h-6 w-6 text-accent animate-wave cursor-default align-text-bottom ml-1" />
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, x: -20 }}
