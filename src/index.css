@@ -8,101 +8,101 @@
 
 @layer base {
   :root {
-    /* Nature-inspired palette */
-    --background: 42 44% 93%; /* Oat #F6F1E6 */
-    --foreground: 0 0% 18%;   /* Charcoal #2E2E2E */
+    /* New Palette based on image */
+    --background: 335 15% 98%; /* Very light soft pink base */
+    --foreground: 283 20% 20%;   /* Dark plum text */
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 18%;
+    --card-foreground: 283 20% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 18%;
+    --popover-foreground: 283 20% 20%;
 
-    /* Brand: Brighter Sage & Earth Tones */
-    --primary: 85 30% 55%; /* More vibrant Sage #9DB070 */
+    /* Brand: Dark Teal & Mauve Tones */
+    --primary: 200 24% 45%; /* Dark Teal #577b8d */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 85 40% 75%;
+    --primary-glow: 200 30% 65%;
 
-    --secondary: 35 33% 75%; /* Sand #D6C4AB */
-    --secondary-foreground: 0 0% 18%;
+    --secondary: 316 14% 56%; /* Muted Purple #9f8197 */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 42 43% 84%; /* Warm Beige #E9DFC6 */
-    --muted-foreground: 0 0% 40%;
+    --muted: 335 30% 92%; /* Light Soft Pink background */
+    --muted-foreground: 283 10% 40%;
 
-    --accent: 21 68% 69%; /* Terracotta #E7A27B */
-    --accent-foreground: 0 0% 100%;
+    --accent: 335 38% 75%; /* Soft Pink #d7a5ba */
+    --accent-foreground: 283 20% 20%;
 
-    --success: 145 35% 55%; /* Muted Green */
+    --success: 184 25% 62%; /* Light Teal #83b3b6 */
     --success-foreground: 0 0% 100%;
 
     --warning: 35 80% 65%; /* Muted Orange */
     --warning-foreground: 0 0% 100%;
 
-    --destructive: 0 60% 60%; /* Muted Red */
+    --destructive: 350 50% 60%; /* Muted Red */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 42 20% 85%;
-    --input: 42 20% 88%;
-    --ring: 82 19% 62%;
+    --border: 316 10% 85%;
+    --input: 316 10% 88%;
+    --ring: 200 24% 45%;
 
     --radius: 1rem; /* Balanced 16px radius */
 
-    /* Category palette — Nature-inspired */
-    --cat-food: 21 68% 69%;    /* Terracotta */
-    --cat-shopping: 35 33% 75%; /* Sand */
-    --cat-recharge: 190 20% 70%; /* Muted Blue */
-    --cat-transport: 82 19% 62%; /* Sage */
-    --cat-rent: 30 40% 60%;      /* Wood/Brown */
-    --cat-medical: 350 40% 65%;  /* Soft Red */
+    /* Category palette */
+    --cat-food: 335 38% 75%;       /* Soft Pink */
+    --cat-shopping: 316 14% 56%;   /* Muted Purple */
+    --cat-recharge: 184 25% 62%;   /* Light Teal */
+    --cat-transport: 200 24% 45%;  /* Dark Teal */
+    --cat-rent: 283 12% 41%;       /* Deep Purple #6d5b74 */
+    --cat-medical: 350 40% 65%;    /* Soft Red */
     --cat-electricity: 45 60% 75%; /* Soft Yellow */
-    --cat-others: 0 0% 70%;       /* Gray */
+    --cat-others: 0 0% 70%;        /* Gray */
 
-    /* Gradients — Warm & Soft */
-    --gradient-primary: linear-gradient(135deg, hsl(85 30% 55%), hsl(85 35% 65%));
-    --gradient-accent: linear-gradient(135deg, hsl(21 68% 69%), hsl(21 68% 75%));
-    --gradient-success: linear-gradient(135deg, hsl(145 35% 55%), hsl(145 35% 65%));
-    --gradient-warm: linear-gradient(135deg, hsl(42 43% 84%), hsl(35 33% 75%));
-    --gradient-surface: linear-gradient(180deg, hsl(42 44% 93%), hsl(42 43% 84%));
-    --gradient-hero: radial-gradient(circle at top left, hsl(42 44% 95%), hsl(42 44% 93%) 60%);
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(200 24% 45%), hsl(200 30% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(335 38% 75%), hsl(335 45% 85%));
+    --gradient-success: linear-gradient(135deg, hsl(184 25% 62%), hsl(184 30% 72%));
+    --gradient-warm: linear-gradient(135deg, hsl(316 14% 56%), hsl(335 38% 75%));
+    --gradient-surface: linear-gradient(180deg, hsl(335 15% 98%), hsl(335 30% 92%));
+    --gradient-hero: radial-gradient(circle at top left, hsl(335 20% 98%), hsl(335 15% 96%) 60%);
 
     /* Shadows — subtle, low opacity */
     --shadow-sm: 0 2px 8px -2px rgba(46, 46, 46, 0.05);
     --shadow-md: 0 8px 24px -4px rgba(46, 46, 46, 0.08);
     --shadow-lg: 0 16px 40px -8px rgba(46, 46, 46, 0.1);
-    --shadow-glow: 0 0 20px -5px hsl(82 19% 62% / 0.3);
+    --shadow-glow: 0 0 20px -5px hsl(200 24% 45% / 0.3);
 
     /* Transitions */
     --transition-base: all 0.25s ease-out;
     --transition-spring: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     --sidebar-background: 0 0% 100% / 0.4;
-    --sidebar-foreground: 0 0% 18%;
-    --sidebar-primary: 82 19% 62%;
+    --sidebar-foreground: 283 20% 20%;
+    --sidebar-primary: 200 24% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 42 43% 84% / 0.5;
-    --sidebar-accent-foreground: 0 0% 18%;
-    --sidebar-border: 42 20% 85% / 0.3;
-    --sidebar-ring: 82 19% 62%;
+    --sidebar-accent: 335 30% 92% / 0.5;
+    --sidebar-accent-foreground: 283 20% 20%;
+    --sidebar-border: 316 10% 85% / 0.3;
+    --sidebar-ring: 200 24% 45%;
   }
 
   .dark {
-    --background: 0 0% 12%;
-    --foreground: 42 44% 93%;
-    --card: 0 0% 15%;
-    --card-foreground: 42 44% 93%;
-    --popover: 0 0% 15%;
-    --popover-foreground: 42 44% 93%;
-    --primary: 82 15% 55%;
-    --primary-foreground: 0 0% 12%;
-    --secondary: 35 25% 60%;
+    --background: 283 15% 12%;
+    --foreground: 335 15% 96%;
+    --card: 283 15% 15%;
+    --card-foreground: 335 15% 96%;
+    --popover: 283 15% 15%;
+    --popover-foreground: 335 15% 96%;
+    --primary: 184 25% 62%; /* Light Teal for dark mode primary */
+    --primary-foreground: 283 15% 12%;
+    --secondary: 316 14% 56%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 20%;
+    --muted: 283 15% 20%;
     --muted-foreground: 0 0% 70%;
-    --accent: 21 50% 60%;
-    --accent-foreground: 0 0% 98%;
-    --border: 0 0% 25%;
-    --input: 0 0% 25%;
-    --ring: 82 15% 55%;
+    --accent: 335 38% 75%;
+    --accent-foreground: 283 15% 12%;
+    --border: 283 15% 25%;
+    --input: 283 15% 25%;
+    --ring: 184 25% 62%;
   }
 }
 
