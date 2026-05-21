@@ -58,26 +58,9 @@ export default function GoalDetail() {
 
   const goal = useMemo(() => goals.find((g) => g.id === id), [goals, id]);
 
-  if (!goal) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-        <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-        <h2 className="text-2xl font-bold">Goal Not Found</h2>
-        <p className="text-muted-foreground mt-2">The goal you are looking for does not exist or has been deleted.</p>
-        <Button onClick={() => navigate("/goals")} className="mt-6" variant="outline">
-          Back to Goals
-        </Button>
-      </div>
-    );
-  }
-
-  const Icon = iconMap[goal.icon] || Target;
-  const percentageComplete = Math.min(100, (goal.currentAmount / goal.targetAmount) * 100);
-  const remainingAmount = Math.max(0, goal.targetAmount - goal.currentAmount);
-
   // Consistency Calculation
   const consistencyScore = useMemo(() => {
-    if (goal.history.length === 0) return 0;
+    if (!goal || goal.history.length === 0) return 0;
     const months = eachMonthOfInterval({
       start: subMonths(new Date(), 5),
       end: new Date(),
@@ -86,10 +69,11 @@ export default function GoalDetail() {
       goal.history.some(h => startOfMonth(parseISO(h.date)).getTime() === startOfMonth(m).getTime())
     ).length;
     return Math.round((contributionCount / months.length) * 100);
-  }, [goal.history]);
+  }, [goal]);
 
   // Chart Data
   const chartData = useMemo(() => {
+    if (!goal) return [];
     const months = eachMonthOfInterval({
       start: subMonths(new Date(), 5),
       end: new Date(),
@@ -107,10 +91,12 @@ export default function GoalDetail() {
         total: runningTotal,
       };
     });
-  }, [goal.history, goal.currentAmount]);
+  }, [goal]);
 
   // AI Insights
   const insights = useMemo(() => {
+    if (!goal) return [];
+    const remainingAmount = Math.max(0, goal.targetAmount - goal.currentAmount);
     const monthsLeft = goal.monthlyContribution > 0 ? Math.ceil(remainingAmount / goal.monthlyContribution) : Infinity;
     const projectedDate = goal.monthlyContribution > 0 ? addMonths(new Date(), monthsLeft) : null;
     
@@ -146,7 +132,24 @@ export default function GoalDetail() {
     }
 
     return messages;
-  }, [goal, remainingAmount, consistencyScore]);
+  }, [goal, consistencyScore]);
+
+  if (!goal) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+        <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+        <h2 className="text-2xl font-bold">Goal Not Found</h2>
+        <p className="text-muted-foreground mt-2">The goal you are looking for does not exist or has been deleted.</p>
+        <Button onClick={() => navigate("/goals")} className="mt-6" variant="outline">
+          Back to Goals
+        </Button>
+      </div>
+    );
+  }
+
+  const Icon = iconMap[goal.icon] || Target;
+  const percentageComplete = Math.min(100, (goal.currentAmount / goal.targetAmount) * 100);
+  const remainingAmount = Math.max(0, goal.targetAmount - goal.currentAmount);
 
   const handleDelete = () => {
     deleteGoal(goal.id);

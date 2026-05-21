@@ -26,7 +26,7 @@ export const checkChallengeStatus = (challenge: Challenge, expenses: Expense[]) 
       }
       break;
 
-    case 'no_category':
+    case 'no_category': {
       const categorySpent = todayExpenses
         .filter(e => e.categoryId === challenge.categoryId)
         .reduce((sum, e) => sum + e.amount, 0);
@@ -34,6 +34,7 @@ export const checkChallengeStatus = (challenge: Challenge, expenses: Expense[]) 
       // Same logic as above
       if (todayExpenses.length > 0) return 'completed';
       break;
+    }
 
     case 'save_amount':
       // This is tricky without a "savings" log, but we can assume if they 

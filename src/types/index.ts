@@ -21,6 +21,9 @@ export interface Expense {
   date: string; // ISO date
   note: string;
   month: string; // "YYYY-MM"
+  paidBy?: string; // Family member ID
+  splitBetween?: string[]; // Array of family member IDs
+  receiptImage?: string;
 }
 
 export type InsightType = "warning" | "success" | "tip" | "prediction";
@@ -101,4 +104,21 @@ export interface Challenge {
   categoryId?: string;
   date: string; // YYYY-MM-DD
   status: 'active' | 'completed' | 'claimed';
+}
+
+export type FamilyRole = "Admin" | "Member" | "Child";
+
+export interface FamilyMember {
+  id: string;
+  name: string;
+  role: FamilyRole;
+  avatar?: string;
+  spendingLimit?: number; // Only applicable for Child role
+  email?: string;
+}
+
+export interface Settlement {
+  from: string; // Member ID
+  to: string; // Member ID
+  amount: number;
 }

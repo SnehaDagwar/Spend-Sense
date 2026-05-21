@@ -11,16 +11,20 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function ExpenseTracker() {
   const budget = useActiveBudget();
   const expenses = useMonthExpenses();
-  const { addExpense, updateExpense, deleteExpense } = useAppStore();
+  const { addExpense, updateExpense, deleteExpense, settings, familyMembers } = useAppStore();
 
   const [categoryId, setCategoryId] = useState(budget.categories[0]?.id ?? "");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState("");
+  const [paidBy, setPaidBy] = useState<string>("");
+  const [sharedWith, setSharedWith] = useState<string[]>([]);
   const [filter, setFilter] = useState("");
   const [filterCat, setFilterCat] = useState<string>("all");
   const [editId, setEditId] = useState<string | null>(null);
@@ -30,7 +34,13 @@ export default function ExpenseTracker() {
   const submit = () => {
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
-    addExpense({ amount: amt, categoryId, date, note });
+    addExpense({ 
+      amount: amt, 
+      categoryId, 
+      date, 
+      note,
+      ...(settings.userType === "Family" && { paidBy, splitBetween: sharedWith }) 
+    });
     toast.success("Expense logged");
     setAmount(""); setNote("");
   };
@@ -91,7 +101,46 @@ export default function ExpenseTracker() {
             <Label className="text-xs uppercase tracking-wider text-muted-foreground">Note</Label>
             <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="optional" />
           </div>
-          <Button className="w-full bg-gradient-primary shadow-glow" onClick={submit}>Add expense</Button>
+          
+          {settings.userType === "Family" && familyMembers.length > 0 && (
+            <div className="space-y-4 pt-2 border-t border-border/60">
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Paid By</Label>
+                <Select value={paidBy} onValueChange={setPaidBy}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {familyMembers.map(m => (
+                      <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground mb-2 block">Split With</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {familyMembers.map(m => (
+                    <div key={m.id} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`split-${m.id}`} 
+                        checked={sharedWith.includes(m.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) setSharedWith([...sharedWith, m.id]);
+                          else setSharedWith(sharedWith.filter(id => id !== m.id));
+                        }}
+                      />
+                      <label htmlFor={`split-${m.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        {m.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <Button className="w-full bg-gradient-primary shadow-glow mt-4" onClick={submit}>Add expense</Button>
 
           <div className="pt-4 border-t border-border/60 space-y-2.5">
             <div className="text-xs uppercase tracking-wider text-muted-foreground">Category status</div>

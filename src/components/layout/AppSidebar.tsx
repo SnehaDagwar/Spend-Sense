@@ -9,13 +9,17 @@ import {
   Settings, 
   Target,
   Lightbulb,
-  Flame
+  Flame,
+  Users,
+  Handshake,
+  Heart
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { useAppStore } from "@/store/useAppStore";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -33,7 +37,14 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
   const isActive = (path: string) => pathname === path;
+  const { settings } = useAppStore();
+  const isFamily = settings.userType === "Family";
 
+  const familyItems = [
+    { title: "Family Wallet", url: "/family", icon: Heart },
+    { title: "Members", url: "/family/members", icon: Users },
+    { title: "Split & Settle", url: "/family/settle", icon: Handshake },
+  ];
   return (
     <Sidebar 
       collapsible="icon" 
@@ -86,6 +97,38 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {isFamily && (
+                <>
+                  <SidebarGroupLabel className="px-2 mt-4 mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
+                    Family
+                  </SidebarGroupLabel>
+                  {familyItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive(item.url)} 
+                        className={cn(
+                          "group h-11 rounded-full transition-all duration-200 px-4 text-secondary-foreground",
+                          "data-[active=true]:bg-secondary/20 data-[active=true]:text-secondary",
+                          "hover:translate-x-1 hover:bg-secondary/10"
+                        )}
+                      >
+                        <NavLink to={item.url} className="flex items-center gap-3 w-full relative">
+                          {isActive(item.url) && !collapsed && (
+                            <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-6 bg-secondary rounded-r-full" />
+                          )}
+                          <item.icon className={cn(
+                            "h-[18px] w-[18px] shrink-0 transition-colors duration-300",
+                            isActive(item.url) ? "text-secondary" : "text-muted-foreground group-hover:text-secondary"
+                          )} />
+                          {!collapsed && <span className={cn("font-medium text-sm tracking-tight", isActive(item.url) ? "font-bold" : "")}>{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

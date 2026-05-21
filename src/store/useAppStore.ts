@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Expense, MonthlyBudget, CategoryBudget, SavingsGoal, UserSettings, Badge, Challenge } from "@/types";
+import type { Expense, MonthlyBudget, CategoryBudget, SavingsGoal, UserSettings, Badge, Challenge, FamilyMember } from "@/types";
 import { DEFAULT_CATEGORIES, SUGGESTED_PLAN } from "@/constants/categories";
 import { currentMonth } from "@/utils/formatters";
 import { uid } from "@/utils/storage";
@@ -17,6 +17,7 @@ interface AppState {
   badges: Badge[];
   challenges: Challenge[];
   settings: UserSettings;
+  familyMembers: FamilyMember[];
 
   setActiveMonth: (month: string) => void;
   setHourlyWage: (wage: number) => void;
@@ -40,6 +41,10 @@ interface AppState {
   claimChallenge: (id: string) => void;
   unlockBadge: (badge: Badge) => void;
   generateDailyChallenges: () => void;
+
+  addFamilyMember: (member: Omit<FamilyMember, "id">) => void;
+  updateFamilyMember: (id: string, patch: Partial<FamilyMember>) => void;
+  removeFamilyMember: (id: string) => void;
 
   updateSettings: (settings: Partial<UserSettings> | ((s: UserSettings) => UserSettings)) => void;
   completeOnboarding: (data: { userName: string, income: number, currency: any, type: any, target?: number }) => void;
@@ -92,6 +97,7 @@ export const useAppStore = create<AppState>()(
       badges: [],
       challenges: [],
       settings: defaultSettings,
+      familyMembers: [],
 
       setActiveMonth: (month) => {
         const { budgets } = get();
@@ -275,6 +281,20 @@ export const useAppStore = create<AppState>()(
         set({ settings: newSettings });
       },
 
+      addFamilyMember: (member) => {
+        set({ familyMembers: [...get().familyMembers, { ...member, id: uid() }] });
+      },
+
+      updateFamilyMember: (id, patch) => {
+        set({
+          familyMembers: get().familyMembers.map((m) => (m.id === id ? { ...m, ...patch } : m)),
+        });
+      },
+
+      removeFamilyMember: (id) => {
+        set({ familyMembers: get().familyMembers.filter((m) => m.id !== id) });
+      },
+
       completeOnboarding: (data) => {
         const { settings } = get();
         set({
@@ -300,6 +320,14 @@ export const useAppStore = create<AppState>()(
             }
           }
         });
+        
+        // If family type is selected and no members exist, add the user as Admin
+        if (data.type === "Family" && get().familyMembers.length === 0) {
+          get().addFamilyMember({
+            name: data.userName,
+            role: "Admin",
+          });
+        }
       },
 
       login: () => {
@@ -352,7 +380,13 @@ export const useAppStore = create<AppState>()(
 // Selectors
 export const useActiveBudget = () => {
   const { activeMonth, budgets } = useAppStore();
-  return budgets[activeMonth];
+  // Fallback to a seeded budget to avoid crashes if activeMonth is missing from budgets during rehydration
+  return budgets[activeMonth] || {
+    id: "fallback",
+    month: activeMonth,
+    income: 0,
+    categories: [],
+  };
 };
 
 export const useMonthExpenses = (month?: string) => {

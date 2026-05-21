@@ -21,6 +21,10 @@ import { useAppStore } from "@/store/useAppStore";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
 
+import FamilyWallet from "./pages/family/FamilyWallet";
+import FamilyMembers from "./pages/family/FamilyMembers";
+import SplitSettle from "./pages/family/SplitSettle";
+
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
@@ -64,6 +68,15 @@ const AnimatedRoutes = () => {
           <Route path="/goals/:id" element={<PageWrapper><GoalDetail /></PageWrapper>} />
           <Route path="/streaks" element={<PageWrapper><Streaks /></PageWrapper>} />
           <Route path="/settings" element={<PageWrapper><Settings /></PageWrapper>} />
+
+          {/* Family Wallet Routes */}
+          {settings.userType === "Family" && (
+            <>
+              <Route path="/family" element={<PageWrapper><FamilyWallet /></PageWrapper>} />
+              <Route path="/family/members" element={<PageWrapper><FamilyMembers /></PageWrapper>} />
+              <Route path="/family/settle" element={<PageWrapper><SplitSettle /></PageWrapper>} />
+            </>
+          )}
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
