@@ -1,240 +1,173 @@
 import { useMemo } from "react";
 import { useAppStore, useActiveBudget, useMonthExpenses } from "@/store/useAppStore";
 import { computeStats } from "@/engine/predictionEngine";
-import { generateInsights } from "@/engine/insightEngine";
-import { StatCard } from "@/components/ui/stat-card";
-import { VelocityRing } from "@/components/ui/velocity-ring";
 import { formatINR, formatPercent } from "@/utils/formatters";
-import { Wallet, TrendingDown, PiggyBank, Receipt, ArrowUpRight, Sparkles, Hand } from "lucide-react";
-import { BarChart, Bar, ResponsiveContainer, XAxis, Tooltip, Cell } from "recharts";
+import { Wallet, Users, Clock, Briefcase, Plus, Settings, ChevronRight, X, Calendar, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 export default function Dashboard() {
   const budget = useActiveBudget();
   const expenses = useMonthExpenses();
   const settings = useAppStore((s) => s.settings);
-  const { userName, monthlySavingTarget } = settings.profile;
-  const userType = settings.userType;
-  
-  const hourlyWage = useAppStore((s) => s.hourlyWage);
-  const allExpenses = useAppStore((s) => s.expenses);
-  const activeMonth = useAppStore((s) => s.activeMonth);
+  const { userName } = settings.profile;
 
   const stats = useMemo(() => computeStats(budget, expenses), [budget, expenses]);
-  
-  // Profile specific context
-  const profileContext = useMemo(() => {
-    switch (userType) {
-      case "Student":
-        return { label: "Daily Spending Alert", value: formatINR(stats.income / stats.totalDays), desc: "Suggested max per day" };
-      case "Freelancer":
-        return { label: "Stability Score", value: "85%", desc: "Based on income frequency" };
-      case "Family":
-        return { label: "Shared Goal Progress", value: formatINR(stats.savings), desc: "Total family savings" };
-      case "Professional":
-        return { label: "Investment Potential", value: formatINR(stats.income * 0.15), desc: "Suggested for portfolio" };
-      default:
-        return null;
-    }
-  }, [userType, stats]);
 
-  const insights = useMemo(() => {
-    const prevMonth = (() => {
-      const [y, m] = activeMonth.split("-").map(Number);
-      const d = new Date(y, m - 2, 1);
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    })();
-    const prev = allExpenses.filter((e) => e.month === prevMonth);
-    return generateInsights(stats, expenses, hourlyWage, prev).slice(0, 3);
-  }, [stats, expenses, hourlyWage, allExpenses, activeMonth]);
-
-  // Last 7 days bar
-  const last7 = useMemo(() => {
-    const days = [...Array(7)].map((_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
-      const iso = d.toISOString().slice(0, 10);
-      const total = expenses.filter((e) => e.date === iso).reduce((s, e) => s + e.amount, 0);
-      return { day: d.toLocaleDateString("en-IN", { weekday: "short" }), value: total };
-    });
-    return days;
-  }, [expenses]);
-
-  const usagePct = stats.totalPlanned > 0 ? (stats.totalActual / stats.totalPlanned) * 100 : 0;
-  const max7 = Math.max(...last7.map((d) => d.value), 1);
-
-  const insightTone: Record<string, string> = {
-    warning: "from-destructive/10 to-warning/10 border-destructive/30",
-    success: "from-success/10 to-accent/10 border-success/30",
-    tip: "from-primary/10 to-primary-glow/10 border-primary/30",
-    prediction: "from-accent/10 to-primary/10 border-accent/30",
-  };
+  const statCards = [
+    {
+      title: "Potential Monthly Profit",
+      value: formatINR(stats.income),
+      icon: <Wallet className="h-5 w-5 text-red-500" />,
+      iconBg: "bg-red-50",
+    },
+    {
+      title: "Workers Wage This Month",
+      value: formatINR(stats.totalActual),
+      icon: <Users className="h-5 w-5 text-blue-500" />,
+      iconBg: "bg-blue-50",
+    },
+    {
+      title: "Average Project Length",
+      value: "2 weeks",
+      icon: <Calendar className="h-5 w-5 text-yellow-500" />,
+      iconBg: "bg-yellow-50",
+    },
+    {
+      title: "Average Income per Project",
+      value: formatINR(Math.max(12000, stats.income / 4)),
+      icon: <Briefcase className="h-5 w-5 text-green-500" />,
+      iconBg: "bg-green-50",
+    },
+  ];
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-fade-in">
-      {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-1">
-          <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-2xl md:text-3xl font-display font-bold tracking-tight"
-          >
-            Hi {userName}! <Hand className="inline-block h-6 w-6 text-accent animate-wave cursor-default align-text-bottom ml-1" />
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-muted-foreground text-sm md:text-base flex items-center gap-2"
-          >
-            Welcome back to your <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">{userType}</span> dashboard.
-          </motion.p>
-        </div>
+    <div className="flex flex-col gap-8 animate-in fade-in duration-500">
+      
+      {/* Top Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {profileContext && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="hidden sm:flex items-center gap-3 bg-white/50 border border-white/20 p-3 rounded-2xl shadow-sm"
-          >
-            <div className="bg-primary/10 p-2 rounded-xl">
-              <Sparkles className="h-5 w-5 text-primary" />
+        {/* Left Hero Card */}
+        <div className="lg:col-span-2 relative bg-white rounded-[24px] shadow-sm p-8 md:p-12 overflow-hidden flex items-center border border-gray-100/50">
+          <div className="relative z-10 w-full max-w-sm">
+            <h1 className="text-4xl md:text-5xl font-display font-medium tracking-tight text-gray-900 mb-2">
+              Hi, {userName}!
+            </h1>
+            <p className="text-gray-500 text-lg mb-8">What are we doing today?</p>
+            
+            <div className="grid grid-cols-2 gap-y-4 gap-x-8">
+              <a href="#" className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-colors group">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full border border-gray-200 group-hover:border-primary">
+                  <CheckCircle2 className="w-4 h-4 text-gray-400 group-hover:text-primary" />
+                </span>
+                Check Calendar
+              </a>
+              <a href="/budget" className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-colors group">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full border border-gray-200 group-hover:border-primary">
+                  <Wallet className="w-4 h-4 text-yellow-400 group-hover:text-primary" />
+                </span>
+                Manage Wallet
+              </a>
+              <a href="#" className="flex items-center gap-3 text-sm font-medium text-primary hover:text-primary/80 transition-colors group">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full border border-red-200 bg-red-50">
+                  <Users className="w-4 h-4 text-red-500" />
+                </span>
+                <span className="border-b border-primary border-dashed">Manage Workers</span>
+              </a>
+              <a href="#" className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-colors group">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full border border-gray-200 group-hover:border-primary">
+                  <Briefcase className="w-4 h-4 text-blue-400 group-hover:text-primary" />
+                </span>
+                Manage Projects
+              </a>
             </div>
-            <div>
-              <div className="text-[10px] uppercase font-bold text-muted-foreground leading-none mb-1">{profileContext.label}</div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="font-bold text-sm">{profileContext.value}</span>
-                <span className="text-[10px] text-muted-foreground">{profileContext.desc}</span>
+          </div>
+          
+          {/* Mascot Image */}
+          <div className="absolute right-0 bottom-0 w-[45%] h-[120%] flex items-end justify-center hidden sm:flex pointer-events-none">
+            <img 
+              src="/mascot.png" 
+              alt="Mascot" 
+              className="w-full h-full object-contain object-bottom drop-shadow-2xl translate-x-12 translate-y-8" 
+            />
+          </div>
+        </div>
+
+        {/* Right Notifications Panel */}
+        <div className="lg:col-span-1 flex flex-col">
+          <div className="flex items-center justify-between mb-4 px-2">
+            <h3 className="flex items-center gap-2 font-display text-lg font-medium text-gray-900">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+              Notifications
+            </h3>
+            <a href="#" className="text-sm font-medium text-primary hover:underline">See all</a>
+          </div>
+          
+          <div className="flex flex-col gap-3">
+            <div className="bg-white rounded-[20px] p-4 flex items-start gap-4 shadow-sm border border-gray-100/50 relative group cursor-pointer hover:shadow-md transition-shadow">
+              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-yellow-400 flex items-center justify-center text-white shadow-inner">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
               </div>
+              <div className="flex-1 pr-6 pt-1">
+                <p className="text-sm text-gray-700 font-medium leading-snug">You've added new project recently, with no deadline.</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+
+            <div className="bg-white rounded-[20px] p-4 flex items-start gap-4 shadow-sm border border-gray-100/50 relative group cursor-pointer hover:shadow-md transition-shadow">
+              <div className="absolute -right-2 -top-2 w-6 h-6 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center text-xs shadow-sm z-10 cursor-pointer hover:bg-blue-200">
+                <X className="w-3 h-3" />
+              </div>
+              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-red-500 flex items-center justify-center text-white shadow-inner">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+              </div>
+              <div className="flex-1 pr-6 pt-1">
+                <p className="text-sm text-gray-700 font-medium leading-snug">Project owner Adam requested a refund</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+
+            <div className="bg-white rounded-[20px] p-4 flex items-start gap-4 shadow-sm border border-gray-100/50 relative group cursor-pointer hover:shadow-md transition-shadow">
+              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center text-white shadow-inner">
+                <Users className="w-6 h-6" />
+              </div>
+              <div className="flex-1 pr-6 pt-0.5">
+                <p className="text-sm text-gray-700 font-medium leading-snug mb-1">Today, it's Tatia's anniversary!</p>
+                <p className="text-[11px] text-gray-400 uppercase tracking-wide font-semibold">Wish her happy birthday!</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Bottom Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statCards.map((stat, i) => (
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 * i }}
+            className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-100/50 flex flex-col justify-between hover:shadow-md transition-shadow group relative"
+          >
+            <div className="flex items-start justify-between mb-8">
+              <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${stat.iconBg}`}>
+                {stat.icon}
+              </div>
+              <button className="text-gray-400 hover:text-gray-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+              </button>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500 font-medium">{stat.title}</p>
+              <h2 className="text-2xl font-display font-medium text-gray-900 tracking-tight">{stat.value}</h2>
             </div>
           </motion.div>
-        )}
+        ))}
       </div>
 
-
-      {/* Stats grid */}
-      <div className="grid gap-4 md:gap-5 grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Income" value={formatINR(stats.income)} sub={`for ${stats.totalDays} days`} icon={<Wallet className="h-5 w-5" />} accent="primary" delay={0} />
-        <StatCard label="Spent" value={formatINR(stats.totalActual)} sub={`${formatPercent(usagePct)} of budget`} icon={<Receipt className="h-5 w-5" />} accent="warm" delay={0.05} />
-        <StatCard label="Remaining" value={formatINR(stats.totalRemaining)} sub={`${stats.daysRemaining} days left`} icon={<TrendingDown className="h-5 w-5" />} accent="accent" delay={0.1} />
-        <StatCard label="Savings rate" value={formatPercent(stats.savingsRate, 1)} sub={`${formatINR(stats.savings)} saved`} icon={<PiggyBank className="h-5 w-5" />} accent="success" delay={0.15} />
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Velocity & projection */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-6 lg:col-span-1 flex flex-col items-center text-center">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Spend velocity</div>
-          <div className="mt-4"><VelocityRing value={usagePct} /></div>
-          <div className="mt-5 w-full space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Projected EOM</span>
-              <span className="font-semibold">{formatINR(stats.projectedTotal)}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Projected savings</span>
-              <span className={`font-semibold ${stats.projectedSavings < 0 ? "text-destructive" : "text-success"}`}>
-                {formatINR(stats.projectedSavings)}
-              </span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Insights preview */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="lg:col-span-2 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg font-bold flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" /> Top insights
-            </h2>
-            <Link to="/insights"><Button variant="ghost" size="sm" className="gap-1">View all <ArrowUpRight className="h-4 w-4" /></Button></Link>
-          </div>
-          <div className="space-y-3">
-            {insights.length === 0 && (
-              <div className="glass-card p-6 text-sm text-muted-foreground">Add a few expenses to unlock insights.</div>
-            )}
-            {insights.map((i, idx) => (
-              <motion.div
-                key={i.id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + idx * 0.06 }}
-                className={`rounded-2xl border bg-gradient-to-br p-4 ${insightTone[i.type]}`}
-              >
-                <div className="font-semibold text-sm">{i.title}</div>
-                <div className="text-sm text-muted-foreground mt-1">{i.message}</div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Last 7 days + categories */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6 lg:col-span-1">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-bold">Last 7 days</h3>
-            <span className="text-xs text-muted-foreground">{formatINR(last7.reduce((s, d) => s + d.value, 0))}</span>
-          </div>
-          <div className="h-40">
-            <ResponsiveContainer>
-              <BarChart data={last7} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-                <Tooltip cursor={{ fill: "hsl(var(--muted))" }} contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))", fontSize: 12 }} formatter={(v: number) => formatINR(v)} />
-                <Bar dataKey="value" radius={[8, 8, 4, 4]}>
-                  {last7.map((d, i) => (
-                    <Cell key={i} fill={d.value >= max7 * 0.8 ? "hsl(var(--destructive))" : "url(#barGrad)"} />
-                  ))}
-                </Bar>
-                <defs>
-                  <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" />
-                    <stop offset="100%" stopColor="hsl(var(--primary-glow))" stopOpacity={0.5} />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="glass-card p-6 lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-bold">Category progress</h3>
-            <Link to="/budget"><Button variant="ghost" size="sm">Manage</Button></Link>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {stats.byCategory.filter(c => c.planned > 0 || c.actual > 0).length === 0 && (
-              <div className="col-span-full py-8 text-center text-sm text-muted-foreground italic">
-                No active categories. Set your budget to start tracking.
-              </div>
-            )}
-            {stats.byCategory.filter(c => c.planned > 0 || c.actual > 0).slice(0, 6).map((c) => (
-              <div key={c.categoryId} className="rounded-xl border border-border/60 p-3 hover:bg-muted/40 transition-colors">
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <CategoryIcon name={c.icon} className="h-4 w-4" />
-                    <span className="font-medium text-sm">{c.name}</span>
-                  </div>
-                  <span className="text-xs font-semibold tabular-nums">
-                    {formatINR(c.actual, { compact: true })} <span className="text-muted-foreground">/ {formatINR(c.planned, { compact: true })}</span>
-                  </span>
-                </div>
-                <Progress
-                  value={Math.min(100, c.percentUsed)}
-                  className="h-2"
-                  style={{
-                    // @ts-expect-error inline css var
-                    "--progress-foreground": c.percentUsed >= 100 ? "hsl(var(--destructive))" : c.percentUsed >= 80 ? "hsl(var(--warning))" : c.color,
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
     </div>
   );
 }

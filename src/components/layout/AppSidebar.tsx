@@ -52,12 +52,12 @@ export function AppSidebar() {
     >
       <SidebarHeader className="px-4 py-6">
         <NavLink to="/" className="flex items-center gap-3 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-accent shadow-glow group-hover:scale-105 transition-transform duration-300">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-primary shadow-glow group-hover:scale-105 transition-transform duration-300">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
           {!collapsed && (
             <div className="leading-tight">
-              <div className="font-display text-xl font-bold bg-clip-text text-transparent bg-gradient-accent tracking-tight">Spend Sense</div>
+              <div className="font-display text-xl font-bold bg-clip-text text-transparent bg-gradient-primary tracking-tight">Spend Sense</div>
               <div className="text-[10px] text-muted-foreground font-semibold tracking-[0.1em] uppercase opacity-80">Understand your spending</div>
             </div>
           )}
@@ -80,8 +80,8 @@ export function AppSidebar() {
                     isActive={isActive(item.url)} 
                     className={cn(
                       "group h-11 rounded-full transition-all duration-200 px-4",
-                      "data-[active=true]:bg-white/80 data-[active=true]:text-primary data-[active=true]:shadow-sm-soft",
-                      "hover:translate-x-1 hover:bg-white/40 active:scale-95"
+                      "data-[active=true]:bg-primary data-[active=true]:text-white data-[active=true]:shadow-sm-soft",
+                      "hover:translate-x-1 hover:bg-primary/10 active:scale-95 text-foreground/80"
                     )}
                   >
                     <NavLink to={item.url} className="flex items-center gap-3 w-full relative">
@@ -90,7 +90,7 @@ export function AppSidebar() {
                       )}
                       <item.icon className={cn(
                         "h-[18px] w-[18px] shrink-0 transition-colors duration-300",
-                        isActive(item.url) ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                        isActive(item.url) ? "text-white" : "text-muted-foreground group-hover:text-primary"
                       )} />
                       {!collapsed && <span className={cn("font-medium text-sm tracking-tight", isActive(item.url) ? "font-bold" : "")}>{item.title}</span>}
                     </NavLink>
@@ -111,7 +111,7 @@ export function AppSidebar() {
                         className={cn(
                           "group h-11 rounded-full transition-all duration-200 px-4 text-secondary-foreground",
                           "data-[active=true]:bg-secondary/20 data-[active=true]:text-secondary",
-                          "hover:translate-x-1 hover:bg-secondary/10"
+                          "hover:translate-x-1 hover:bg-secondary/10 text-foreground/80"
                         )}
                       >
                         <NavLink to={item.url} className="flex items-center gap-3 w-full relative">
@@ -136,14 +136,11 @@ export function AppSidebar() {
 
       <SidebarFooter className="px-3 pb-6 gap-4">
         {!collapsed && (
-          <div className="relative group overflow-hidden rounded-2xl bg-gradient-primary p-5 text-white shadow-glow">
+          <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-orange-400 to-orange-500 p-5 text-white shadow-md">
             <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/20 blur-2xl group-hover:bg-white/30 transition-colors" />
             <div className="flex flex-col gap-2 relative z-10">
-              <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-white/20 mb-1">
-                <Lightbulb className="h-5 w-5 text-yellow-100" />
-              </div>
-              <span className="text-xs font-bold tracking-widest uppercase text-white/80">Pro Tip</span>
-              <div className="text-sm font-semibold leading-snug">Track More, Guess Less</div>
+              <span className="text-xs font-bold tracking-widest uppercase text-white/90">Pro Tip</span>
+              <div className="text-sm font-semibold leading-snug">Track more - Guess Less</div>
             </div>
           </div>
         )}
@@ -155,14 +152,14 @@ export function AppSidebar() {
               isActive={isActive("/settings")}
               className={cn(
                 "group h-11 rounded-full transition-all duration-200 px-4",
-                "data-[active=true]:bg-white/80 data-[active=true]:text-primary data-[active=true]:shadow-sm-soft",
-                "hover:translate-x-1 hover:bg-white/40"
+                "data-[active=true]:bg-primary data-[active=true]:text-white data-[active=true]:shadow-sm-soft",
+                "hover:translate-x-1 hover:bg-primary/10 text-foreground/80"
               )}
             >
               <NavLink to="/settings" className="flex items-center gap-3">
                 <Settings className={cn(
                   "h-[18px] w-[18px] shrink-0 transition-colors duration-300",
-                  isActive("/settings") ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                  isActive("/settings") ? "text-white" : "text-muted-foreground group-hover:text-primary"
                 )} />
                 {!collapsed && <span className={cn("font-medium text-sm tracking-tight", isActive("/settings") ? "font-bold" : "")}>Settings</span>}
               </NavLink>

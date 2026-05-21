@@ -22,35 +22,63 @@ const TITLES: Record<string, { title: string; sub: string }> = {
 export default function AppLayout() {
   const { pathname } = useLocation();
   const activeMonth = useAppStore((s) => s.activeMonth);
-  const meta = TITLES[pathname] ?? { title: "Spend Sense", sub: "" };
+  const { settings } = useAppStore();
   const [quickOpen, setQuickOpen] = useState(false);
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-30 h-20 flex items-center gap-4 bg-white/30 backdrop-blur-3xl px-4 md:px-8 border-b border-white/20">
-            <SidebarTrigger className="rounded-full bg-white/50 hover:bg-white/80" />
-            <div className="min-w-0 flex-1 pl-2">
-              <h1 className="font-display text-2xl md:text-3xl font-bold leading-none truncate text-foreground/90">{meta.title}</h1>
-              <p className="text-sm font-medium text-muted-foreground mt-1 truncate">{meta.sub} · {monthLabel(activeMonth)}</p>
+          <header className="sticky top-0 z-30 h-[88px] flex items-center justify-between gap-4 bg-transparent px-6 md:px-10">
+            <div className="flex items-center gap-4 flex-1">
+              <SidebarTrigger className="rounded-full bg-white shadow-sm hover:bg-gray-50 md:hidden" />
+              
+              {/* Search Bar */}
+              <div className="hidden md:flex items-center bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-gray-100/50 w-full max-w-sm">
+                <svg className="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" placeholder="Search..." className="bg-transparent border-none outline-none text-sm w-full placeholder:text-gray-400" />
+              </div>
             </div>
-            <Button
-              onClick={() => setQuickOpen(true)}
-              className="gap-2 hidden sm:inline-flex"
-            >
-              <Plus className="h-4 w-4" /> Add expense
-            </Button>
-            <Button
-              size="icon"
-              onClick={() => setQuickOpen(true)}
-              className="sm:hidden"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
+
+            <div className="flex items-center gap-4 lg:gap-6">
+              {/* Date Selector */}
+              <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-gray-600 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-gray-100/50">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                <svg className="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+
+              {/* Action Icons */}
+              <div className="flex items-center gap-3">
+                <button className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100/50 flex items-center justify-center text-gray-500 hover:text-primary transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                </button>
+                <button className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100/50 flex items-center justify-center text-gray-500 hover:text-primary transition-colors relative">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                  <span className="absolute top-2 right-2.5 w-2 h-2 bg-yellow-400 rounded-full"></span>
+                </button>
+              </div>
+
+              {/* Profile */}
+              <div className="hidden sm:flex items-center gap-3 bg-white pl-2 pr-4 py-1.5 rounded-full shadow-sm border border-gray-100/50">
+                <img src={settings.profile.avatar || "https://api.dicebear.com/7.x/notionists/svg?seed=Felix"} alt="Profile" className="w-8 h-8 rounded-full bg-gray-100" />
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-gray-800 leading-none">{settings.profile.userName}</span>
+                  <span className="text-[10px] text-gray-400 font-medium mt-0.5">{settings.userType} manager</span>
+                </div>
+              </div>
+
+              {/* Create New CTA */}
+              <Button
+                onClick={() => setQuickOpen(true)}
+                className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md shadow-primary/20 gap-2 h-10 px-5 hidden sm:inline-flex"
+              >
+                <Plus className="h-4 w-4" /> Create new
+              </Button>
+            </div>
           </header>
-          <main className="flex-1 p-4 md:p-6 lg:p-8 max-w-[1400px] w-full mx-auto">
+          <main className="flex-1 p-4 md:p-6 lg:p-10 lg:pt-2 w-full mx-auto">
             <Outlet />
           </main>
         </div>
