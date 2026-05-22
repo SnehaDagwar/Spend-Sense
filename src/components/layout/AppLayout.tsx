@@ -6,9 +6,11 @@ import { monthLabel } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { QuickAddDialog } from "@/components/tracker/QuickAddDialog";
 import { AIInsightWidget } from "@/components/insights/AIInsightWidget";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const TITLES: Record<string, { title: string; sub: string }> = {
   "/": { title: "Dashboard", sub: "Your money at a glance" },
@@ -89,13 +91,24 @@ export default function AppLayout() {
               </div>
 
               {/* Profile */}
-              <div className="hidden sm:flex items-center gap-3 bg-white pl-2 pr-4 py-1.5 rounded-full shadow-sm border border-gray-100/50">
-                <img src={settings.profile.avatar || "https://api.dicebear.com/7.x/notionists/svg?seed=Felix"} alt="Profile" className="w-8 h-8 rounded-full bg-gray-100" />
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-gray-800 leading-none">{settings.profile.userName}</span>
-                  <span className="text-[10px] text-gray-400 font-medium mt-0.5">{settings.userType} manager</span>
-                </div>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="outline-none">
+                  <div className="hidden sm:flex items-center gap-3 bg-white pl-2 pr-4 py-1.5 rounded-full shadow-sm border border-gray-100/50 hover:bg-gray-50 transition-colors cursor-pointer">
+                    <img src={settings.profile.avatar || "/avatars/girl.png"} alt="Profile" className="w-8 h-8 rounded-full bg-gray-100" />
+                    <div className="flex flex-col text-left">
+                      <span className="text-sm font-bold text-gray-800 leading-none">{settings.profile.userName}</span>
+                      <span className="text-[10px] text-gray-400 font-medium mt-0.5">{settings.userType}</span>
+                    </div>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings" className="w-full cursor-pointer flex items-center">
+                      Profile Settings
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Create New CTA */}
               <Button

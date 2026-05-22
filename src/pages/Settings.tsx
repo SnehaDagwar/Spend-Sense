@@ -37,6 +37,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { UserType } from "@/types";
 
+const AVATARS = [
+  { id: "girl", label: "Anime Girl", url: "/avatars/girl.png" },
+  { id: "boy", label: "Anime Boy", url: "/avatars/boy.png" },
+  { id: "woman", label: "Anime Woman", url: "/avatars/woman.png" },
+  { id: "man", label: "Anime Man", url: "/avatars/man.png" },
+];
+
 const Settings = () => {
   const { settings, updateSettings, logout, resetOnboarding, resetAll } = useAppStore();
   const [localSettings, setLocalSettings] = useState(settings);
@@ -118,7 +125,7 @@ const Settings = () => {
                   <div className="flex items-center gap-4">
                     <div className="relative group">
                       <Avatar className="h-20 w-20 border-2 border-primary/20 group-hover:border-primary/50 transition-all duration-300">
-                        <AvatarImage src={localSettings.profile.avatar} />
+                        <AvatarImage src={localSettings.profile.avatar || "/avatars/girl.png"} />
                         <AvatarFallback className="bg-gradient-primary text-white text-2xl">
                           {localSettings.profile.userName.charAt(0)}
                         </AvatarFallback>
@@ -188,6 +195,27 @@ const Settings = () => {
                         <SelectItem value="EUR">EUR (€) - Euro</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="space-y-2 col-span-1 sm:col-span-2 pt-2">
+                    <Label>Profile Picture</Label>
+                    <div className="flex gap-4 mt-2">
+                      {AVATARS.map((avatar) => {
+                        const isSelected = localSettings.profile.avatar === avatar.url || (!localSettings.profile.avatar && avatar.id === "girl");
+                        return (
+                          <div 
+                            key={avatar.id}
+                            className={`cursor-pointer rounded-2xl border-2 p-1.5 transition-all ${
+                              isSelected 
+                                ? 'border-primary shadow-glow bg-primary/5' 
+                                : 'border-transparent hover:border-border'
+                            }`}
+                            onClick={() => updateProfile("avatar", avatar.url)}
+                          >
+                            <img src={avatar.url} alt={avatar.label} className="w-16 h-16 rounded-xl bg-gray-100 shadow-sm" />
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
