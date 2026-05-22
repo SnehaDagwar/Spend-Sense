@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useAppStore, useActiveBudget, useMonthExpenses } from "@/store/useAppStore";
 import { computeStats } from "@/engine/predictionEngine";
 import { formatINR, formatPercent } from "@/utils/formatters";
@@ -15,27 +16,27 @@ export default function Dashboard() {
 
   const statCards = [
     {
-      title: "Potential Monthly Profit",
+      title: "Total Monthly Budget",
       value: formatINR(stats.income),
       icon: <Wallet className="h-5 w-5 text-red-500" />,
       iconBg: "bg-red-50",
     },
     {
-      title: "Workers Wage This Month",
+      title: "Total Spent This Month",
       value: formatINR(stats.totalActual),
       icon: <Users className="h-5 w-5 text-blue-500" />,
       iconBg: "bg-blue-50",
     },
     {
-      title: "Average Project Length",
-      value: "2 weeks",
+      title: "Remaining Budget",
+      value: formatINR(Math.max(0, stats.income - stats.totalActual)),
       icon: <Calendar className="h-5 w-5 text-yellow-500" />,
       iconBg: "bg-yellow-50",
     },
     {
-      title: "Average Income per Project",
-      value: formatINR(Math.max(12000, stats.income / 4)),
-      icon: <Briefcase className="h-5 w-5 text-green-500" />,
+      title: "Active Savings Streak",
+      value: `${useAppStore((s) => s.savingsStreak)} days`,
+      icon: <Clock className="h-5 w-5 text-green-500" />,
       iconBg: "bg-green-50",
     },
   ];
@@ -55,30 +56,30 @@ export default function Dashboard() {
             <p className="text-gray-500 text-lg mb-8">What are we doing today?</p>
             
             <div className="grid grid-cols-2 gap-y-4 gap-x-8">
-              <a href="#" className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-colors group">
+              <Link to="/analytics" className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-colors group">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full border border-gray-200 group-hover:border-primary">
                   <CheckCircle2 className="w-4 h-4 text-gray-400 group-hover:text-primary" />
                 </span>
-                Check Calendar
-              </a>
-              <a href="/budget" className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-colors group">
+                View Analytics
+              </Link>
+              <Link to="/budget" className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-colors group">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full border border-gray-200 group-hover:border-primary">
                   <Wallet className="w-4 h-4 text-yellow-400 group-hover:text-primary" />
                 </span>
-                Manage Wallet
-              </a>
-              <a href="#" className="flex items-center gap-3 text-sm font-medium text-primary hover:text-primary/80 transition-colors group">
+                Set Budget
+              </Link>
+              <Link to="/tracker" className="flex items-center gap-3 text-sm font-medium text-primary hover:text-primary/80 transition-colors group">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full border border-red-200 bg-red-50">
-                  <Users className="w-4 h-4 text-red-500" />
+                  <Plus className="w-4 h-4 text-red-500" />
                 </span>
-                <span className="border-b border-primary border-dashed">Manage Workers</span>
-              </a>
-              <a href="#" className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-colors group">
+                <span className="border-b border-primary border-dashed">Log Expense</span>
+              </Link>
+              <Link to="/insights" className="flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-colors group">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full border border-gray-200 group-hover:border-primary">
-                  <Briefcase className="w-4 h-4 text-blue-400 group-hover:text-primary" />
+                  <Settings className="w-4 h-4 text-blue-400 group-hover:text-primary" />
                 </span>
-                Manage Projects
-              </a>
+                Smart Insights
+              </Link>
             </div>
           </div>
           
@@ -108,7 +109,7 @@ export default function Dashboard() {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
               </div>
               <div className="flex-1 pr-6 pt-1">
-                <p className="text-sm text-gray-700 font-medium leading-snug">You've added new project recently, with no deadline.</p>
+                <p className="text-sm text-gray-700 font-medium leading-snug">You're close to exceeding your 'Dining Out' budget.</p>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
@@ -121,18 +122,18 @@ export default function Dashboard() {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
               </div>
               <div className="flex-1 pr-6 pt-1">
-                <p className="text-sm text-gray-700 font-medium leading-snug">Project owner Adam requested a refund</p>
+                <p className="text-sm text-gray-700 font-medium leading-snug">You missed logging expenses yesterday.</p>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
             <div className="bg-white rounded-[20px] p-4 flex items-start gap-4 shadow-sm border border-gray-100/50 relative group cursor-pointer hover:shadow-md transition-shadow">
               <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center text-white shadow-inner">
-                <Users className="w-6 h-6" />
+                <Clock className="w-6 h-6" />
               </div>
               <div className="flex-1 pr-6 pt-0.5">
-                <p className="text-sm text-gray-700 font-medium leading-snug mb-1">Today, it's Tatia's anniversary!</p>
-                <p className="text-[11px] text-gray-400 uppercase tracking-wide font-semibold">Wish her happy birthday!</p>
+                <p className="text-sm text-gray-700 font-medium leading-snug mb-1">You hit a 5-day saving streak!</p>
+                <p className="text-[11px] text-gray-400 uppercase tracking-wide font-semibold">Keep up the good work!</p>
               </div>
               <ChevronRight className="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
