@@ -8,6 +8,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { QuickAddDialog } from "@/components/tracker/QuickAddDialog";
 import { AIInsightWidget } from "@/components/insights/AIInsightWidget";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const TITLES: Record<string, { title: string; sub: string }> = {
   "/": { title: "Dashboard", sub: "Your money at a glance" },
@@ -22,6 +23,7 @@ const TITLES: Record<string, { title: string; sub: string }> = {
 export default function AppLayout() {
   const { pathname } = useLocation();
   const activeMonth = useAppStore((s) => s.activeMonth);
+  const setActiveMonth = useAppStore((s) => s.setActiveMonth);
   const { settings } = useAppStore();
   const [quickOpen, setQuickOpen] = useState(false);
 
@@ -42,12 +44,38 @@ export default function AppLayout() {
             </div>
 
             <div className="flex items-center gap-4 lg:gap-6">
-              {/* Date Selector */}
-              <div className="hidden lg:flex items-center gap-2 text-sm font-medium text-gray-600 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-gray-100/50">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                <svg className="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-              </div>
+              {/* Month Selector */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="hidden lg:flex items-center gap-2 text-sm font-medium text-gray-600 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-gray-100/50 hover:bg-gray-50 transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    {monthLabel(activeMonth)}
+                    <svg className="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-2" align="end">
+                  <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-1">
+                    {Array.from({ length: 12 }).map((_, i) => {
+                      const d = new Date();
+                      d.setMonth(d.getMonth() - i);
+                      const m = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                      return (
+                        <button
+                          key={m}
+                          onClick={() => setActiveMonth(m)}
+                          className={`px-3 py-2 text-sm text-left rounded-lg transition-colors ${
+                            activeMonth === m 
+                              ? 'bg-primary/10 text-primary font-semibold' 
+                              : 'hover:bg-gray-100 text-gray-700 font-medium'
+                          }`}
+                        >
+                          {monthLabel(m)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </PopoverContent>
+              </Popover>
 
               {/* Action Icons */}
               <div className="flex items-center gap-3">
