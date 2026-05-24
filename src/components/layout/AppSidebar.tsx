@@ -8,7 +8,6 @@ import {
   FileText, 
   Settings, 
   Target,
-  Lightbulb,
   Flame,
   Users,
   Handshake,
@@ -139,8 +138,8 @@ export function AppSidebar() {
           <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-orange-400 to-orange-500 p-5 text-white shadow-md">
             <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/20 blur-2xl group-hover:bg-white/30 transition-colors" />
             <div className="flex flex-col gap-2 relative z-10">
-              <span className="text-xs font-bold tracking-widest uppercase text-white/90">Pro Tip</span>
-              <div className="text-sm font-semibold leading-snug">Track more - Guess Less</div>
+              <span className="text-xs font-bold tracking-widest uppercase text-white/90">Track More , Guess Less</span>
+              <div className="text-sm font-semibold leading-snug">Log your daily expenses to keep your budget on track.</div>
             </div>
           </div>
         )}
