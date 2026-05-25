@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   User, 
@@ -47,6 +48,12 @@ const AVATARS = [
 const Settings = () => {
   const { settings, updateSettings, logout, resetOnboarding, resetAll } = useAppStore();
   const [localSettings, setLocalSettings] = useState(settings);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "profile";
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value });
+  };
 
   const handleSave = () => {
     updateSettings(localSettings);
@@ -96,7 +103,7 @@ const Settings = () => {
         <p className="text-muted-foreground mt-2">Manage your account preferences and notifications.</p>
       </header>
 
-      <Tabs defaultValue="profile" className="space-y-8">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
         <TabsList className="grid w-full grid-cols-3 max-w-lg bg-muted/50 p-1 backdrop-blur-sm border border-white/10 rounded-xl">
           <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-glow transition-all">
             <User className="h-4 w-4 mr-2" />
