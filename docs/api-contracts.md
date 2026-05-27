@@ -1,0 +1,678 @@
+# API Contracts
+
+Last updated: 2026-05-27
+
+This document defines the API contracts for the Spend Sense FastAPI backend. Auth endpoints are implemented; other sections remain planned work and should guide future Pydantic schemas, routers, frontend integration, and tests.
+
+## Global Rules
+
+- Base path: `/api/v1`
+- Auth: `Authorization: Bearer <access_token>` for all endpoints except root, health, docs, register, login, and refresh.
+- Content type: JSON unless the endpoint explicitly uses multipart upload or file download.
+- Dates: `YYYY-MM-DD`
+- Months: `YYYY-MM`
+- Timestamps: ISO 8601 UTC strings.
+- Money: JSON numbers with two decimal places accepted and returned.
+- IDs: UUID strings.
+
+## Error Shape
+
+```json
+{
+  "error": {
+    "code": "validation_error",
+    "message": "Request validation failed.",
+    "details": [
+      {
+        "field": "amount",
+        "message": "Amount must be greater than 0."
+      }
+    ]
+  }
+}
+```
+
+Common codes:
+
+| HTTP | code |
+| --- | --- |
+| 400 | `bad_request` |
+| 401 | `unauthorized` |
+| 403 | `forbidden` |
+| 404 | `not_found` |
+| 409 | `conflict` |
+| 422 | `validation_error` |
+| 500 | `internal_error` |
+
+## Health
+
+### GET `/health`
+
+Returns backend liveness.
+
+Response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+## Auth
+
+### POST `/auth/register`
+
+Creates an account and returns tokens.
+
+Request:
+
+```json
+{
+  "email": "alex@example.com",
+  "password": "StrongPass1!",
+  "displayName": "Alex",
+  "userType": "Professional"
+}
+```
+
+Response `201`:
+
+```json
+{
+  "user": {
+    "id": "uuid",
+    "email": "alex@example.com",
+    "displayName": "Alex",
+    "userType": "Professional",
+    "onboardingCompleted": false,
+    "isActive": true,
+    "createdAt": "2026-05-27T00:00:00Z",
+    "updatedAt": "2026-05-27T00:00:00Z"
+  },
+  "accessToken": "jwt",
+  "refreshToken": "opaque-token",
+  "tokenType": "bearer",
+  "expiresIn": 900
+}
+```
+
+### POST `/auth/login`
+
+Request:
+
+```json
+{
+  "email": "alex@example.com",
+  "password": "StrongPass1!"
+}
+```
+
+Response `200`: same token response as register.
+
+### POST `/auth/refresh`
+
+Request:
+
+```json
+{
+  "refreshToken": "opaque-token"
+}
+```
+
+Response `200`:
+
+```json
+{
+  "accessToken": "jwt",
+  "refreshToken": "opaque-token",
+  "tokenType": "bearer",
+  "expiresIn": 900
+}
+```
+
+### POST `/auth/logout`
+
+Revokes the current refresh token.
+
+Request:
+
+```json
+{
+  "refreshToken": "opaque-token"
+}
+```
+
+Response `204`: empty body.
+
+### GET `/auth/me`
+
+Returns the authenticated user summary.
+
+Response `200`:
+
+```json
+{
+  "id": "uuid",
+  "email": "alex@example.com",
+  "displayName": "Alex",
+  "userType": "Professional",
+  "onboardingCompleted": false,
+  "isActive": true,
+  "createdAt": "2026-05-27T00:00:00Z",
+  "updatedAt": "2026-05-27T00:00:00Z"
+}
+```
+
+## Profile And Preferences
+
+### GET `/me`
+
+Returns user, preferences, notification preferences, and progress in one payload.
+
+Response:
+
+```json
+{
+  "user": {
+    "id": "uuid",
+    "email": "alex@example.com",
+    "displayName": "Alex",
+    "userType": "Professional",
+    "onboardingCompleted": true
+  },
+  "preferences": {
+    "currency": "INR",
+    "defaultMonthlyIncome": 50000,
+    "financialGoalsPreference": "Balanced",
+    "preferredStartDay": 1,
+    "monthlySavingTargetPercent": 20,
+    "hourlyWage": 300,
+    "activeMonth": "2026-05",
+    "avatarUrl": "/avatars/girl.png"
+  },
+  "notifications": {
+    "budgetLimit": true,
+    "overspending": true,
+    "goalReminders": true,
+    "dailySpending": false,
+    "weeklySummary": true,
+    "achievements": true,
+    "subscriptionRenewal": true,
+    "timing": "Evening",
+    "customTime": null
+  },
+  "progress": {
+    "savingsStreak": 0,
+    "xp": 0,
+    "level": 1
+  }
+}
+```
+
+### PATCH `/me/profile`
+
+Updates display name, user type, and onboarding status.
+
+### PATCH `/me/preferences`
+
+Updates profile preferences.
+
+### PATCH `/me/notifications`
+
+Updates alert preferences.
+
+### POST `/me/onboarding`
+
+Completes onboarding and optionally creates the current month budget.
+
+Request:
+
+```json
+{
+  "displayName": "Alex",
+  "userType": "Family",
+  "currency": "INR",
+  "defaultMonthlyIncome": 50000,
+  "monthlySavingTargetPercent": 20,
+  "activeMonth": "2026-05"
+}
+```
+
+## Categories
+
+### GET `/categories`
+
+Returns system categories plus user-owned categories.
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `includeArchived` | boolean | defaults to `false` |
+
+Response:
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "slug": "food",
+      "name": "Food",
+      "icon": "UtensilsCrossed",
+      "color": "hsl(var(--cat-food))",
+      "isSystem": true,
+      "isArchived": false,
+      "displayOrder": 0
+    }
+  ]
+}
+```
+
+### POST `/categories`
+
+Creates a custom category.
+
+### PATCH `/categories/{categoryId}`
+
+Updates a custom category.
+
+### DELETE `/categories/{categoryId}`
+
+Archives a custom category. System categories cannot be deleted.
+
+## Budgets
+
+### GET `/budgets`
+
+Returns budgets across a month range.
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `from` | `YYYY-MM` | optional |
+| `to` | `YYYY-MM` | optional |
+
+### GET `/budgets/{month}`
+
+Returns a single month. Missing months may return `404` or be created by `PUT`.
+
+Response:
+
+```json
+{
+  "id": "uuid",
+  "month": "2026-05",
+  "income": 50000,
+  "categories": [
+    {
+      "id": "uuid",
+      "categoryId": "uuid",
+      "slug": "food",
+      "name": "Food",
+      "icon": "UtensilsCrossed",
+      "color": "hsl(var(--cat-food))",
+      "planned": 8000,
+      "isCustom": false
+    }
+  ],
+  "createdAt": "2026-05-27T00:00:00Z",
+  "updatedAt": "2026-05-27T00:00:00Z"
+}
+```
+
+### PUT `/budgets/{month}`
+
+Upserts the entire budget month.
+
+Request:
+
+```json
+{
+  "income": 50000,
+  "categories": [
+    {
+      "categoryId": "uuid",
+      "planned": 8000,
+      "displayOrder": 0
+    }
+  ]
+}
+```
+
+### PATCH `/budgets/{month}`
+
+Partial update, typically income only.
+
+### PUT `/budgets/{month}/categories/{categoryId}`
+
+Upserts one category allocation.
+
+Request:
+
+```json
+{
+  "planned": 8000,
+  "displayOrder": 0
+}
+```
+
+### DELETE `/budgets/{month}/categories/{categoryId}`
+
+Removes an allocation from the month. The category record remains.
+
+## Expenses
+
+### GET `/expenses`
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `month` | `YYYY-MM` | optional shortcut for date range |
+| `dateFrom` | `YYYY-MM-DD` | optional |
+| `dateTo` | `YYYY-MM-DD` | optional |
+| `categoryId` | UUID | optional |
+| `q` | string | searches note and category name |
+| `limit` | integer | default `50`, max `200` |
+| `cursor` | string | optional cursor |
+
+Response:
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "categoryId": "uuid",
+      "amount": 250.75,
+      "date": "2026-05-27",
+      "month": "2026-05",
+      "note": "Lunch",
+      "paidBy": "uuid",
+      "splitBetween": ["uuid"],
+      "receiptFileId": null,
+      "createdAt": "2026-05-27T00:00:00Z",
+      "updatedAt": "2026-05-27T00:00:00Z"
+    }
+  ],
+  "nextCursor": null
+}
+```
+
+### POST `/expenses`
+
+Request:
+
+```json
+{
+  "categoryId": "uuid",
+  "amount": 250.75,
+  "date": "2026-05-27",
+  "note": "Lunch",
+  "paidBy": "uuid",
+  "splitBetween": ["uuid"],
+  "receiptFileId": null
+}
+```
+
+### GET `/expenses/{expenseId}`
+
+Returns one expense.
+
+### PATCH `/expenses/{expenseId}`
+
+Updates category, amount, date, note, payer, split participants, or receipt reference.
+
+### DELETE `/expenses/{expenseId}`
+
+Deletes the expense and its split rows.
+
+## Receipt Uploads
+
+### POST `/uploads/receipts`
+
+Multipart upload field: `file`.
+
+Response `201`:
+
+```json
+{
+  "id": "uuid",
+  "originalFilename": "receipt.jpg",
+  "contentType": "image/jpeg",
+  "sizeBytes": 123456,
+  "url": "/api/v1/uploads/receipts/uuid"
+}
+```
+
+### GET `/uploads/receipts/{fileId}`
+
+Returns the receipt file if the authenticated user owns it.
+
+## Savings Goals
+
+### GET `/goals`
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `status` | string | `active`, `completed`, `archived`; optional |
+
+### POST `/goals`
+
+Request:
+
+```json
+{
+  "name": "Emergency Fund",
+  "icon": "PiggyBank",
+  "targetAmount": 100000,
+  "currentAmount": 10000,
+  "monthlyContribution": 5000,
+  "targetDate": "2026-12-31",
+  "color": "hsl(var(--primary))"
+}
+```
+
+### GET `/goals/{goalId}`
+
+Returns one goal with contribution history.
+
+### PATCH `/goals/{goalId}`
+
+Updates editable goal fields.
+
+### DELETE `/goals/{goalId}`
+
+Archives by default. A hard delete should require a dedicated admin-only path if ever needed.
+
+### POST `/goals/{goalId}/contributions`
+
+Request:
+
+```json
+{
+  "amount": 5000,
+  "contributedAt": "2026-05-27T00:00:00Z",
+  "note": "May savings"
+}
+```
+
+Response includes the updated goal.
+
+## Analytics, Insights, And Reports
+
+### GET `/analytics/monthly`
+
+Query params:
+
+| name | type |
+| --- | --- |
+| `month` | `YYYY-MM` |
+
+Returns the same computed month stats currently produced by the local prediction engine: income, planned total, actual total, projected total, savings, savings rate, and per-category stats.
+
+### GET `/insights`
+
+Query params:
+
+| name | type |
+| --- | --- |
+| `month` | `YYYY-MM` |
+
+Returns computed warnings, tips, successes, and predictions. Insights are not persisted in phase 1.
+
+### GET `/reports/monthly`
+
+Query params:
+
+| name | type |
+| --- | --- |
+| `month` | `YYYY-MM` |
+
+Returns report data for the month.
+
+### GET `/reports/monthly/export`
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `month` | `YYYY-MM` | required |
+| `format` | `csv` or `pdf` | required |
+
+Returns a file download.
+
+## Family Wallet
+
+### GET `/family`
+
+Returns the authenticated user's family wallet, members, and summary totals.
+
+### PUT `/family`
+
+Creates or updates the family wallet.
+
+### GET `/family/members`
+
+Returns family members.
+
+### POST `/family/members`
+
+Request:
+
+```json
+{
+  "name": "Sarah",
+  "role": "Member",
+  "email": "sarah@example.com",
+  "avatarUrl": null,
+  "spendingLimit": null
+}
+```
+
+### PATCH `/family/members/{memberId}`
+
+Updates member metadata.
+
+### DELETE `/family/members/{memberId}`
+
+Deactivates a member. Admin members cannot be removed if they are the only active admin.
+
+### GET `/family/settlements`
+
+Returns pending balances and explicit settlement records.
+
+### POST `/family/settlements`
+
+Creates a manual settlement.
+
+Request:
+
+```json
+{
+  "fromMemberId": "uuid",
+  "toMemberId": "uuid",
+  "amount": 1500,
+  "note": "UPI settlement"
+}
+```
+
+### PATCH `/family/settlements/{settlementId}`
+
+Updates status, usually to `settled`.
+
+## Gamification
+
+### GET `/progress`
+
+Returns XP, level, streaks, and unlocked badge count.
+
+### GET `/badges`
+
+Returns badge catalog with unlocked state.
+
+### GET `/challenges`
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `date` | `YYYY-MM-DD` | optional |
+| `status` | string | optional |
+
+### POST `/challenges/generate`
+
+Generates daily challenges for a date. Idempotent for the same user/date.
+
+Request:
+
+```json
+{
+  "date": "2026-05-27"
+}
+```
+
+### PATCH `/challenges/{challengeId}`
+
+Updates challenge status when the backend verifies completion.
+
+### POST `/challenges/{challengeId}/claim`
+
+Claims XP for a completed challenge.
+
+## Local Store Import
+
+### POST `/sync/import-local-store`
+
+Imports the current Zustand persisted state for a newly authenticated user.
+
+Request:
+
+```json
+{
+  "storeVersion": "spend-sense-store-v1",
+  "payload": {}
+}
+```
+
+Response:
+
+```json
+{
+  "imported": {
+    "budgets": 1,
+    "expenses": 12,
+    "goals": 2,
+    "familyMembers": 3,
+    "badges": 0,
+    "challenges": 3
+  },
+  "warnings": []
+}
+```
+
+The import endpoint must be idempotent enough for retry. The implementation should either accept client-supplied legacy IDs in a mapping table or return a client-side remapping dictionary for newly created server IDs.
