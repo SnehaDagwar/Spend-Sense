@@ -8,14 +8,40 @@ from app.schemas.auth import (
     RegisterRequest,
     TokenResponse,
 )
+from app.schemas.category import (
+    CategoryCreate,
+    CategoryListResponse,
+    CategoryPublic,
+    CategoryUpdate,
+)
+from app.schemas.expense import (
+    ExpenseCreate,
+    ExpenseFilters,
+    ExpenseListResponse,
+    ExpensePublic,
+    ExpenseUpdate,
+)
 from app.schemas.user import UserPublic
 
 __all__ = [
+    # Auth
     "AuthResponse",
     "LoginRequest",
     "LogoutRequest",
     "RefreshTokenRequest",
     "RegisterRequest",
     "TokenResponse",
+    # User
     "UserPublic",
+    # Categories
+    "CategoryCreate",
+    "CategoryListResponse",
+    "CategoryPublic",
+    "CategoryUpdate",
+    # Expenses
+    "ExpenseCreate",
+    "ExpenseFilters",
+    "ExpenseListResponse",
+    "ExpensePublic",
+    "ExpenseUpdate",
 ]

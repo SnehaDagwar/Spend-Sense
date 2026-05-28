@@ -36,6 +36,17 @@ class CurrencyCode(str, enum.Enum):
     EUR = "EUR"
 
 
+# ── Expenses ─────────────────────────────────────────────────────────────
+
+class PaymentMethod(str, enum.Enum):
+    CASH = "cash"
+    CARD = "card"
+    UPI = "upi"
+    BANK_TRANSFER = "bank_transfer"
+    WALLET = "wallet"
+    OTHER = "other"
+
+
 class NotificationTiming(str, enum.Enum):
     MORNING = "Morning"
     EVENING = "Evening"

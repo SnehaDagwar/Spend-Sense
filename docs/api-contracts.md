@@ -242,7 +242,7 @@ Request:
 
 ### GET `/categories`
 
-Returns system categories plus user-owned categories.
+Returns system categories plus user-owned categories. System categories are listed first.
 
 Query params:
 
@@ -263,7 +263,9 @@ Response:
       "color": "hsl(var(--cat-food))",
       "isSystem": true,
       "isArchived": false,
-      "displayOrder": 0
+      "displayOrder": 0,
+      "createdAt": "2026-05-28T00:00:00Z",
+      "updatedAt": "2026-05-28T00:00:00Z"
     }
   ]
 }
@@ -271,15 +273,51 @@ Response:
 
 ### POST `/categories`
 
-Creates a custom category.
+Creates a custom category. `isSystem` is always `false` (server-set).
+
+Request:
+
+```json
+{
+  "slug": "coffee",
+  "name": "Coffee",
+  "icon": "Coffee",
+  "color": "#6f4e37",
+  "displayOrder": 10
+}
+```
+
+Response `201`: same shape as item in list response.
+
+Slug rules: lowercase alphanumeric, hyphens allowed, 1–50 chars, unique per user.
 
 ### PATCH `/categories/{categoryId}`
 
-Updates a custom category.
+Updates a custom category. All fields optional. Returns `403` for system categories.
+
+Request:
+
+```json
+{
+  "name": "Morning Coffee",
+  "color": "#8b6914"
+}
+```
+
+Response `200`: updated category.
 
 ### DELETE `/categories/{categoryId}`
 
-Archives a custom category. System categories cannot be deleted.
+Soft-archives a custom category. System categories return `403`.
+Categories with linked expenses return `409` unless `?force=true` is passed.
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `force` | boolean | archive even if expenses exist; defaults to `false` |
+
+Response `204`: empty body.
 
 ## Budgets
 
@@ -370,13 +408,20 @@ Query params:
 
 | name | type | notes |
 | --- | --- | --- |
-| `month` | `YYYY-MM` | optional shortcut for date range |
+| `month` | `YYYY-MM` | shortcut — expands to full date range; cannot combine with dateFrom/dateTo |
 | `dateFrom` | `YYYY-MM-DD` | optional |
 | `dateTo` | `YYYY-MM-DD` | optional |
 | `categoryId` | UUID | optional |
-| `q` | string | searches note and category name |
+| `paymentMethod` | string | `cash`, `card`, `upi`, `bank_transfer`, `wallet`, `other` |
+| `amountMin` | number | optional, > 0 |
+| `amountMax` | number | optional, > 0 |
+| `isRecurring` | boolean | optional |
+| `tags` | string | comma-separated tag list; ALL must match (AND logic) |
+| `q` | string | searches note and merchant fields |
+| `sortBy` | string | `date` (default) or `amount` |
+| `sortOrder` | string | `desc` (default) or `asc` |
 | `limit` | integer | default `50`, max `200` |
-| `cursor` | string | optional cursor |
+| `cursor` | string | opaque cursor from previous response |
 
 Response:
 
@@ -386,20 +431,38 @@ Response:
     {
       "id": "uuid",
       "categoryId": "uuid",
+      "category": {
+        "id": "uuid",
+        "slug": "food",
+        "name": "Food",
+        "icon": "UtensilsCrossed",
+        "color": "hsl(var(--cat-food))",
+        "isSystem": true,
+        "isArchived": false,
+        "displayOrder": 0,
+        "createdAt": "2026-05-28T00:00:00Z",
+        "updatedAt": "2026-05-28T00:00:00Z"
+      },
       "amount": 250.75,
-      "date": "2026-05-27",
-      "month": "2026-05",
-      "note": "Lunch",
-      "paidBy": "uuid",
-      "splitBetween": ["uuid"],
+      "expenseDate": "2026-05-27",
+      "note": "Lunch at Swiggy",
+      "paymentMethod": "upi",
+      "merchant": "Swiggy",
+      "tags": ["food", "work"],
+      "currency": "INR",
+      "isRecurring": false,
+      "paidByMemberId": null,
       "receiptFileId": null,
       "createdAt": "2026-05-27T00:00:00Z",
       "updatedAt": "2026-05-27T00:00:00Z"
     }
   ],
-  "nextCursor": null
+  "nextCursor": null,
+  "totalReturned": 1
 }
 ```
+
+Pagination uses a cursor key of `(expense_date DESC, id DESC)` encoded as a base64 opaque string. Pass `nextCursor` from the previous response as `cursor` in the next request.
 
 ### POST `/expenses`
 
@@ -409,25 +472,47 @@ Request:
 {
   "categoryId": "uuid",
   "amount": 250.75,
-  "date": "2026-05-27",
-  "note": "Lunch",
-  "paidBy": "uuid",
-  "splitBetween": ["uuid"],
+  "expenseDate": "2026-05-27",
+  "note": "Lunch at Swiggy",
+  "paymentMethod": "upi",
+  "merchant": "Swiggy",
+  "tags": ["food", "work"],
+  "currency": "INR",
+  "isRecurring": false,
+  "paidByMemberId": null,
   "receiptFileId": null
 }
 ```
 
+Field rules:
+- `amount`: > 0, max 2 decimal places
+- `expenseDate`: not more than 30 days in the future
+- `tags`: max 10 items, each max 50 chars, lowercase
+- `paymentMethod`: `cash | card | upi | bank_transfer | wallet | other`
+- `currency`: `INR | USD | EUR`
+- `receiptFileId`: reference to a previously uploaded file (placeholder for Phase 3)
+
+Response `201`: same shape as expense item above.
+
 ### GET `/expenses/{expenseId}`
 
-Returns one expense.
+Returns one expense with embedded category.
+
+Response `200`: same shape as expense item above.
 
 ### PATCH `/expenses/{expenseId}`
 
-Updates category, amount, date, note, payer, split participants, or receipt reference.
+All fields optional. At least one field must be provided.
+
+Updates category, amount, date, note, paymentMethod, merchant, tags, currency, isRecurring, paidByMemberId, or receiptFileId.
+
+Response `200`: updated expense.
 
 ### DELETE `/expenses/{expenseId}`
 
-Deletes the expense and its split rows.
+Hard-deletes the expense and its split rows (CASCADE). Returns `404` if not found.
+
+Response `204`: empty body.
 
 ## Receipt Uploads
 

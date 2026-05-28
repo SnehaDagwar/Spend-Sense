@@ -8,22 +8,26 @@ from __future__ import annotations
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Optional
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     DateTime,
+    Enum,
     ForeignKey,
     Index,
     Numeric,
+    String,
     Text,
-    Boolean,
     func,
     text,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.models.enums import CurrencyCode, PaymentMethod, enum_values
 
 
 class Expense(Base):
@@ -53,6 +57,26 @@ class Expense(Base):
     )
     note: Mapped[str] = mapped_column(
         Text, nullable=False, default="", server_default="",
+    )
+    payment_method: Mapped[Optional[str]] = mapped_column(
+        Enum(*enum_values(PaymentMethod), name="payment_method_enum", create_type=False),
+        nullable=True,
+    )
+    merchant: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    tags: Mapped[list[str]] = mapped_column(
+        ARRAY(Text),
+        nullable=False,
+        default=list,
+        server_default="{}",
+    )
+    currency: Mapped[str] = mapped_column(
+        Enum(*enum_values(CurrencyCode), name="currency_code", create_type=False),
+        nullable=False,
+        default=CurrencyCode.INR.value,
+        server_default=CurrencyCode.INR.value,
+    )
+    is_recurring: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false",
     )
     paid_by_member_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
