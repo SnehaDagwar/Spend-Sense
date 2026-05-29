@@ -31,6 +31,10 @@ class MonthlyBudget(Base):
 
     The ``month`` column stores the first day of the month (e.g. 2026-05-01).
     The API layer maps ``YYYY-MM`` strings to/from this date.
+
+    ``warning_threshold`` is a fraction (0.0–1.0) representing the spending
+    percentage at which a "near limit" warning is triggered.  Defaults to 0.80
+    (80 %).
     """
 
     __tablename__ = "monthly_budgets"
@@ -55,6 +59,13 @@ class MonthlyBudget(Base):
         default=Decimal("0"),
         server_default="0",
     )
+    warning_threshold: Mapped[Decimal] = mapped_column(
+        Numeric(5, 4),
+        nullable=False,
+        default=Decimal("0.8000"),
+        server_default="0.8000",
+        comment="Fraction (0–1) at which spending triggers a near-limit warning.",
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -72,6 +83,7 @@ class MonthlyBudget(Base):
     category_allocations: Mapped[list["BudgetCategoryAllocation"]] = relationship(
         back_populates="budget",
         cascade="all, delete-orphan",
+        order_by="BudgetCategoryAllocation.display_order",
     )
 
     __table_args__ = (
@@ -80,6 +92,10 @@ class MonthlyBudget(Base):
             name="monthly_budgets_month_chk",
         ),
         CheckConstraint("income >= 0", name="monthly_budgets_income_chk"),
+        CheckConstraint(
+            "warning_threshold BETWEEN 0 AND 1",
+            name="monthly_budgets_warning_threshold_chk",
+        ),
         UniqueConstraint("user_id", "month", name="monthly_budgets_user_month_uidx"),
         Index("monthly_budgets_user_month_idx", "user_id", month.desc()),
     )

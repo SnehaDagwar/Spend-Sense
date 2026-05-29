@@ -321,84 +321,157 @@ Response `204`: empty body.
 
 ## Budgets
 
+> **Implementation note**: Phase 3 uses UUID-based CRUD (`/budgets/{id}`) rather
+> than the month-string path (`/budgets/{month}`) originally sketched. The month
+> is supplied in the request body on create and returned as a `YYYY-MM` string in
+> responses.
+
 ### GET `/budgets`
 
-Returns budgets across a month range.
+Returns a lightweight list of monthly budgets.
 
 Query params:
 
 | name | type | notes |
 | --- | --- | --- |
-| `from` | `YYYY-MM` | optional |
-| `to` | `YYYY-MM` | optional |
+| `from` | `YYYY-MM` | optional — start month, inclusive |
+| `to` | `YYYY-MM` | optional — end month, inclusive |
+| `categoryId` | UUID | optional — only budgets containing this allocation |
+| `activeOnly` | boolean | when true, restricts to the current calendar month |
 
-### GET `/budgets/{month}`
-
-Returns a single month. Missing months may return `404` or be created by `PUT`.
-
-Response:
+Response `200`:
 
 ```json
 {
-  "id": "uuid",
-  "month": "2026-05",
-  "income": 50000,
-  "categories": [
+  "items": [
     {
       "id": "uuid",
-      "categoryId": "uuid",
-      "slug": "food",
-      "name": "Food",
-      "icon": "UtensilsCrossed",
-      "color": "hsl(var(--cat-food))",
-      "planned": 8000,
-      "isCustom": false
+      "month": "2026-05",
+      "income": 50000,
+      "warningThreshold": 0.80,
+      "allocationCount": 5,
+      "totalPlanned": 35000,
+      "totalSpent": 12500,
+      "isOverBudget": false,
+      "createdAt": "2026-05-01T00:00:00Z",
+      "updatedAt": "2026-05-01T00:00:00Z"
     }
   ],
-  "createdAt": "2026-05-27T00:00:00Z",
-  "updatedAt": "2026-05-27T00:00:00Z"
+  "totalReturned": 1
 }
 ```
 
-### PUT `/budgets/{month}`
+### POST `/budgets`
 
-Upserts the entire budget month.
+Creates a monthly budget. Returns `409` if a budget for that month already exists.
 
 Request:
 
 ```json
 {
+  "month": "2026-05",
   "income": 50000,
+  "warningThreshold": 0.80,
+  "rollover": false,
   "categories": [
     {
       "categoryId": "uuid",
-      "planned": 8000,
+      "plannedAmount": 8000,
       "displayOrder": 0
     }
   ]
 }
 ```
 
-### PATCH `/budgets/{month}`
+Field rules:
+- `month`: required, `YYYY-MM`, must be a valid calendar month.
+- `income`: optional, `>= 0`, defaults to `0`.
+- `warningThreshold`: optional, fraction `0–1`, defaults to `0.80`.
+- `rollover`: optional boolean. When `true`, copies allocations from the previous month as defaults; supplied `categories` override rolled-over allocations for the same category.
+- `categories`: optional list. No duplicate `categoryId` values. Each `plannedAmount >= 0`.
 
-Partial update, typically income only.
+Response `201`: same shape as `GET /budgets/{id}`.
 
-### PUT `/budgets/{month}/categories/{categoryId}`
+### GET `/budgets/{budgetId}`
 
-Upserts one category allocation.
+Returns a single budget with full per-category and month-level analytics.
+
+Response `200`:
+
+```json
+{
+  "id": "uuid",
+  "month": "2026-05",
+  "income": 50000,
+  "warningThreshold": 0.80,
+  "categories": [
+    {
+      "id": "uuid",
+      "categoryId": "uuid",
+      "category": {
+        "id": "uuid",
+        "slug": "food",
+        "name": "Food",
+        "icon": "UtensilsCrossed",
+        "color": "hsl(var(--cat-food))",
+        "isSystem": true,
+        "isArchived": false,
+        "displayOrder": 0,
+        "createdAt": "2026-05-01T00:00:00Z",
+        "updatedAt": "2026-05-01T00:00:00Z"
+      },
+      "plannedAmount": 8000,
+      "displayOrder": 0,
+      "analytics": {
+        "spent": 3200,
+        "remaining": 4800,
+        "pctUsed": 40.00,
+        "isOverBudget": false,
+        "isNearLimit": false
+      },
+      "createdAt": "2026-05-01T00:00:00Z",
+      "updatedAt": "2026-05-01T00:00:00Z"
+    }
+  ],
+  "analytics": {
+    "totalPlanned": 35000,
+    "totalSpent": 12500,
+    "totalRemaining": 22500,
+    "pctUsed": 35.71,
+    "projectedSpend": 22500,
+    "isOverBudget": false
+  },
+  "createdAt": "2026-05-01T00:00:00Z",
+  "updatedAt": "2026-05-01T00:00:00Z"
+}
+```
+
+Analytics notes:
+- `pctUsed`: `spent / planned * 100`; 0 when planned is 0 and nothing spent.
+- `isNearLimit`: true when `pctUsed >= warningThreshold * 100` and not over budget.
+- `projectedSpend`: `(totalSpent / daysElapsed) * daysInMonth`; 0 for future months.
+
+### PATCH `/budgets/{budgetId}`
+
+Partial update. At least one field required.
 
 Request:
 
 ```json
 {
-  "planned": 8000,
-  "displayOrder": 0
+  "income": 55000,
+  "warningThreshold": 0.75
 }
 ```
 
-### DELETE `/budgets/{month}/categories/{categoryId}`
+Response `200`: updated budget (same shape as GET response).
 
-Removes an allocation from the month. The category record remains.
+### DELETE `/budgets/{budgetId}`
+
+Hard-deletes the budget and all its category allocations (CASCADE).
+Expense records are not affected.
+
+Response `204`: empty body.
 
 ## Expenses
 

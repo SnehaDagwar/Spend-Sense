@@ -8,6 +8,18 @@ from app.schemas.auth import (
     RegisterRequest,
     TokenResponse,
 )
+from app.schemas.budget import (
+    AllocationAnalytics,
+    AllocationPublic,
+    AllocationUpsert,
+    BudgetAnalytics,
+    BudgetCreate,
+    BudgetFilters,
+    BudgetListItem,
+    BudgetListResponse,
+    BudgetPublic,
+    BudgetUpdate,
+)
 from app.schemas.category import (
     CategoryCreate,
     CategoryListResponse,
@@ -44,4 +56,15 @@ __all__ = [
     "ExpenseListResponse",
     "ExpensePublic",
     "ExpenseUpdate",
+    # Budgets
+    "AllocationAnalytics",
+    "AllocationPublic",
+    "AllocationUpsert",
+    "BudgetAnalytics",
+    "BudgetCreate",
+    "BudgetFilters",
+    "BudgetListItem",
+    "BudgetListResponse",
+    "BudgetPublic",
+    "BudgetUpdate",
 ]
