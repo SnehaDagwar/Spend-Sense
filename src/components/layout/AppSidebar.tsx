@@ -139,7 +139,7 @@ export function AppSidebar() {
             <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/20 blur-2xl group-hover:bg-white/30 transition-colors" />
             <div className="flex flex-col gap-2 relative z-10">
               <span className="text-xs font-bold tracking-widest uppercase text-white/90">Track More , Guess Less</span>
-              <div className="text-sm font-semibold leading-snug">Log your daily expenses to keep your budget on track.</div>
+              <div className="text-sm font-semibold leading-snug">Track More, Guess less</div>
             </div>
           </div>
         )}
