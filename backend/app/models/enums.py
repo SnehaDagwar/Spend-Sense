@@ -73,6 +73,7 @@ class SavingsGoalStatus(str, enum.Enum):
     ACTIVE = "active"
     COMPLETED = "completed"
     ARCHIVED = "archived"
+    PAUSED = "paused"
 
 
 # ── Gamification ─────────────────────────────────────────────────────────

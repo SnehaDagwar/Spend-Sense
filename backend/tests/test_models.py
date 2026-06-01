@@ -149,7 +149,7 @@ class TestEnums:
         assert len(FamilyRole) == 3
 
     def test_savings_goal_status_members(self) -> None:
-        assert len(SavingsGoalStatus) == 3
+        assert len(SavingsGoalStatus) == 4
 
     def test_badge_category_members(self) -> None:
         assert len(BadgeCategory) == 4

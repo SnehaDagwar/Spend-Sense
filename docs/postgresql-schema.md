@@ -26,7 +26,7 @@ CREATE TYPE currency_code AS ENUM ('INR', 'USD', 'EUR');
 CREATE TYPE user_type AS ENUM ('Student', 'Family', 'Professional', 'Freelancer');
 CREATE TYPE notification_timing AS ENUM ('Morning', 'Evening', 'Custom');
 CREATE TYPE family_role AS ENUM ('Admin', 'Member', 'Child');
-CREATE TYPE savings_goal_status AS ENUM ('active', 'completed', 'archived');
+CREATE TYPE savings_goal_status AS ENUM ('active', 'completed', 'archived', 'paused');
 CREATE TYPE badge_category AS ENUM ('streaks', 'savings', 'discipline', 'social');
 CREATE TYPE challenge_type AS ENUM ('spending_limit', 'no_category', 'save_amount', 'zero_spend');
 CREATE TYPE challenge_status AS ENUM ('active', 'completed', 'claimed', 'expired');
@@ -396,6 +396,9 @@ CREATE TABLE savings_goals (
   name text NOT NULL,
   icon text NOT NULL,
   color text,
+  description text,
+  priority text,
+  category text,
   target_amount numeric(14,2) NOT NULL,
   current_amount numeric(14,2) NOT NULL DEFAULT 0,
   monthly_contribution numeric(14,2) NOT NULL DEFAULT 0,

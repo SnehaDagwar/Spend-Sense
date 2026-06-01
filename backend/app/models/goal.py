@@ -45,6 +45,9 @@ class SavingsGoal(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     icon: Mapped[str] = mapped_column(Text, nullable=False)
     color: Mapped[str | None] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    priority: Mapped[str | None] = mapped_column(Text, nullable=True)
+    category: Mapped[str | None] = mapped_column(Text, nullable=True)
     target_amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False)
     current_amount: Mapped[Decimal] = mapped_column(
         Numeric(14, 2),

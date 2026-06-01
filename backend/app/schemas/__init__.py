@@ -34,6 +34,14 @@ from app.schemas.expense import (
     ExpenseUpdate,
 )
 from app.schemas.user import UserPublic
+from app.schemas.goal import (
+    GoalCreate,
+    GoalUpdate,
+    GoalPublic,
+    GoalListResponse,
+    GoalContributionCreate,
+    GoalContributionPublic,
+)
 
 __all__ = [
     # Auth
@@ -45,6 +53,13 @@ __all__ = [
     "TokenResponse",
     # User
     "UserPublic",
+    # Goals
+    "GoalCreate",
+    "GoalUpdate",
+    "GoalPublic",
+    "GoalListResponse",
+    "GoalContributionCreate",
+    "GoalContributionPublic",
     # Categories
     "CategoryCreate",
     "CategoryListResponse",
