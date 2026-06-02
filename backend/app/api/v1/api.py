@@ -1,6 +1,16 @@
 from fastapi import APIRouter
 
-from app.api.v1.routes import analytics, auth, budgets, categories, expenses, health, goals
+from app.api.v1.routes import (
+    analytics,
+    auth,
+    budgets,
+    categories,
+    expenses,
+    health,
+    goals,
+    reports,
+    exports,
+)
 
 api_router = APIRouter()
 api_router.include_router(auth.router)
@@ -10,3 +20,5 @@ api_router.include_router(expenses.router)
 api_router.include_router(budgets.router)
 api_router.include_router(analytics.router)
 api_router.include_router(goals.router)
+api_router.include_router(reports.router)
+api_router.include_router(exports.router)

@@ -42,6 +42,13 @@ from app.schemas.goal import (
     GoalContributionCreate,
     GoalContributionPublic,
 )
+from app.schemas.report import (
+    ReportFilters,
+    MonthlyReportResponse,
+    CategoryReportItem,
+    CategoryReportResponse,
+    GoalReportResponse,
+)
 
 __all__ = [
     # Auth
@@ -60,7 +67,14 @@ __all__ = [
     "GoalListResponse",
     "GoalContributionCreate",
     "GoalContributionPublic",
+    # Reports
+    "ReportFilters",
+    "MonthlyReportResponse",
+    "CategoryReportItem",
+    "CategoryReportResponse",
+    "GoalReportResponse",
     # Categories
+
     "CategoryCreate",
     "CategoryListResponse",
     "CategoryPublic",
