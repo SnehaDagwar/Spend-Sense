@@ -82,6 +82,10 @@ class Family(Base):
         back_populates="family",
         cascade="all, delete-orphan",
     )
+    invitations: Mapped[list["FamilyInvitation"]] = relationship(
+        back_populates="family",
+        cascade="all, delete-orphan",
+    )
 
     __table_args__ = (
         CheckConstraint(
@@ -270,4 +274,71 @@ class Settlement(Base):
             "status",
             created_at.desc(),
         ),
+    )
+
+
+class FamilyInvitation(Base):
+    """Pending invitation for a user to join a family.
+
+    The raw invitation token is never stored; only its SHA-256 hash is persisted.
+    A token is valid for 72 hours and can only be accepted once.
+    """
+
+    __tablename__ = "family_invitations"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+    family_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("families.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    invited_by_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("family_members.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    email: Mapped[str] = mapped_column(Text, nullable=False)
+    role: Mapped[FamilyRole] = mapped_column(
+        Enum(FamilyRole, name="family_role", values_callable=enum_values, create_type=False),
+        nullable=False,
+        default=FamilyRole.MEMBER,
+        server_default="Member",
+    )
+    token_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False,
+    )
+    accepted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True,
+    )
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    # Relationships
+    family: Mapped["Family"] = relationship(back_populates="invitations")
+    invited_by: Mapped["FamilyMember"] = relationship(
+        foreign_keys=[invited_by_id],
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "position('@' in email) > 1",
+            name="family_invitations_email_chk",
+        ),
+        CheckConstraint(
+            "(accepted_at IS NULL) OR (revoked_at IS NULL)",
+            name="family_invitations_terminal_state_chk",
+        ),
+        Index("family_invitations_token_hash_uidx", "token_hash", unique=True),
+        Index("family_invitations_family_email_idx", "family_id", func.lower(email)),
     )

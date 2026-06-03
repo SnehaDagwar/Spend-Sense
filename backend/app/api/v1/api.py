@@ -6,8 +6,9 @@ from app.api.v1.routes import (
     budgets,
     categories,
     expenses,
-    health,
+    family,
     goals,
+    health,
     reports,
     exports,
 )
@@ -20,5 +21,6 @@ api_router.include_router(expenses.router)
 api_router.include_router(budgets.router)
 api_router.include_router(analytics.router)
 api_router.include_router(goals.router)
+api_router.include_router(family.router)
 api_router.include_router(reports.router)
 api_router.include_router(exports.router)

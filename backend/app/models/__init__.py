@@ -32,7 +32,7 @@ from app.models.expense import Expense, ExpenseSplit
 from app.models.upload import UploadedFile
 
 # Family wallet
-from app.models.family import Family, FamilyMember, Settlement
+from app.models.family import Family, FamilyInvitation, FamilyMember, Settlement
 
 # Goals
 from app.models.goal import GoalContribution, SavingsGoal
@@ -69,6 +69,7 @@ __all__ = [
     "UploadedFile",
     # Family
     "Family",
+    "FamilyInvitation",
     "FamilyMember",
     "Settlement",
     # Goals

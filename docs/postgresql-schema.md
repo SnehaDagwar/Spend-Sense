@@ -25,7 +25,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TYPE currency_code AS ENUM ('INR', 'USD', 'EUR');
 CREATE TYPE user_type AS ENUM ('Student', 'Family', 'Professional', 'Freelancer');
 CREATE TYPE notification_timing AS ENUM ('Morning', 'Evening', 'Custom');
-CREATE TYPE family_role AS ENUM ('Admin', 'Member', 'Child');
+CREATE TYPE family_role AS ENUM ('Owner', 'Admin', 'Member', 'Child');
 CREATE TYPE savings_goal_status AS ENUM ('active', 'completed', 'archived', 'paused');
 CREATE TYPE badge_category AS ENUM ('streaks', 'savings', 'discipline', 'social');
 CREATE TYPE challenge_type AS ENUM ('spending_limit', 'no_category', 'save_amount', 'zero_spend');
@@ -285,6 +285,32 @@ CREATE INDEX family_members_family_idx ON family_members (family_id, is_active);
 CREATE UNIQUE INDEX family_members_family_email_uidx
   ON family_members (family_id, lower(email))
   WHERE email IS NOT NULL;
+```
+
+### family_invitations
+
+Stores pending invitations to join a family. The raw token is never persisted — only its SHA-256 hash.
+
+```sql
+CREATE TABLE family_invitations (
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  family_id      uuid NOT NULL REFERENCES families(id) ON DELETE CASCADE,
+  invited_by_id  uuid NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
+  email          text NOT NULL,
+  role           family_role NOT NULL DEFAULT 'Member',
+  token_hash     text NOT NULL,
+  expires_at     timestamptz NOT NULL,
+  accepted_at    timestamptz,
+  revoked_at     timestamptz,
+  created_at     timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT family_invitations_email_chk CHECK (position('@' in email) > 1),
+  CONSTRAINT family_invitations_terminal_state_chk CHECK (
+    (accepted_at IS NULL) OR (revoked_at IS NULL)
+  )
+);
+
+CREATE UNIQUE INDEX family_invitations_token_hash_uidx ON family_invitations (token_hash);
+CREATE INDEX family_invitations_family_email_idx ON family_invitations (family_id, lower(email));
 ```
 
 ### uploaded_files

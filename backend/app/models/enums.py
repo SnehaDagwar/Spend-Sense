@@ -56,6 +56,7 @@ class NotificationTiming(str, enum.Enum):
 # ── Family ───────────────────────────────────────────────────────────────
 
 class FamilyRole(str, enum.Enum):
+    OWNER = "Owner"
     ADMIN = "Admin"
     MEMBER = "Member"
     CHILD = "Child"

@@ -4,6 +4,7 @@ from app.services.auth import AuthService
 from app.services.budget import BudgetService
 from app.services.category import CategoryService
 from app.services.expense import ExpenseService
+from app.services.family import FamilyService
 from app.services.goal import GoalService
 from app.services.report import ReportService
 from app.services.export import ExportService
@@ -13,6 +14,7 @@ __all__ = [
     "BudgetService",
     "CategoryService",
     "ExpenseService",
+    "FamilyService",
     "GoalService",
     "ReportService",
     "ExportService",

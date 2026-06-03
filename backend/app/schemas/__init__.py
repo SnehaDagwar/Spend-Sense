@@ -49,6 +49,21 @@ from app.schemas.report import (
     CategoryReportResponse,
     GoalReportResponse,
 )
+from app.schemas.family import (
+    AcceptInviteRequest,
+    FamilyAnalytics,
+    FamilyCreate,
+    FamilyDetailPublic,
+    FamilyListResponse,
+    FamilyMemberPublic,
+    FamilyPublic,
+    FamilyUpdate,
+    InviteMemberRequest,
+    InviteResponse,
+    SharedBudgetSummary,
+    SharedExpenseSummary,
+    SharedGoalSummary,
+)
 
 __all__ = [
     # Auth
@@ -96,4 +111,18 @@ __all__ = [
     "BudgetListResponse",
     "BudgetPublic",
     "BudgetUpdate",
+    # Family
+    "AcceptInviteRequest",
+    "FamilyAnalytics",
+    "FamilyCreate",
+    "FamilyDetailPublic",
+    "FamilyListResponse",
+    "FamilyMemberPublic",
+    "FamilyPublic",
+    "FamilyUpdate",
+    "InviteMemberRequest",
+    "InviteResponse",
+    "SharedBudgetSummary",
+    "SharedExpenseSummary",
+    "SharedGoalSummary",
 ]

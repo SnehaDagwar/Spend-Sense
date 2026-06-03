@@ -704,64 +704,236 @@ Query params:
 
 Returns a file download.
 
-## Family Wallet
+## Family & Shared Finance (Phase 7)
+
+> **Implementation status**: Implemented in Phase 7.
+> Role hierarchy: `Owner` > `Admin` > `Member`.
+> Invitation tokens are 64-byte URL-safe random strings returned once; only their SHA-256 hash is stored.
+
+### POST `/family`
+
+Creates a new family group. The authenticated user becomes the **Owner**. Each user may own at most one family.
+
+Request:
+
+```json
+{
+  "name": "Dagwar Family",
+  "currency": "INR"
+}
+```
+
+Field rules:
+- `name`: 1–100 chars, required, default `"Family Wallet"`.
+- `currency`: `INR | USD | EUR`, default `INR`.
+
+Response `201`:
+
+```json
+{
+  "id": "uuid",
+  "ownerUserId": "uuid",
+  "name": "Dagwar Family",
+  "currency": "INR",
+  "members": [
+    {
+      "id": "uuid",
+      "familyId": "uuid",
+      "userId": "uuid",
+      "name": "Megha",
+      "role": "Owner",
+      "email": "megha@example.com",
+      "avatarUrl": null,
+      "spendingLimit": null,
+      "isActive": true,
+      "createdAt": "2026-06-03T09:00:00Z",
+      "updatedAt": "2026-06-03T09:00:00Z"
+    }
+  ],
+  "createdAt": "2026-06-03T09:00:00Z",
+  "updatedAt": "2026-06-03T09:00:00Z"
+}
+```
+
+Returns `409` if the authenticated user already owns a family.
 
 ### GET `/family`
 
-Returns the authenticated user's family wallet, members, and summary totals.
+Returns all families the authenticated user belongs to (as any role).
 
-### PUT `/family`
+Response `200`:
 
-Creates or updates the family wallet.
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "ownerUserId": "uuid",
+      "name": "Dagwar Family",
+      "currency": "INR",
+      "memberCount": 3,
+      "createdAt": "2026-06-03T09:00:00Z",
+      "updatedAt": "2026-06-03T09:00:00Z"
+    }
+  ],
+  "total": 1
+}
+```
 
-### GET `/family/members`
+### GET `/family/{familyId}`
 
-Returns family members.
+Returns full family detail with embedded active member list.
 
-### POST `/family/members`
+Returns `403` if the caller is not an active member.
+Returns `404` if the family does not exist.
+
+Response `200`: same shape as POST `/family` response.
+
+### PATCH `/family/{familyId}`
+
+Update family name and/or currency. At least one field required.
+
+Requires **Admin** or **Owner** role. Returns `403` for plain Members.
 
 Request:
 
 ```json
 {
-  "name": "Sarah",
-  "role": "Member",
+  "name": "Dagwar Household",
+  "currency": "USD"
+}
+```
+
+Response `200`: updated family detail (same shape as GET response).
+
+### DELETE `/family/{familyId}`
+
+Hard-deletes the family and all cascaded data (members, invitations, settlements).
+
+Requires **Owner** role. Returns `403` for Admin or Member callers.
+
+Response `204`: empty body.
+
+### POST `/family/{familyId}/invite`
+
+Generate a single-use 72-hour invitation for an email address.
+
+Requires **Admin** or **Owner** role.
+
+Request:
+
+```json
+{
   "email": "sarah@example.com",
-  "avatarUrl": null,
-  "spendingLimit": null
+  "role": "Member"
 }
 ```
 
-### PATCH `/family/members/{memberId}`
+Field rules:
+- `role`: `Admin` or `Member`. `Owner` and `Child` are rejected with `422`.
 
-Updates member metadata.
+Response `201`:
 
-### DELETE `/family/members/{memberId}`
+```json
+{
+  "invitationId": "uuid",
+  "familyId": "uuid",
+  "email": "sarah@example.com",
+  "role": "Member",
+  "invitationToken": "<raw-64-byte-urlsafe-token>",
+  "expiresAt": "2026-06-06T09:00:00Z",
+  "createdAt": "2026-06-03T09:00:00Z"
+}
+```
 
-Deactivates a member. Admin members cannot be removed if they are the only active admin.
+> **Security note**: `invitationToken` is returned exactly once. It is never stored on the server. Share it with the invitee via any out-of-band channel (messaging, email, etc.).
 
-### GET `/family/settlements`
+Returns `409` if:
+- The email is already an active member.
+- A pending non-expired invitation for the email already exists.
+- The family has reached the maximum of 20 members.
 
-Returns pending balances and explicit settlement records.
+### POST `/family/accept-invite`
 
-### POST `/family/settlements`
+Accept a family invitation using the raw token.
 
-Creates a manual settlement.
+The authenticated user's email must match the invited email address.
 
 Request:
 
 ```json
 {
-  "fromMemberId": "uuid",
-  "toMemberId": "uuid",
-  "amount": 1500,
-  "note": "UPI settlement"
+  "token": "<raw-64-byte-urlsafe-token>"
 }
 ```
 
-### PATCH `/family/settlements/{settlementId}`
+Response `201`: the new `FamilyMember` record (same shape as member in detail response).
 
-Updates status, usually to `settled`.
+Returns `400` if the token is invalid, expired, already accepted, or revoked.
+Returns `409` if the caller is already an active member of the family.
+
+### DELETE `/family/{familyId}/member/{memberId}`
+
+Deactivate (soft-remove) a family member.
+
+Permission matrix:
+| Caller role | Can remove |
+|---|---|
+| Owner | Admin, Member |
+| Admin | Member only |
+| Member | — (403) |
+
+- Returns `403` if the target is the family Owner.
+- Returns `403` if an Admin tries to remove another Admin.
+- Returns `403` if the caller tries to remove themselves (use `/leave`).
+- Returns `404` if the member is not found in this family.
+
+Response `204`: empty body.
+
+### DELETE `/family/{familyId}/leave`
+
+Voluntarily leave a family group. Deactivates the caller's member record.
+
+- Returns `403` if the caller is the family Owner (delete the family instead).
+
+Response `204`: empty body.
+
+### GET `/family/{familyId}/analytics`
+
+Returns aggregated expense, budget, and savings goal data across all active members.
+
+Requires active membership (any role).
+
+Response `200`:
+
+```json
+{
+  "familyId": "uuid",
+  "familyName": "Dagwar Family",
+  "expenses": {
+    "totalAmount": 45200.00,
+    "expenseCount": 87,
+    "topCategory": null,
+    "currentMonthTotal": 12400.00
+  },
+  "budget": {
+    "totalPlanned": 0,
+    "totalSpent": 45200.00,
+    "totalRemaining": 0,
+    "memberCount": 3
+  },
+  "goals": {
+    "totalGoals": 5,
+    "activeGoals": 3,
+    "completedGoals": 2,
+    "totalSaved": 85000.00,
+    "totalTarget": 200000.00
+  },
+  "generatedAt": "2026-06-03T09:00:00Z"
+}
+```
+
+
 
 ## Gamification
 
