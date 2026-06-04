@@ -11,6 +11,7 @@ from app.api.v1.routes import (
     health,
     reports,
     exports,
+    insights,
 )
 
 api_router = APIRouter()
@@ -24,3 +25,4 @@ api_router.include_router(goals.router)
 api_router.include_router(family.router)
 api_router.include_router(reports.router)
 api_router.include_router(exports.router)
+api_router.include_router(insights.router)

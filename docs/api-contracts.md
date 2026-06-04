@@ -673,15 +673,123 @@ Query params:
 
 Returns the same computed month stats currently produced by the local prediction engine: income, planned total, actual total, projected total, savings, savings rate, and per-category stats.
 
-### GET `/insights`
+### GET `/insights/summary`
 
 Query params:
 
-| name | type |
-| --- | --- |
-| `month` | `YYYY-MM` |
+| name | type | notes |
+| --- | --- | --- |
+| `month` | `YYYY-MM` | optional; defaults to current calendar month |
 
-Returns computed warnings, tips, successes, and predictions. Insights are not persisted in phase 1.
+Response `200`:
+```json
+{
+  "healthScore": 76,
+  "healthSummary": "Your finances are in good health, but high discretionary shopping this week has slightly increased your budget risk.",
+  "budgetStatus": "at_risk",
+  "overspendingAlerts": [
+    "You have spent 88% of your planned Shopping budget with 12 days remaining."
+  ],
+  "savingsOpportunities": [
+    "If you cut back on dining out, you can hit your Emergency Fund goal 2 weeks early."
+  ]
+}
+```
+
+### GET `/insights/spending-patterns`
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `month` | `YYYY-MM` | optional; defaults to current calendar month |
+
+Response `200`:
+```json
+{
+  "dominantCategories": ["Rent", "Food"],
+  "frequentPaymentMethods": ["UPI (82% of transactions)"],
+  "timeOfMonthAnalysis": "Your spending peaks primarily during the first week of the month.",
+  "unusualVolumeCategories": ["Food (18 transactions)"],
+  "subscriptionDetections": [
+    {
+      "merchant": "Netflix",
+      "amount": 649.00,
+      "frequency": "monthly",
+      "nextRenewalDate": "2026-06-15",
+      "confidenceScore": 0.95
+    }
+  ]
+}
+```
+
+### GET `/insights/recommendations`
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `month` | `YYYY-MM` | optional; defaults to current calendar month |
+
+Response `200`:
+```json
+{
+  "recommendedBudgets": [
+    {
+      "categoryId": "uuid",
+      "categoryName": "Food",
+      "currentPlanned": 10000.00,
+      "suggestedPlanned": 8500.00,
+      "reason": "Based on actual spending trends..."
+    }
+  ],
+  "savingsActions": ["Opt out of secondary subscription services."],
+  "goalMilestoneSuggestions": ["Increase Emergency Fund contribution by 500 INR."]
+}
+```
+
+### GET `/insights/anomalies`
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `month` | `YYYY-MM` | optional; defaults to current calendar month |
+
+Response `200`:
+```json
+{
+  "anomalies": [
+    {
+      "expenseId": "uuid",
+      "amount": 4200.00,
+      "merchant": "Amazon",
+      "category": "Shopping",
+      "reason": "This purchase is 250% higher than your median shopping transaction."
+    }
+  ]
+}
+```
+
+### GET `/insights/monthly-review`
+
+Query params:
+
+| name | type | notes |
+| --- | --- | --- |
+| `month` | `YYYY-MM` | optional; defaults to current calendar month |
+
+Response `200`:
+```json
+{
+  "month": "2026-05",
+  "netSavings": 12500.00,
+  "savingsRate": 25.00,
+  "topSpendDrivers": ["Rent", "Amazon Electronics"],
+  "achievements": ["You achieved a savings rate of 25%!"],
+  "opportunitiesForNextMonth": ["Plan major purchases around salary credit cycles."]
+}
+```
 
 ### GET `/reports/monthly`
 

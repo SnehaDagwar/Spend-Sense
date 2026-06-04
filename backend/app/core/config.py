@@ -17,6 +17,16 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+psycopg://postgres:postgres@localhost:5432/spend_sense"
     BACKEND_CORS_ORIGINS: list[str | AnyUrl] = Field(default_factory=list)
 
+    # AI Insights and Financial Intelligence Config
+    AI_PROVIDER: str = "mock"
+    GEMINI_API_KEY: str | None = None
+    GEMINI_MODEL: str = "gemini-1.5-flash"
+    OPENAI_API_KEY: str | None = None
+    OPENAI_MODEL: str = "gpt-4o-mini"
+    CLAUDE_API_KEY: str | None = None
+    CLAUDE_MODEL: str = "claude-3-5-haiku-20241022"
+    AI_DAILY_RATE_LIMIT: int = 10
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_ignore_empty=True,

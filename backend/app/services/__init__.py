@@ -8,6 +8,7 @@ from app.services.family import FamilyService
 from app.services.goal import GoalService
 from app.services.report import ReportService
 from app.services.export import ExportService
+from app.services.ai import AIService
 
 __all__ = [
     "AuthService",
@@ -18,4 +19,5 @@ __all__ = [
     "GoalService",
     "ReportService",
     "ExportService",
+    "AIService",
 ]

@@ -64,6 +64,16 @@ from app.schemas.family import (
     SharedExpenseSummary,
     SharedGoalSummary,
 )
+from app.schemas.insights import (
+    SubscriptionDetection,
+    FinancialSummaryInsight,
+    SpendingPatternInsight,
+    CategoryRecommendation,
+    RecommendationsInsight,
+    AnomalyItem,
+    AnomaliesInsight,
+    MonthlyReviewInsight,
+)
 
 __all__ = [
     # Auth
@@ -125,4 +135,13 @@ __all__ = [
     "SharedBudgetSummary",
     "SharedExpenseSummary",
     "SharedGoalSummary",
+    # Insights
+    "SubscriptionDetection",
+    "FinancialSummaryInsight",
+    "SpendingPatternInsight",
+    "CategoryRecommendation",
+    "RecommendationsInsight",
+    "AnomalyItem",
+    "AnomaliesInsight",
+    "MonthlyReviewInsight",
 ]
