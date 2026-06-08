@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     CLAUDE_API_KEY: str | None = None
     CLAUDE_MODEL: str = "claude-3-5-haiku-20241022"
     AI_DAILY_RATE_LIMIT: int = 10
+    AI_BURST_RATE_LIMIT: int = 5          # max requests per 60-second window
+    AI_REQUEST_TIMEOUT: int = 30          # seconds per provider HTTP call
+    AI_MAX_RESPONSE_TOKENS: int = 4000    # max_tokens sent to provider
+    AI_FALLBACK_ENABLED: bool = True      # use rule-based fallback on provider failure
+    AI_CACHE_MAX_SIZE: int = 500          # max cached insight entries (LRU eviction)
 
     model_config = SettingsConfigDict(
         env_file=".env",

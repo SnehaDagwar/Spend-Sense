@@ -195,6 +195,43 @@ Exit criteria:
 - Auth and financial data handling have a documented security baseline.
 - CI blocks obvious migration/test regressions.
 
+## Phase 8 - AI Insights And Financial Intelligence
+
+Goal: add provider-agnostic AI-powered financial insights with graceful rule-based fallback.
+
+Status: implemented.
+
+Deliverables:
+
+- Provider abstraction interface (`AIProvider` ABC) with Gemini, OpenAI, Claude, and Mock implementations.
+- AI service layer (`AIService`) that compiles financial data from ORM models, manages rate limiting, caching, and provider orchestration.
+- Rule-based fallback engine (`fallback.py`) generating deterministic insights from raw financial data when the AI provider is unavailable.
+- Prompt templates (`prompts.py`) with privacy guardrails, currency awareness, and conciseness directives.
+- Five authenticated insight endpoints:
+  - `GET /insights/summary` — financial health score, budget status, overspending alerts, savings opportunities.
+  - `GET /insights/spending-patterns` — dominant categories, payment methods, time-of-month analysis, subscription detection.
+  - `GET /insights/recommendations` — budget adjustment suggestions, savings actions, goal milestones.
+  - `GET /insights/anomalies` — statistical outliers, duplicate detection, budget spike alerts.
+  - `GET /insights/monthly-review` — net savings, savings rate, top drivers, achievements, next-month opportunities.
+- Pydantic response schemas with `source` field indicating insight origin (`ai`, `rule_engine`, `mock`).
+- Production-grade rate limiting: 10 requests/day and 5 requests/minute per user.
+- SHA256 state-hash caching with 1-hour TTL and bounded LRU eviction (500 entries).
+- Retry logic (1 retry with 2s backoff) on transient provider failures.
+- Configurable settings: `AI_PROVIDER`, `AI_REQUEST_TIMEOUT`, `AI_MAX_RESPONSE_TOKENS`, `AI_BURST_RATE_LIMIT`, `AI_FALLBACK_ENABLED`, `AI_CACHE_MAX_SIZE`.
+- `Retry-After` header on 429 responses.
+- OpenAPI response documentation for error codes (429, 502).
+- Updated `docs/api-contracts.md` with implementation status and `source` field.
+
+Exit criteria:
+
+- All 5 insight endpoints return valid responses with `AI_PROVIDER=mock`.
+- Rate limiting correctly rejects requests past daily or burst threshold.
+- Fallback engine produces structured insights when the AI provider is unavailable.
+- No new database tables or migrations required.
+- Compile check passes (`python -m compileall app`).
+
+
+
 ## Cross-Phase Rules
 
 - Update `docs/api-contracts.md` before or alongside API changes.

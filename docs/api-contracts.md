@@ -675,6 +675,16 @@ Returns the same computed month stats currently produced by the local prediction
 
 ### GET `/insights/summary`
 
+> **Implementation status**: Implemented in Phase 8.
+> All insight endpoints support provider-agnostic AI generation with automatic
+> rule-based fallback when the provider is unavailable.
+>
+> **Rate limiting**: 10 requests/day and 5 requests/minute per user.
+> On `429` responses the `Retry-After` header indicates seconds to wait.
+>
+> **Response `source` field**: `"ai"` (LLM-generated), `"rule_engine"` (fallback),
+> or `"mock"` (development mock data).
+
 Query params:
 
 | name | type | notes |
@@ -692,9 +702,17 @@ Response `200`:
   ],
   "savingsOpportunities": [
     "If you cut back on dining out, you can hit your Emergency Fund goal 2 weeks early."
-  ]
+  ],
+  "source": "ai"
 }
 ```
+
+Error responses:
+
+| HTTP | code | notes |
+| --- | --- | --- |
+| 429 | `rate_limit_error` | Includes `Retry-After: 60` header |
+| 502 | `bad_gateway` | Upstream LLM provider error |
 
 ### GET `/insights/spending-patterns`
 
@@ -719,7 +737,8 @@ Response `200`:
       "nextRenewalDate": "2026-06-15",
       "confidenceScore": 0.95
     }
-  ]
+  ],
+  "source": "ai"
 }
 ```
 
@@ -744,7 +763,8 @@ Response `200`:
     }
   ],
   "savingsActions": ["Opt out of secondary subscription services."],
-  "goalMilestoneSuggestions": ["Increase Emergency Fund contribution by 500 INR."]
+  "goalMilestoneSuggestions": ["Increase Emergency Fund contribution by 500 INR."],
+  "source": "ai"
 }
 ```
 
@@ -767,7 +787,8 @@ Response `200`:
       "category": "Shopping",
       "reason": "This purchase is 250% higher than your median shopping transaction."
     }
-  ]
+  ],
+  "source": "ai"
 }
 ```
 
@@ -787,9 +808,12 @@ Response `200`:
   "savingsRate": 25.00,
   "topSpendDrivers": ["Rent", "Amazon Electronics"],
   "achievements": ["You achieved a savings rate of 25%!"],
-  "opportunitiesForNextMonth": ["Plan major purchases around salary credit cycles."]
+  "opportunitiesForNextMonth": ["Plan major purchases around salary credit cycles."],
+  "source": "ai"
 }
 ```
+
+
 
 ### GET `/reports/monthly`
 

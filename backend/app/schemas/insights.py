@@ -1,8 +1,10 @@
+"""Pydantic response schemas for AI Insights & Financial Intelligence endpoints."""
+
 from __future__ import annotations
 
 import datetime
 import uuid
-from typing import Optional
+from typing import Optional, Literal
 from decimal import Decimal
 from pydantic import Field
 
@@ -23,6 +25,10 @@ class FinancialSummaryInsight(APIModel):
     budget_status: str = Field(description="One of 'on_track', 'at_risk', or 'critical'")
     overspending_alerts: list[str] = Field(default_factory=list)
     savings_opportunities: list[str] = Field(default_factory=list)
+    source: str = Field(
+        default="ai",
+        description="Origin of the insight: 'ai', 'rule_engine', or 'mock'",
+    )
 
 
 class SpendingPatternInsight(APIModel):
@@ -37,6 +43,10 @@ class SpendingPatternInsight(APIModel):
         default_factory=list, description="Categories with unusually high volume of transactions"
     )
     subscription_detections: list[SubscriptionDetection] = Field(default_factory=list)
+    source: str = Field(
+        default="ai",
+        description="Origin of the insight: 'ai', 'rule_engine', or 'mock'",
+    )
 
 
 class CategoryRecommendation(APIModel):
@@ -51,6 +61,10 @@ class RecommendationsInsight(APIModel):
     recommended_budgets: list[CategoryRecommendation] = Field(default_factory=list)
     savings_actions: list[str] = Field(default_factory=list)
     goal_milestone_suggestions: list[str] = Field(default_factory=list)
+    source: str = Field(
+        default="ai",
+        description="Origin of the insight: 'ai', 'rule_engine', or 'mock'",
+    )
 
 
 class AnomalyItem(APIModel):
@@ -63,6 +77,10 @@ class AnomalyItem(APIModel):
 
 class AnomaliesInsight(APIModel):
     anomalies: list[AnomalyItem] = Field(default_factory=list)
+    source: str = Field(
+        default="ai",
+        description="Origin of the insight: 'ai', 'rule_engine', or 'mock'",
+    )
 
 
 class MonthlyReviewInsight(APIModel):
@@ -72,3 +90,7 @@ class MonthlyReviewInsight(APIModel):
     top_spend_drivers: list[str] = Field(default_factory=list)
     achievements: list[str] = Field(default_factory=list)
     opportunities_for_next_month: list[str] = Field(default_factory=list)
+    source: str = Field(
+        default="ai",
+        description="Origin of the insight: 'ai', 'rule_engine', or 'mock'",
+    )
