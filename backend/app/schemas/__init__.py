@@ -74,6 +74,17 @@ from app.schemas.insights import (
     AnomaliesInsight,
     MonthlyReviewInsight,
 )
+from app.schemas.gamification import (
+    BadgeListResponse,
+    BadgePublic,
+    ChallengeListResponse,
+    ChallengePublic,
+    GamificationEventRecord,
+    GamificationProfileResponse,
+    RecentBadge,
+    StreakListResponse,
+    StreakPublic,
+)
 
 __all__ = [
     # Auth
@@ -144,4 +155,14 @@ __all__ = [
     "AnomalyItem",
     "AnomaliesInsight",
     "MonthlyReviewInsight",
+    # Gamification
+    "BadgeListResponse",
+    "BadgePublic",
+    "ChallengeListResponse",
+    "ChallengePublic",
+    "GamificationEventRecord",
+    "GamificationProfileResponse",
+    "RecentBadge",
+    "StreakListResponse",
+    "StreakPublic",
 ]

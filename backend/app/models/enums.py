@@ -98,3 +98,20 @@ class ChallengeStatus(str, enum.Enum):
     COMPLETED = "completed"
     CLAIMED = "claimed"
     EXPIRED = "expired"
+
+
+class GamificationEventType(str, enum.Enum):
+    EXPENSE_CREATED = "expense_created"
+    BUDGET_CREATED = "budget_created"
+    BUDGET_UNDER_LIMIT = "budget_under_limit"
+    SAVINGS_GOAL_CREATED = "savings_goal_created"
+    SAVINGS_CONTRIBUTION = "savings_contribution"
+    SAVINGS_GOAL_COMPLETED = "savings_goal_completed"
+    CHALLENGE_COMPLETED = "challenge_completed"
+    CHALLENGE_JOINED = "challenge_joined"
+
+
+class StreakType(str, enum.Enum):
+    DAILY_EXPENSE = "daily_expense"
+    WEEKLY_ACTIVITY = "weekly_activity"
+    MONTHLY_BUDGET = "monthly_budget"

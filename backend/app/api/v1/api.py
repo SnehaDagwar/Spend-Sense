@@ -7,6 +7,7 @@ from app.api.v1.routes import (
     categories,
     expenses,
     family,
+    gamification,
     goals,
     health,
     reports,
@@ -26,3 +27,4 @@ api_router.include_router(family.router)
 api_router.include_router(reports.router)
 api_router.include_router(exports.router)
 api_router.include_router(insights.router)
+api_router.include_router(gamification.router)

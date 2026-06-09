@@ -154,24 +154,14 @@ Exit criteria:
 - Pending balances are deterministic.
 - Settlements update balances without deleting historical expenses.
 
-## Phase 6 - Gamification
+## Phase 6 - Gamification (Superseded by Phase 9)
+
+> **Note**: This phase has been superseded by Phase 9 which implements a full
+> event-driven gamification engine. See Phase 9 below.
 
 Goal: persist and verify achievements, daily challenges, XP, level, and streaks.
 
-Deliverables:
-
-- Progress endpoint.
-- Badge catalog and unlocked state endpoint.
-- Daily challenge generation endpoint.
-- Challenge completion verification service.
-- Claim XP endpoint.
-- Streak calculation tests.
-
-Exit criteria:
-
-- Daily challenge generation is idempotent.
-- XP claims cannot be double-counted.
-- Badge unlocks are stable across sessions.
+Status: superseded by Phase 9.
 
 ## Phase 7 - Hardening And Deployment
 
@@ -230,7 +220,42 @@ Exit criteria:
 - No new database tables or migrations required.
 - Compile check passes (`python -m compileall app`).
 
+## Phase 9 - Gamification And Achievements
 
+Goal: deliver a scalable, event-driven gamification engine with badges, streaks, challenges, XP/levels, and progress tracking.
+
+Status: implemented.
+
+Deliverables:
+
+- Two new SQLAlchemy models: `gamification_events` (event log) and `user_streaks` (incremental streak counters).
+- Two new enums: `GamificationEventType`, `StreakType`.
+- `GamificationRepository` — events, streaks, progress, badges, challenges.
+- `GamificationService` facade with sub-engines:
+  - `XPEngine` — XP rewards, level formula (`floor(sqrt(xp/100)) + 1`).
+  - `StreakEngine` — daily/weekly/monthly streak tracking with O(1) updates.
+  - `BadgeEngine` — declarative rule registry with 20 badge rules (count, streak, completion, challenge-count, consecutive-budget).
+  - `ChallengeEngine` — idempotent daily challenge generation from templates.
+  - `EventDispatcher` — orchestrates event recording → badge evaluation → streak update → XP grant.
+- Badge catalog expanded to 20 badges across 4 categories (discipline, savings, streaks, social).
+- Five authenticated endpoints under `/gamification/`:
+  - `GET /gamification/profile` — XP, level, progress, recent badges, current streaks.
+  - `GET /gamification/badges` — full badge catalog with per-user unlock state.
+  - `GET /gamification/streaks` — all streak counters.
+  - `GET /gamification/challenges` — challenge list with auto-generation.
+  - `POST /gamification/challenges/{id}/join` — join an active challenge.
+- Pydantic schemas for all request/response shapes.
+- Updated `docs/api-contracts.md` with full endpoint documentation.
+
+Exit criteria:
+
+- Compile check passes (`python -m compileall app`).
+- Badge rules are idempotent — re-evaluating the same event produces no duplicates.
+- Event recording is idempotent — duplicate events are no-ops.
+- XP grants use `SELECT ... FOR UPDATE` to prevent concurrent double-counting.
+- Daily challenge generation is idempotent for the same user/date.
+- Streak updates are O(1) per event (no full history scans).
+- All 5 endpoints are JWT-protected and documented in OpenAPI.
 
 ## Cross-Phase Rules
 

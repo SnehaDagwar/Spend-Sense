@@ -11,10 +11,12 @@ from app.models.enums import (
     ChallengeType,
     CurrencyCode,
     FamilyRole,
+    GamificationEventType,
     NotificationTiming,
     PaymentMethod,
     SavingsGoalStatus,
     SettlementStatus,
+    StreakType,
     UserType,
 )
 
@@ -40,6 +42,8 @@ from app.models.goal import GoalContribution, SavingsGoal
 # Gamification
 from app.models.badge import Badge, UserBadge
 from app.models.challenge import Challenge
+from app.models.gamification_event import GamificationEvent
+from app.models.streak import UserStreak
 
 __all__ = [
     # Enums
@@ -48,10 +52,12 @@ __all__ = [
     "ChallengeType",
     "CurrencyCode",
     "FamilyRole",
+    "GamificationEventType",
     "NotificationTiming",
     "PaymentMethod",
     "SavingsGoalStatus",
     "SettlementStatus",
+    "StreakType",
     "UserType",
     # Auth
     "RefreshToken",
@@ -78,5 +84,7 @@ __all__ = [
     # Gamification
     "Badge",
     "Challenge",
+    "GamificationEvent",
     "UserBadge",
+    "UserStreak",
 ]

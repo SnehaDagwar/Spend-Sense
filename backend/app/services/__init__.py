@@ -5,6 +5,7 @@ from app.services.budget import BudgetService
 from app.services.category import CategoryService
 from app.services.expense import ExpenseService
 from app.services.family import FamilyService
+from app.services.gamification import GamificationService
 from app.services.goal import GoalService
 from app.services.report import ReportService
 from app.services.export import ExportService
@@ -16,6 +17,7 @@ __all__ = [
     "CategoryService",
     "ExpenseService",
     "FamilyService",
+    "GamificationService",
     "GoalService",
     "ReportService",
     "ExportService",

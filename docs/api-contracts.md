@@ -1067,44 +1067,163 @@ Response `200`:
 
 
 
-## Gamification
+## Gamification (Phase 9)
 
-### GET `/progress`
+> **Implementation status**: Implemented in Phase 9.
+> All endpoints are JWT-protected and prefixed with `/gamification/`.
+> The gamification engine is event-driven: user actions (expenses, budgets, savings)
+> automatically trigger badge evaluations, streak updates, and XP awards.
 
-Returns XP, level, streaks, and unlocked badge count.
+### GET `/gamification/profile`
 
-### GET `/badges`
+Returns the full gamification profile for the authenticated user.
 
-Returns badge catalog with unlocked state.
+Response `200`:
 
-### GET `/challenges`
+```json
+{
+  "xp": 450,
+  "level": 3,
+  "levelProgressPct": 55.56,
+  "xpCurrentLevel": 400,
+  "xpNextLevel": 900,
+  "totalBadgesEarned": 5,
+  "totalBadgesAvailable": 20,
+  "totalChallengesCompleted": 3,
+  "currentStreaks": [
+    {
+      "streakType": "daily_expense",
+      "currentCount": 7,
+      "longestCount": 14,
+      "lastActiveDate": "2026-06-09",
+      "isActive": true
+    }
+  ],
+  "recentBadges": [
+    {
+      "code": "streak_7_day",
+      "name": "Weekly Warrior",
+      "icon": "flame",
+      "unlockedAt": "2026-06-08T18:30:00Z"
+    }
+  ]
+}
+```
+
+Level formula: `level = floor(sqrt(xp / 100)) + 1`.
+
+### GET `/gamification/badges`
+
+Returns the full badge catalog (20 badges) with unlock state per user.
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "code": "first_expense",
+      "name": "First Expense",
+      "icon": "receipt",
+      "description": "Log your very first expense",
+      "category": "discipline",
+      "isUnlocked": true,
+      "unlockedAt": "2026-06-01T10:00:00Z"
+    }
+  ],
+  "totalUnlocked": 5,
+  "totalAvailable": 20
+}
+```
+
+Badge categories: `streaks`, `savings`, `discipline`, `social`.
+
+### GET `/gamification/streaks`
+
+Returns all streak counters for the user.
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "streakType": "daily_expense",
+      "currentCount": 7,
+      "longestCount": 14,
+      "lastActiveDate": "2026-06-09",
+      "isActive": true
+    },
+    {
+      "streakType": "weekly_activity",
+      "currentCount": 3,
+      "longestCount": 3,
+      "lastActiveDate": "2026-06-09",
+      "isActive": true
+    },
+    {
+      "streakType": "monthly_budget",
+      "currentCount": 0,
+      "longestCount": 0,
+      "lastActiveDate": null,
+      "isActive": false
+    }
+  ]
+}
+```
+
+Streak types: `daily_expense`, `weekly_activity`, `monthly_budget`.
+
+### GET `/gamification/challenges`
 
 Query params:
 
 | name | type | notes |
 | --- | --- | --- |
-| `date` | `YYYY-MM-DD` | optional |
-| `status` | string | optional |
+| `date` | `YYYY-MM-DD` | optional; defaults to today |
+| `status` | string | optional; `active`, `completed`, `claimed`, `expired` |
 
-### POST `/challenges/generate`
+If no challenges exist for the requested date, default daily challenges are auto-generated.
 
-Generates daily challenges for a date. Idempotent for the same user/date.
-
-Request:
+Response `200`:
 
 ```json
 {
-  "date": "2026-05-27"
+  "items": [
+    {
+      "id": "uuid",
+      "title": "Zero Spend Day",
+      "description": "Don't log any expenses today.",
+      "rewardXp": 30,
+      "type": "zero_spend",
+      "targetValue": null,
+      "categoryId": null,
+      "challengeDate": "2026-06-09",
+      "status": "active",
+      "progressPct": 0.00,
+      "completedAt": null,
+      "claimedAt": null,
+      "createdAt": "2026-06-09T03:00:00Z",
+      "updatedAt": "2026-06-09T03:00:00Z"
+    }
+  ]
 }
 ```
 
-### PATCH `/challenges/{challengeId}`
+Challenge types: `spending_limit`, `no_category`, `save_amount`, `zero_spend`.
 
-Updates challenge status when the backend verifies completion.
+### POST `/gamification/challenges/{challengeId}/join`
 
-### POST `/challenges/{challengeId}/claim`
+Join (acknowledge) an active challenge. Records a `challenge_joined` event and awards 5 XP.
 
-Claims XP for a completed challenge.
+Request: empty body.
+
+Response `200`: same shape as challenge item above.
+
+Returns `404` if the challenge does not exist or is not owned by the user.
+Returns `409` if the challenge is not in `active` status.
+
 
 ## Local Store Import
 

@@ -125,6 +125,16 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
+    # ── Gamification event log & streaks ──────────────────────────────────
+    gamification_events: Mapped[list["GamificationEvent"]] = relationship(  # noqa: F821
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    streaks: Mapped[list["UserStreak"]] = relationship(  # noqa: F821
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
     __table_args__ = (
         CheckConstraint("position('@' in email) > 1", name="users_email_format_chk"),
         CheckConstraint(
