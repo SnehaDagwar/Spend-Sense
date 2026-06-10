@@ -17,6 +17,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound.tsx";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
@@ -29,8 +30,49 @@ const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
-  const { settings } = useAppStore();
+  const { settings, authChecked, initializeFromBackend, logout } = useAppStore();
   const { onboardingCompleted, isLoggedIn } = settings;
+
+  useEffect(() => {
+    initializeFromBackend();
+  }, [initializeFromBackend]);
+
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      logout();
+    };
+    window.addEventListener("auth:session-expired", handleSessionExpired);
+    return () => {
+      window.removeEventListener("auth:session-expired", handleSessionExpired);
+    };
+  }, [logout]);
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-gradient-hero flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="h-16 w-16 rounded-2xl bg-gradient-accent shadow-glow flex items-center justify-center animate-pulse">
+            <span className="h-8 w-8 text-white text-2xl font-bold flex items-center justify-center">S</span>
+          </div>
+          <h1 className="text-2xl font-display font-bold bg-clip-text text-transparent bg-gradient-accent animate-pulse">Spend Sense</h1>
+          <div className="w-24 h-1 bg-muted rounded-full overflow-hidden relative">
+            <div className="absolute top-0 left-0 h-full w-12 bg-gradient-primary rounded-full animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If not logged in, show login screen
+  if (!isLoggedIn) {
+    return (
+      <AnimatePresence mode="wait">
+        <Routes location={location} key="login">
+          <Route path="*" element={<Login />} />
+        </Routes>
+      </AnimatePresence>
+    );
+  }
 
   // If onboarding not completed, only allow access to Onboarding page
   if (!onboardingCompleted) {
@@ -38,17 +80,6 @@ const AnimatedRoutes = () => {
       <AnimatePresence mode="wait">
         <Routes location={location} key="onboarding">
           <Route path="*" element={<Onboarding />} />
-        </Routes>
-      </AnimatePresence>
-    );
-  }
-
-  // If not logged in (local session), show login screen
-  if (!isLoggedIn) {
-    return (
-      <AnimatePresence mode="wait">
-        <Routes location={location} key="login">
-          <Route path="*" element={<Login />} />
         </Routes>
       </AnimatePresence>
     );

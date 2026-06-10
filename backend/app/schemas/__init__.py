@@ -33,7 +33,17 @@ from app.schemas.expense import (
     ExpensePublic,
     ExpenseUpdate,
 )
-from app.schemas.user import UserPublic
+from app.schemas.user import (
+    UserPublic,
+    UserPreferencesPublic,
+    NotificationPreferencesPublic,
+    UserProgressPublic,
+    MeResponse,
+    OnboardingRequest,
+    ProfileUpdateRequest,
+    PreferencesUpdateRequest,
+    NotificationsUpdateRequest,
+)
 from app.schemas.goal import (
     GoalCreate,
     GoalUpdate,
@@ -96,6 +106,14 @@ __all__ = [
     "TokenResponse",
     # User
     "UserPublic",
+    "UserPreferencesPublic",
+    "NotificationPreferencesPublic",
+    "UserProgressPublic",
+    "MeResponse",
+    "OnboardingRequest",
+    "ProfileUpdateRequest",
+    "PreferencesUpdateRequest",
+    "NotificationsUpdateRequest",
     # Goals
     "GoalCreate",
     "GoalUpdate",

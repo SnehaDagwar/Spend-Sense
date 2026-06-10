@@ -72,11 +72,18 @@ const Onboarding = () => {
     },
   ];
 
+  const [isCompleting, setIsCompleting] = useState(false);
+
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
 
-  const handleComplete = () => {
-    completeOnboarding(formData);
+  const handleComplete = async () => {
+    setIsCompleting(true);
+    try {
+      await completeOnboarding(formData);
+    } finally {
+      setIsCompleting(false);
+    }
   };
 
   const containerVariants = {
@@ -277,11 +284,17 @@ const Onboarding = () => {
               </Button>
               <Button 
                 onClick={handleComplete} 
-                disabled={!formData.userName}
+                disabled={!formData.userName || isCompleting}
                 size="lg" 
                 className="px-8 rounded-xl bg-gradient-primary text-white shadow-glow"
               >
-                Finish Setup <CheckCircle2 className="ml-2 h-4 w-4" />
+                {isCompleting ? (
+                  <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Finish Setup <CheckCircle2 className="ml-2 h-4 w-4" />
+                  </>
+                )}
               </Button>
             </div>
           </motion.div>
