@@ -146,7 +146,7 @@ class TestEnums:
         assert len(NotificationTiming) == 3
 
     def test_family_role_members(self) -> None:
-        assert len(FamilyRole) == 3
+        assert len(FamilyRole) == 4
 
     def test_savings_goal_status_members(self) -> None:
         assert len(SavingsGoalStatus) == 4
@@ -216,7 +216,7 @@ class TestSeedData:
 
     def test_badge_catalog_count(self) -> None:
         from app.db.seed import BADGE_CATALOG
-        assert len(BADGE_CATALOG) == 5
+        assert len(BADGE_CATALOG) == 20
 
     def test_badge_catalog_unique_codes(self) -> None:
         from app.db.seed import BADGE_CATALOG
