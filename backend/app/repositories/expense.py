@@ -14,7 +14,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 from typing import Optional, Sequence
 
-from sqlalchemy import and_, cast, or_, select, text
+from sqlalchemy import and_, cast, func, or_, select, text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import Text as SAText
 from sqlalchemy.orm import Session, joinedload
@@ -95,11 +95,16 @@ class ExpenseRepository:
         limit: int = 50,
         cursor_date: Optional[date] = None,
         cursor_id: Optional[uuid.UUID] = None,
+        cursor_amount: Optional[Decimal] = None,
     ) -> tuple[Sequence[Expense], Optional[str]]:
         """Return (items, next_cursor) for the given filters.
 
         Returns one extra row beyond ``limit`` to determine whether a next
         page exists without a separate COUNT query.
+
+        Cursor encoding:
+        - date sort: keyset on (expense_date, id)
+        - amount sort: keyset on (amount, id) — prevents drift on equal amounts
         """
         from app.schemas.expense import PaginationCursor
 
@@ -144,13 +149,13 @@ class ExpenseRepository:
         if amount_max is not None:
             stmt = stmt.where(Expense.amount <= amount_max)
 
-        # -- Full-text search on note + merchant -------------------------
+        # -- Full-text search on note + merchant (uses functional indexes) --
         if q:
-            pattern = f"%{q.lower()}%"
+            q_lower = q.lower()
             stmt = stmt.where(
                 or_(
-                    Expense.note.ilike(pattern),
-                    Expense.merchant.ilike(pattern),
+                    func.lower(Expense.note).contains(q_lower),
+                    func.lower(Expense.merchant).contains(q_lower),
                 )
             )
 
@@ -159,7 +164,6 @@ class ExpenseRepository:
         if cursor_date is not None and cursor_id is not None:
             if sort_by == "date":
                 if desc:
-                    # Rows before the cursor position
                     stmt = stmt.where(
                         or_(
                             Expense.expense_date < cursor_date,
@@ -179,12 +183,29 @@ class ExpenseRepository:
                             ),
                         )
                     )
-            # For amount sort, fall back to id tiebreak on same amount
-            elif sort_by == "amount":
+            # Amount sort: use (amount, id) composite keyset to prevent
+            # drift when multiple rows share the same amount.
+            elif sort_by == "amount" and cursor_amount is not None:
                 if desc:
-                    stmt = stmt.where(Expense.id < cursor_id)
+                    stmt = stmt.where(
+                        or_(
+                            Expense.amount < cursor_amount,
+                            and_(
+                                Expense.amount == cursor_amount,
+                                Expense.id < cursor_id,
+                            ),
+                        )
+                    )
                 else:
-                    stmt = stmt.where(Expense.id > cursor_id)
+                    stmt = stmt.where(
+                        or_(
+                            Expense.amount > cursor_amount,
+                            and_(
+                                Expense.amount == cursor_amount,
+                                Expense.id > cursor_id,
+                            ),
+                        )
+                    )
 
         # -- Sorting ------------------------------------------------------
         if sort_by == "amount":
@@ -204,7 +225,11 @@ class ExpenseRepository:
         if len(rows) > limit:
             rows = rows[:limit]
             last = rows[-1]
-            next_cursor = PaginationCursor.encode(last.expense_date, last.id)
+            next_cursor = PaginationCursor.encode(
+                last.expense_date,
+                last.id,
+                amount=last.amount if sort_by == "amount" else None,
+            )
         else:
             next_cursor = None
 

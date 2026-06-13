@@ -65,7 +65,7 @@ def _parse_filters(
     sort_order: Annotated[
         str, Query(alias="sortOrder", pattern=r"^(asc|desc)$")
     ] = "desc",
-    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
     cursor: Annotated[Optional[str], Query()] = None,
 ) -> ExpenseFilters:
     try:

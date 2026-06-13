@@ -58,9 +58,10 @@ class ExpenseService:
         """Return (expenses, next_cursor) applying all filters."""
         cursor_date = None
         cursor_id = None
+        cursor_amount = None
         if filters.cursor:
             try:
-                cursor_date, cursor_id = PaginationCursor.decode(filters.cursor)
+                cursor_date, cursor_id, cursor_amount = PaginationCursor.decode(filters.cursor)
             except ValueError as exc:
                 raise ExpenseServiceError(f"Invalid cursor: {exc}") from exc
 
@@ -81,6 +82,7 @@ class ExpenseService:
             limit=filters.limit,
             cursor_date=cursor_date,
             cursor_id=cursor_id,
+            cursor_amount=cursor_amount,
         )
         return list(items), next_cursor
 
@@ -146,6 +148,9 @@ class ExpenseService:
         self.db.refresh(expense)
         # Ensure category is loaded after commit
         _ = expense.category
+        # Invalidate per-user analytics cache
+        from app.core.cache import invalidate_user
+        invalidate_user(str(user_id))
         return expense
 
     # ------------------------------------------------------------------
@@ -196,6 +201,9 @@ class ExpenseService:
         self.db.refresh(expense)
         # Ensure category relationship is fresh
         _ = expense.category
+        # Invalidate per-user analytics cache
+        from app.core.cache import invalidate_user
+        invalidate_user(str(user_id))
         return expense
 
     # ------------------------------------------------------------------
@@ -214,3 +222,6 @@ class ExpenseService:
 
         self.repo.delete(expense)
         self.db.commit()
+        # Invalidate per-user analytics cache
+        from app.core.cache import invalidate_user
+        invalidate_user(str(user_id))

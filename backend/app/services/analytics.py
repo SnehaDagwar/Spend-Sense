@@ -12,6 +12,7 @@ from typing import Optional, Sequence
 
 from sqlalchemy.orm import Session
 
+from app.core.cache import get_user_cached, make_user_cache_key, set_user_cached
 from app.repositories.analytics import AnalyticsRepository
 from app.repositories.expense import ExpenseRepository
 from app.schemas.analytics import (
@@ -95,7 +96,17 @@ class AnalyticsService:
         user_id: uuid.UUID,
         filters: AnalyticsFilters,
     ) -> SummaryResponse:
-        """Fetch dashboard summary metrics."""
+        """Fetch dashboard summary metrics (TTL-cached per user+filter)."""
+        cache_key = make_user_cache_key(
+            str(user_id), "analytics.summary",
+            month=filters.month,
+            date_from=str(filters.date_from),
+            date_to=str(filters.date_to),
+        )
+        cached = get_user_cached(str(user_id), cache_key)
+        if cached is not None:
+            return cached
+
         # 1. Date resolution
         cur_start, cur_end = _get_current_month_range()
 
@@ -161,7 +172,7 @@ class AnalyticsService:
         )
         recent_list = [ExpensePublic.model_validate(e) for e in recent_expenses]
 
-        return SummaryResponse(
+        result = SummaryResponse(
             total_spending_current_month=total_spending_current_month,
             total_spending_custom_range=total_spending_custom_range,
             budget_utilization=budget_utilization,
@@ -169,6 +180,8 @@ class AnalyticsService:
             top_categories=top_categories_list,
             recent_transactions=recent_list,
         )
+        set_user_cached(str(user_id), cache_key, result)
+        return result
 
     def get_category_breakdown(
         self,
@@ -218,7 +231,18 @@ class AnalyticsService:
         user_id: uuid.UUID,
         filters: SpendingTrendFilters,
     ) -> SpendingTrendResponse:
-        """Compile spending aggregates daily or weekly."""
+        """Compile spending aggregates daily or weekly (TTL-cached per user+filter)."""
+        cache_key = make_user_cache_key(
+            str(user_id), "analytics.spending_trend",
+            month=filters.month,
+            date_from=str(filters.date_from),
+            date_to=str(filters.date_to),
+            interval=filters.interval,
+        )
+        cached = get_user_cached(str(user_id), cache_key)
+        if cached is not None:
+            return cached
+
         # 1. Date resolution
         if filters.month:
             target_start, target_end = _month_date_range(filters.month)
@@ -293,11 +317,13 @@ class AnalyticsService:
         else:
             trend_items = padded_daily_items
 
-        return SpendingTrendResponse(
+        result = SpendingTrendResponse(
             items=trend_items,
             highest_spending_day=highest_day,
             average_daily_spending=avg_daily,
         )
+        set_user_cached(str(user_id), cache_key, result)
+        return result
 
     def get_budget_performance(
         self,

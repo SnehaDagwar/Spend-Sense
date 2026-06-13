@@ -1,3 +1,12 @@
+"""JWT, password, and token utilities.
+
+JWT hardening (Phase 12):
+- jti  — unique JWT ID (token-level identity for future blocklist support)
+- iss  — issuer claim (APP_NAME)
+- aud  — audience claim (JWT_AUDIENCE)
+Both iss and aud are validated on decode.
+"""
+
 import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -9,7 +18,6 @@ from jose import jwt
 
 from app.core.config import settings
 
-ALGORITHM = "HS256"
 REFRESH_TOKEN_BYTES = 64
 MAX_BCRYPT_PASSWORD_BYTES = 72
 
@@ -27,14 +35,24 @@ def create_access_token(subject: str, expires_delta: timedelta | None = None) ->
         "sub": subject,
         "exp": expire,
         "iat": now,
+        "nbf": now,
         "type": "access",
+        "jti": secrets.token_urlsafe(16),
+        "iss": settings.APP_NAME,
+        "aud": settings.JWT_AUDIENCE,
     }
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
 def decode_token(token: str, expected_type: str | None = None) -> dict[str, Any]:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM],
+            audience=settings.JWT_AUDIENCE,
+            issuer=settings.APP_NAME,
+        )
     except JWTError as exc:
         raise TokenDecodeError("Could not validate credentials.") from exc
 

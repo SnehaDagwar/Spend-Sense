@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 
 
 def _error_payload(
@@ -28,6 +29,7 @@ def _http_status_to_code(status_code: int) -> str:
         status.HTTP_404_NOT_FOUND: "not_found",
         status.HTTP_409_CONFLICT: "conflict",
         status.HTTP_422_UNPROCESSABLE_ENTITY: "validation_error",
+        status.HTTP_429_TOO_MANY_REQUESTS: "rate_limit_exceeded",
         status.HTTP_500_INTERNAL_SERVER_ERROR: "internal_error",
     }
     return mapping.get(status_code, "bad_request")
@@ -67,5 +69,20 @@ def register_exception_handlers(app: FastAPI) -> None:
             content=_error_payload(
                 code=_http_status_to_code(exc.status_code),
                 message=str(exc.detail),
+            ),
+        )
+
+    @app.exception_handler(RateLimitExceeded)
+    async def rate_limit_handler(
+        request: Request,
+        exc: RateLimitExceeded,
+    ) -> JSONResponse:
+        retry_after = getattr(exc, "retry_after", 60)
+        return JSONResponse(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            headers={"Retry-After": str(retry_after)},
+            content=_error_payload(
+                code="rate_limit_exceeded",
+                message=f"Too many requests. Retry after {retry_after} seconds.",
             ),
         )

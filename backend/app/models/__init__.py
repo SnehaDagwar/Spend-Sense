@@ -45,6 +45,9 @@ from app.models.challenge import Challenge
 from app.models.gamification_event import GamificationEvent
 from app.models.streak import UserStreak
 
+# Security & Audit
+from app.models.audit_log import AuditLog
+
 __all__ = [
     # Enums
     "BadgeCategory",
@@ -87,4 +90,6 @@ __all__ = [
     "GamificationEvent",
     "UserBadge",
     "UserStreak",
+    # Security & Audit
+    "AuditLog",
 ]

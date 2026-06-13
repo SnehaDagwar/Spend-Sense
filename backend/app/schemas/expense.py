@@ -24,22 +24,34 @@ from app.schemas.category import CategoryPublic
 # ---------------------------------------------------------------------------
 
 class PaginationCursor:
-    """Opaque base64 cursor encoding (expense_date, id)."""
+    """Opaque base64 cursor encoding.
+
+    Encodes (expense_date, id) for date-sort, and (amount, id) for
+    amount-sort.  Both fields are always present; the sort path
+    determines which one drives the keyset predicate.
+    """
 
     @staticmethod
-    def encode(expense_date: date, expense_id: uuid.UUID) -> str:
-        payload = json.dumps(
-            {"date": expense_date.isoformat(), "id": str(expense_id)},
-            separators=(",", ":"),
-        )
-        return base64.urlsafe_b64encode(payload.encode()).decode()
+    def encode(
+        expense_date: date,
+        expense_id: uuid.UUID,
+        amount: Optional[Decimal] = None,
+    ) -> str:
+        payload: dict = {"date": expense_date.isoformat(), "id": str(expense_id)}
+        if amount is not None:
+            payload["amount"] = str(amount)
+        return base64.urlsafe_b64encode(
+            json.dumps(payload, separators=(",", ":")).encode()
+        ).decode()
 
     @staticmethod
-    def decode(cursor: str) -> tuple[date, uuid.UUID]:
+    def decode(cursor: str) -> tuple[date, uuid.UUID, Optional[Decimal]]:
+        """Return (expense_date, id, amount_or_None)."""
         try:
             raw = base64.urlsafe_b64decode(cursor.encode()).decode()
             data = json.loads(raw)
-            return date.fromisoformat(data["date"]), uuid.UUID(data["id"])
+            amount = Decimal(data["amount"]) if "amount" in data else None
+            return date.fromisoformat(data["date"]), uuid.UUID(data["id"]), amount
         except Exception as exc:
             raise ValueError(f"Invalid pagination cursor: {cursor!r}") from exc
 
@@ -196,7 +208,7 @@ class ExpenseFilters(APIModel):
     )
     sort_by: str = Field(default="date", pattern=r"^(date|amount)$")
     sort_order: str = Field(default="desc", pattern=r"^(asc|desc)$")
-    limit: Annotated[int, Field(ge=1, le=200)] = 50
+    limit: Annotated[int, Field(ge=1, le=100)] = 50
     cursor: Optional[str] = None
 
     @model_validator(mode="after")
