@@ -11,6 +11,36 @@ from app.api.v1.api import api_router
 from app.core.config import settings
 from app.core.errors import register_exception_handlers
 from app.core.limiter import limiter
+from app.core.logging import configure_logging
+
+# ── Logging ───────────────────────────────────────────────────────────────
+configure_logging(
+    level=settings.LOG_LEVEL,
+    json_logs=settings.ENVIRONMENT == "production",
+)
+
+# ── Sentry (optional) ───────────────────────────────────────────────────
+if settings.SENTRY_DSN:
+    try:
+        import sentry_sdk  # type: ignore[import-untyped]
+        from sentry_sdk.integrations.fastapi import FastApiIntegration  # type: ignore[import-untyped]
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration  # type: ignore[import-untyped]
+
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.ENVIRONMENT,
+            release=settings.APP_VERSION,
+            integrations=[FastApiIntegration(), SqlalchemyIntegration()],
+            # Capture 100% of transactions in dev; tune in production
+            traces_sample_rate=0.1 if settings.ENVIRONMENT == "production" else 1.0,
+            send_default_pii=False,  # never send PII to Sentry
+        )
+    except ImportError:
+        import logging as _logging
+        _logging.getLogger(__name__).warning(
+            "SENTRY_DSN is set but sentry-sdk is not installed. "
+            "Add sentry-sdk[fastapi] to requirements.txt."
+        )
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):

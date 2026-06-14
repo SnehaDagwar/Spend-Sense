@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: spend-sense-api
+    runtime: python
+    region: oregon  # closest to India: singapore; change to "singapore" if latency matters
+    plan: free      # change to "starter" ($7/mo) for always-on, no cold starts
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+
+      - key: PYTHONPATH
+        value: .
+
+      # ── Secrets (set via Render dashboard or render.yaml sync) ────────────
+      # Generate with: python -c "import secrets; print(secrets.token_urlsafe(48))"
+      - key: SECRET_KEY
+        sync: false   # marks this as a secret — must be set in Render dashboard
+
+      # Neon connection string: postgresql+psycopg://user:pass@host/db?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+
+      # Comma-separated or JSON list of allowed frontend origins
+      # e.g. '["https://spend-sense.vercel.app"]'
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+
+      # ── Optional: AI providers ────────────────────────────────────────────
+      - key: AI_PROVIDER
+        value: mock  # change to "gemini", "openai", or "claude" when ready
+
+      - key: GEMINI_API_KEY
+        sync: false
+
+      - key: OPENAI_API_KEY
+        sync: false
+
+      - key: CLAUDE_API_KEY
+        sync: false
+
+      # ── Optional: Monitoring ──────────────────────────────────────────────
+      - key: SENTRY_DSN
+        sync: false
+
+      # ── OpenAPI (disable Swagger UI in production) ────────────────────────
+      - key: OPENAPI_ENABLED
+        value: "false"
+
+      # ── Logging ───────────────────────────────────────────────────────────
+      - key: LOG_LEVEL
+        value: INFO

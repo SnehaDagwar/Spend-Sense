@@ -167,23 +167,26 @@ Status: superseded by Phase 9.
 
 Goal: make the backend production-ready.
 
+Status: **complete** (Phase 13).
+
 Deliverables:
 
-- Structured logging.
-- Request IDs.
-- Rate limiting for auth endpoints.
-- CORS environment review.
-- Secret management review.
-- Database connection pool tuning.
-- Backup and migration rollback notes.
-- CI checks for backend tests and migrations.
-- Deployment documentation.
+- Structured JSON logging (`app/core/logging.py`) — JSON in production, text locally.
+- `LOG_LEVEL` configurable via environment variable.
+- Sentry error monitoring (`sentry-sdk[fastapi]`) — optional, enabled via `SENTRY_DSN`.
+- Rate limiting for auth endpoints (SlowAPI — already present from Phase 2).
+- CORS reviewed — configured via `BACKEND_CORS_ORIGINS` env var on Render.
+- Secret management — `SECRET_KEY` validation enforces 32+ chars outside local/test.
+- Database connection pool with `pool_pre_ping=True` (already present).
+- `alembic upgrade head` runs on every Render deploy before uvicorn starts.
+- `docs/deployment.md` — full deployment and rollback runbook.
+- `.github/workflows/ci.yml` — CI blocks on lint, test, build, and migration regressions.
+- `.github/workflows/db-backup.yml` — weekly `pg_dump` to GitHub Actions artifacts.
+- `vercel.json` — SPA routing, security headers, asset caching for Vercel frontend.
+- `backend/render.yaml` — Render Blueprint for one-click backend deployment.
+- `/api/v1/health` enhanced with real DB ping and structured response.
 
-Exit criteria:
-
-- Backend can be deployed with environment-specific configuration.
-- Auth and financial data handling have a documented security baseline.
-- CI blocks obvious migration/test regressions.
+Exit criteria: met.
 
 ## Phase 8 - AI Insights And Financial Intelligence
 

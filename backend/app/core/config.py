@@ -48,6 +48,14 @@ class Settings(BaseSettings):
     AI_FALLBACK_ENABLED: bool = True      # use rule-based fallback on provider failure
     AI_CACHE_MAX_SIZE: int = 500          # max cached insight entries (LRU eviction)
 
+    # ── Monitoring ────────────────────────────────────────────────────────────
+    # Set SENTRY_DSN to enable Sentry error tracking in production.
+    # Leave unset (or empty) to disable Sentry entirely.
+    SENTRY_DSN: str | None = None
+
+    # ── Logging ───────────────────────────────────────────────────────────────
+    LOG_LEVEL: str = "INFO"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_ignore_empty=True,

@@ -1,0 +1,59 @@
+name: Weekly Database Backup
+
+on:
+  schedule:
+    # Every Sunday at 02:00 UTC (07:30 IST)
+    - cron: "0 2 * * 0"
+  # Allow manual runs from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: pg_dump → GitHub Artifact
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install PostgreSQL client tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client
+
+      - name: Run pg_dump
+        env:
+          # DATABASE_URL format: postgresql+psycopg://user:pass@host/db?sslmode=require
+          # We strip the driver prefix (postgresql+psycopg://) to get a pg_dump-compatible URL
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          # Convert SQLAlchemy URL to libpq-compatible URL
+          PG_URL="${DATABASE_URL/postgresql+psycopg:\/\//postgresql://}"
+          TIMESTAMP=$(date -u +"%Y%m%d_%H%M%S")
+          FILENAME="spend_sense_backup_${TIMESTAMP}.sql.gz"
+          echo "BACKUP_FILE=${FILENAME}" >> $GITHUB_ENV
+
+          pg_dump "${PG_URL}" \
+            --no-password \
+            --format=plain \
+            --no-owner \
+            --no-acl \
+          | gzip > "${FILENAME}"
+
+          echo "Backup complete: ${FILENAME} ($(du -sh "${FILENAME}" | cut -f1))"
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: ${{ env.BACKUP_FILE }}
+          # GitHub retains artifacts for 90 days by default on free plans
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Report backup result
+        if: always()
+        run: |
+          if [ -f "$BACKUP_FILE" ]; then
+            echo "✅ Backup succeeded: $BACKUP_FILE"
+          else
+            echo "❌ Backup file not found — check previous steps"
+            exit 1
+          fi
