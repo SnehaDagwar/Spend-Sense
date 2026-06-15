@@ -1,8 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -12,6 +15,8 @@ from app.core.config import settings
 from app.core.errors import register_exception_handlers
 from app.core.limiter import limiter
 from app.core.logging import configure_logging
+from app.core.middleware import RequestLoggingMiddleware
+from app.db.session import get_db
 
 # ── Logging ───────────────────────────────────────────────────────────────
 configure_logging(
@@ -92,6 +97,9 @@ def create_app() -> FastAPI:
             allow_headers=["Authorization", "Content-Type", "Accept"],
         )
 
+    # ── Request Logging ──────────────────────────────────────────────────
+    app.add_middleware(RequestLoggingMiddleware)
+
     # ── Exception handlers ──────────────────────────────────────────────
     register_exception_handlers(app)
 
@@ -101,6 +109,49 @@ def create_app() -> FastAPI:
     @app.get("/", tags=["root"])
     def root() -> dict[str, str]:
         return {"name": settings.APP_NAME, "status": "ok"}
+
+    @app.get("/health", tags=["monitoring"])
+    def liveness_check() -> dict[str, str]:
+        """Liveness check probe.
+
+        Always returns 200 OK with status "ok" as long as the server is running.
+        """
+        return {
+            "status": "ok",
+            "version": settings.APP_VERSION,
+            "environment": settings.ENVIRONMENT,
+        }
+
+    @app.get("/readiness", tags=["monitoring"])
+    def readiness_check(db: Session = Depends(get_db)) -> JSONResponse:
+        """Readiness check probe.
+
+        Checks downstream dependencies (database connection).
+        Returns 200 OK if the database is reachable, or 503 Service Unavailable if down.
+        """
+        try:
+            db.execute(text("SELECT 1"))
+            return JSONResponse(
+                content={
+                    "status": "ok",
+                    "version": settings.APP_VERSION,
+                    "environment": settings.ENVIRONMENT,
+                    "db": "ok",
+                },
+                status_code=200,
+            )
+        except Exception:
+            import logging
+            logging.getLogger("app.readiness").exception("Readiness check database ping failed")
+            return JSONResponse(
+                content={
+                    "status": "unready",
+                    "version": settings.APP_VERSION,
+                    "environment": settings.ENVIRONMENT,
+                    "db": "error",
+                },
+                status_code=503,
+            )
 
     return app
 
