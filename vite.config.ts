@@ -20,6 +20,14 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
+  build: {
+    rollupOptions: {
+      // posthog-js is dynamically imported and only used when VITE_POSTHOG_KEY
+      // is set. Mark as external so Rollup doesn't fail in environments where
+      // the package isn't installed.
+      external: ["posthog-js"],
+    },
+  },
   test: {
     globals: true,
     environment: "jsdom",

@@ -9,11 +9,13 @@ import {
   ChevronRight, 
   ChevronLeft,
   CheckCircle2,
-  Wallet,
-  Target,
   IndianRupee,
   DollarSign,
-  Euro
+  Euro,
+  Brain,
+  Trophy,
+  ShieldCheck,
+  BarChart3
 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,39 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { UserType } from "@/types";
+
+const FEATURE_HIGHLIGHTS = [
+  { icon: Brain, label: "AI-powered insights", color: "text-violet-500 bg-violet-50" },
+  { icon: BarChart3, label: "Smart budget tracking", color: "text-blue-500 bg-blue-50" },
+  { icon: Trophy, label: "Gamified streaks & badges", color: "text-amber-500 bg-amber-50" },
+  { icon: ShieldCheck, label: "Goal-based savings", color: "text-green-500 bg-green-50" },
+];
+
+const TOTAL_STEPS = 3;
+
+function StepProgressBar({ current }: { current: number }) {
+  return (
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+      {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+        <motion.div
+          key={i}
+          animate={{
+            width: current === i ? 28 : 8,
+            backgroundColor:
+              i < current
+                ? "var(--primary)"
+                : current === i
+                ? "var(--primary)"
+                : "#d1d5db",
+            opacity: i <= current ? 1 : 0.4,
+          }}
+          transition={{ duration: 0.3 }}
+          className="h-2 rounded-full"
+        />
+      ))}
+    </div>
+  );
+}
 
 const Onboarding = () => {
   const [step, setStep] = useState(0);
@@ -94,6 +129,9 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+      {/* Step progress bar — visible on steps 1+ */}
+      {step > 0 && <StepProgressBar current={step - 1} />}
+
       <AnimatePresence mode="wait">
         {step === 0 && (
           <motion.div 
@@ -121,12 +159,25 @@ const Onboarding = () => {
               </p>
             </div>
 
-            <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
-              Experience a new way of managing your wealth. Personalized insights, 
-              predictive tracking, and smart goal management—all tailored to your lifestyle.
-            </p>
+            {/* Feature highlights */}
+            <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
+              {FEATURE_HIGHLIGHTS.map(({ icon: Icon, label, color }, i) => (
+                <motion.div
+                  key={label}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + i * 0.1 }}
+                  className="flex items-center gap-2.5 bg-white/60 backdrop-blur-sm rounded-2xl px-3 py-2.5 border border-white/30 shadow-sm"
+                >
+                  <div className={`h-7 w-7 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+                    <Icon className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-semibold text-gray-700 leading-tight">{label}</span>
+                </motion.div>
+              ))}
+            </div>
 
-            <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button 
                 onClick={nextStep}
                 size="lg" 
@@ -190,9 +241,22 @@ const Onboarding = () => {
               <Button variant="ghost" onClick={prevStep} className="rounded-xl">
                 <ChevronLeft className="mr-2 h-4 w-4" /> Back
               </Button>
-              <Button onClick={nextStep} size="lg" className="px-8 rounded-xl bg-gradient-primary text-white shadow-glow">
-                Continue <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    // Skip with Professional as default
+                    setFormData((d) => ({ ...d, type: "Professional" as UserType }));
+                    nextStep();
+                  }}
+                  className="rounded-xl text-muted-foreground text-sm"
+                >
+                  Skip
+                </Button>
+                <Button onClick={nextStep} size="lg" className="px-8 rounded-xl bg-gradient-primary text-white shadow-glow">
+                  Continue <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -301,19 +365,14 @@ const Onboarding = () => {
         )}
       </AnimatePresence>
 
-      {/* Progress Indicator */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-        {[0, 1, 2].map((i) => (
-          <motion.div 
-            key={i}
-            animate={{ 
-              width: step === i ? 24 : 8,
-              backgroundColor: step === i ? "var(--primary)" : "var(--muted-foreground)"
-            }}
-            className="h-2 rounded-full opacity-30"
-          />
-        ))}
-      </div>
+      {/* Step labels */}
+      {step > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 text-center">
+          <p className="text-xs text-muted-foreground font-medium">
+            Step {step} of {TOTAL_STEPS}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

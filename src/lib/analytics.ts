@@ -104,4 +104,34 @@ export const Analytics = {
     track("bug_reported", { severity }),
 
   betaBannerDismissed: () => track("beta_banner_dismissed"),
+
+  // ── Phase 16: Feedback & Iteration ──────────────────────────────────────
+
+  /** NPS score submitted (0–10). Segment: promoter 9-10, passive 7-8, detractor 0-6 */
+  npsSubmitted: (score: number, followUp?: string) =>
+    track("nps_submitted", {
+      score,
+      segment: score >= 9 ? "promoter" : score >= 7 ? "passive" : "detractor",
+      has_comment: followUp ? followUp.length > 0 : false,
+    }),
+
+  /** Contextual CSAT rating after a key action */
+  csatSubmitted: (rating: number, context: string) =>
+    track("csat_submitted", { rating, context }),
+
+  /** User upvoted or withdrew a vote on a feature request */
+  featureVoteToggled: (featureId: string, action: "vote" | "unvote") =>
+    track("feature_vote_toggled", { feature_id: featureId, action }),
+
+  /** User dismissed a coach mark spotlight */
+  coachMarkDismissed: (markId: string) =>
+    track("coach_mark_dismissed", { mark_id: markId }),
+
+  /** What's New modal was viewed for a given version */
+  whatsNewViewed: (version: string) =>
+    track("whats_new_viewed", { version }),
+
+  /** Onboarding checklist item completed */
+  checklistItemCompleted: (itemId: string) =>
+    track("checklist_item_completed", { item_id: itemId }),
 } as const;

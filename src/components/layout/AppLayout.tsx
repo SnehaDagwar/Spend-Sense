@@ -5,12 +5,19 @@ import { useAppStore } from "@/store/useAppStore";
 import { monthLabel } from "@/utils/formatters";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { QuickAddDialog } from "@/components/tracker/QuickAddDialog";
 import { AIInsightWidget } from "@/components/insights/AIInsightWidget";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FeedbackWidget, trackRouteHistory } from "@/components/feedback/FeedbackWidget";
+import { NPSSurvey } from "@/components/feedback/NPSSurvey";
+import { CSATToast } from "@/components/feedback/CSATToast";
+import { WhatsNewModal } from "@/components/feedback/WhatsNewModal";
+import { OnboardingChecklist } from "@/components/feedback/OnboardingChecklist";
+import { useNPSTrigger } from "@/hooks/useNPSTrigger";
+import { AnimatePresence } from "framer-motion";
 
 const TITLES: Record<string, { title: string; sub: string }> = {
   "/": { title: "Dashboard", sub: "Your money at a glance" },
@@ -28,6 +35,26 @@ export default function AppLayout() {
   const setActiveMonth = useAppStore((s) => s.setActiveMonth);
   const { settings } = useAppStore();
   const [quickOpen, setQuickOpen] = useState(false);
+
+  // NPS
+  const { shouldShowNPS, markNPSShown } = useNPSTrigger();
+  const [showNPS, setShowNPS] = useState(false);
+
+  // Track route history for bug report diagnostics
+  useEffect(() => {
+    trackRouteHistory(pathname);
+  }, [pathname]);
+
+  // Delay NPS appearance by 5s after eligibility to not interrupt flow
+  useEffect(() => {
+    if (!shouldShowNPS) return;
+    const t = setTimeout(() => {
+      markNPSShown();
+      setShowNPS(true);
+    }, 5000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldShowNPS]);
 
   return (
     <SidebarProvider>
@@ -155,6 +182,17 @@ export default function AppLayout() {
       </div>
       <QuickAddDialog open={quickOpen} onOpenChange={setQuickOpen} />
       <AIInsightWidget />
+
+      {/* Phase 16: Feedback & Product Iteration */}
+      <FeedbackWidget />
+      <CSATToast />
+      <WhatsNewModal />
+      <OnboardingChecklist />
+      <AnimatePresence>
+        {showNPS && (
+          <NPSSurvey onClose={() => setShowNPS(false)} />
+        )}
+      </AnimatePresence>
     </SidebarProvider>
   );
 }

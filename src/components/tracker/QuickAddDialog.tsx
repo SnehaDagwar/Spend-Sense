@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAppStore, useActiveBudget } from "@/store/useAppStore";
 import { toast } from "sonner";
 import { CategoryIcon } from "@/components/ui/CategoryIcon";
+import { useCSATStore, CSAT_CONTEXTS } from "@/hooks/useCSATTrigger";
 
 interface Props { open: boolean; onOpenChange: (v: boolean) => void; }
 
@@ -29,6 +30,13 @@ export function QuickAddDialog({ open, onOpenChange }: Props) {
     toast.success("Expense added");
     setAmount(""); setNote("");
     onOpenChange(false);
+    // Trigger CSAT after a short delay so the dialog closes first
+    setTimeout(() => {
+      useCSATStore.getState().show(
+        CSAT_CONTEXTS.FIRST_EXPENSE.context,
+        CSAT_CONTEXTS.FIRST_EXPENSE.question
+      );
+    }, 800);
   };
 
   return (

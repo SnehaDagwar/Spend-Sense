@@ -260,6 +260,38 @@ Exit criteria:
 - Streak updates are O(1) per event (no full history scans).
 - All 5 endpoints are JWT-protected and documented in OpenAPI.
 
+## Phase 16 — User Feedback & Product Iteration
+
+Goal: build a complete, localized feedback intelligence system in the frontend.
+
+Status: **complete** (frontend-only, localStorage-persisted).
+
+Deliverables:
+
+- `src/hooks/useFeedbackStore.ts` — Zustand slice persisting NPS state, CSAT history, feature votes, coach mark dismissals, onboarding checklist, What's New version, and feedback entries.
+- `src/lib/analytics.ts` — extended with `npsSubmitted`, `csatSubmitted`, `featureVoteToggled`, `coachMarkDismissed`, `whatsNewViewed`, `checklistItemCompleted` PostHog events.
+- `src/components/feedback/FeedbackWidget.tsx` — upgraded to 3-tab widget (Feedback / Bug Report / Suggest), with localStorage persistence, auto-captured diagnostics in bug tab, and quick-vote in suggest tab.
+- `src/components/feedback/NPSSurvey.tsx` — slide-up NPS 0–10 survey with segment-aware follow-up, shown after 3rd session and every 30 days.
+- `src/hooks/useNPSTrigger.ts` — session counter using sessionStorage, returns eligibility flag.
+- `src/components/feedback/CSATToast.tsx` — non-blocking 5-star CSAT toast, auto-dismisses in 12s.
+- `src/hooks/useCSATTrigger.ts` — Zustand store for CSAT show/hide/submit with repeat-guard.
+- `src/components/feedback/CoachMark.tsx` — portal-based spotlight overlay with animated ring, tooltip, and persistent dismissal.
+- `src/components/feedback/WhatsNewModal.tsx` — version-gated changelog modal triggered on version bump.
+- `src/components/feedback/OnboardingChecklist.tsx` — floating post-onboarding task checklist with animated progress bar.
+- `src/components/feedback/FeatureRequestBoard.tsx` — curated feature request board with local upvoting, embedded in Settings.
+- `src/pages/Onboarding.tsx` — animated step progress bar, feature highlight grid on welcome step, skip option on user-type step.
+- `src/pages/Settings.tsx` — new "Feedback" tab with FeatureRequestBoard.
+- `src/components/layout/AppLayout.tsx` — FeedbackWidget, NPSSurvey, CSATToast, WhatsNewModal, OnboardingChecklist all wired and rendered.
+- `src/components/tracker/QuickAddDialog.tsx` — CSAT triggered 800ms after expense logged.
+
+No new backend routes required for Phase 16. A future Phase 17 can add:
+
+- `POST /feedback` — persist feedback entries server-side.
+- `POST /feature-votes` — aggregate community votes from all users.
+- `GET /feature-votes` — return ranked feature list with real vote counts.
+
+Exit criteria: met. Frontend build passes. All components render without errors.
+
 ## Cross-Phase Rules
 
 - Update `docs/api-contracts.md` before or alongside API changes.

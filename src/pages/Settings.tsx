@@ -18,7 +18,8 @@ import {
   ShieldAlert,
   LogOut,
   RefreshCcw,
-  Settings2
+  Settings2,
+  MessageSquarePlus
 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +38,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { UserType } from "@/types";
+import { FeatureRequestBoard } from "@/components/feedback/FeatureRequestBoard";
 
 const AVATARS = [
   { id: "girl", label: "Anime Girl", url: "/avatars/girl.png" },
@@ -104,7 +106,7 @@ const Settings = () => {
       </header>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
-        <TabsList className="grid w-full grid-cols-3 max-w-lg bg-muted/50 p-1 backdrop-blur-sm border border-white/10 rounded-xl">
+        <TabsList className="grid w-full grid-cols-4 max-w-xl bg-muted/50 p-1 backdrop-blur-sm border border-white/10 rounded-xl">
           <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-glow transition-all">
             <User className="h-4 w-4 mr-2" />
             Profile
@@ -116,6 +118,10 @@ const Settings = () => {
           <TabsTrigger value="system" className="rounded-lg data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-glow transition-all">
             <Settings2 className="h-4 w-4 mr-2" />
             System
+          </TabsTrigger>
+          <TabsTrigger value="feedback" className="rounded-lg data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-glow transition-all">
+            <MessageSquarePlus className="h-4 w-4 mr-2" />
+            Feedback
           </TabsTrigger>
         </TabsList>
 
@@ -367,6 +373,34 @@ const Settings = () => {
                       <ShieldAlert className="h-4 w-4" /> Reset All Data
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        </TabsContent>
+
+        <TabsContent value="feedback">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid gap-6"
+          >
+            <motion.div variants={itemVariants}>
+              <Card className="glass-card border-white/10 shadow-xl">
+                <CardHeader className="bg-gradient-to-r from-violet-500/10 to-primary/5 border-b border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                      <MessageSquarePlus className="h-5 w-5 text-violet-600" />
+                    </div>
+                    <div>
+                      <CardTitle>Shape the Roadmap</CardTitle>
+                      <CardDescription>Vote on features and share your ideas with the team</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <FeatureRequestBoard />
                 </CardContent>
               </Card>
             </motion.div>
