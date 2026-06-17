@@ -95,6 +95,11 @@ from app.schemas.gamification import (
     StreakListResponse,
     StreakPublic,
 )
+from app.schemas.sync import (
+    SyncPullResponse,
+    SyncPushRequest,
+    SyncDatabaseChanges,
+)
 
 __all__ = [
     # Auth
@@ -104,6 +109,10 @@ __all__ = [
     "RefreshTokenRequest",
     "RegisterRequest",
     "TokenResponse",
+    # Sync
+    "SyncPullResponse",
+    "SyncPushRequest",
+    "SyncDatabaseChanges",
     # User
     "UserPublic",
     "UserPreferencesPublic",

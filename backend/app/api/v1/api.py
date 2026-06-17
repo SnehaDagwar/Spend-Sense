@@ -14,6 +14,7 @@ from app.api.v1.routes import (
     exports,
     insights,
     me,
+    sync,
 )
 
 api_router = APIRouter()
@@ -30,3 +31,4 @@ api_router.include_router(reports.router)
 api_router.include_router(exports.router)
 api_router.include_router(insights.router)
 api_router.include_router(gamification.router)
+api_router.include_router(sync.router)

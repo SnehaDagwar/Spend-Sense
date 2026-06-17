@@ -1,0 +1,16 @@
+{
+  "name": "@spend-sense/shared",
+  "version": "1.0.0",
+  "description": "Shared TypeScript definitions and validators for Spend Sense",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
