@@ -90,7 +90,6 @@ Goal-level insights help identify whether you are on track or need to increase m
 Generate a monthly summary report with income, spending, savings, savings rate, projected month-end spend, category breakdowns, top categories, and month-over-month comparisons.
 
 Exports include:
-
 - PDF monthly report
 - CSV expense export
 
