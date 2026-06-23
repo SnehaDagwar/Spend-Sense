@@ -1,32 +1,79 @@
 # Spend Sense
 
-Spend Sense is a privacy-first personal finance intelligence app for tracking budgets, expenses, savings goals, and month-end projections. It helps you understand where your money is going, spot risky spending patterns early, and turn everyday transactions into practical financial decisions.
+Spend Sense is a privacy-first personal finance intelligence app for tracking budgets, expenses, savings goals, month-end projections, and unlocking gamified achievements. It combines a local-first React frontend with a robust, production-ready FastAPI backend.
 
+Spend Sense helps you understand where your money is going, spot risky spending patterns early, earn XP and achievements for disciplined financial habits, and turn everyday transactions into practical financial decisions.
 
-## What makes Spend Sense different
+---
 
-| Spend Sense | Typical budget tracker |
-| --- | --- |
-| Predicts end-of-month spending from current pace | Shows only past transactions |
-| Generates local insights, warnings, and quick wins | Leaves interpretation to the user |
-| Tracks category budgets and dedicated savings goals | Often treats saving as a single leftover number |
-| Exports PDF and CSV reports | Often locks reporting behind accounts or subscriptions |
-| Stores data locally in the browser | Requires a remote account or server |
+## Architecture & Project Structure
+
+The codebase is organized as a monorepo featuring a React Vite frontend and a FastAPI Python backend:
+
+```text
+Spend-Sense/
+├── backend/                   # FastAPI backend application
+│   ├── alembic/               # Database migration scripts
+│   ├── app/
+│   │   ├── api/v1/routes/     # API endpoint routers
+│   │   ├── core/              # Config, security, logging, AI templates
+│   │   ├── db/                # Engine session and Base metadata
+│   │   ├── models/            # SQLAlchemy models (Auth, Gamification, etc.)
+│   │   ├── repositories/      # Database abstraction layer
+│   │   ├── schemas/           # Pydantic validation schemas
+│   │   └── services/          # Business logic, AI orchestrator, XP engines
+│   └── tests/                 # Backend test suite (pytest)
+├── docs/                      # Core engineering documentation
+│   ├── api-contracts.md       # API requests, responses, and schemas
+│   ├── backend-roadmap.md     # phased backend deliverables and progress
+│   ├── deployment.md          # Production deployment runbook
+│   └── postgresql-schema.md   # SQL schema and relationship diagrams
+├── src/                       # React 19 / TypeScript / Vite 6 frontend
+│   ├── components/            # Reusable UI components & layouts
+│   ├── constants/             # Default configurations
+│   ├── engine/                # Client-side analysis and local insights
+│   ├── hooks/                 # Custom React hooks (including feedback store)
+│   ├── pages/                 # Route target pages (Dashboard, Analytics, etc.)
+│   ├── store/                 # Zustand app store with localStorage persistence
+│   └── utils/                 # Formatting, calculations, and helpers
+└── package.json               # Frontend package manager configuration
+```
+
+---
+
+## What Makes Spend Sense Different
+
+| Feature | Spend Sense | Typical Budget Tracker |
+| --- | --- | --- |
+| **Predictive Projections** | Forecasts month-end spending from current pace | Shows only static historical lists |
+| **Hybrid Persistence** | Works locally first (localStorage) with backend sync | Fails completely without server connectivity |
+| **Gamification Engine** | XP, levels, daily challenges, & 20+ achievement badges | Uninspiring lists that fail to drive user habit |
+| **Local Insights** | Generates dynamic financial advice and warning flags | Leaves interpretation entirely to the user |
+| **Privacy First** | Local control of financial data, exports to CSV & PDF | Keeps data captive or shares with advertisers |
+
+---
 
 ## Features
 
-### Financial Dashboard
+### 📊 Financial Dashboard
+Summarizes the active month with income, total spent, remaining budget, savings rate, projected month-end spend, and projected savings. A spend velocity ring shows how quickly the budget is being used, while a seven-day spending chart highlights recent behavior.
 
-The dashboard summarizes the active month with income, total spent, remaining budget, savings rate, projected month-end spend, and projected savings. A spend velocity ring shows how quickly the budget is being used, while a seven-day spending chart highlights recent behavior.
+### 💰 Monthly Budget Planning
+Create monthly budgets with income, planned category allocations, and custom categories. Each category supports direct numeric editing, slider-based adjustment, icon selection, color-coded progress, and allocation previews.
 
-The dashboard also surfaces the top local insights so you can act without digging through reports.
+### 💸 Expense Tracker
+Log expenses with category, amount, date, and notes. Includes autocomplete category selection, category filters, text search, inline edits, and immediate budget utilization indicators.
 
-### Monthly Budget Planning
+### 📈 Predictive Analytics & Insights
+Computes category distributions, actual vs. planned expenses, cumulative spending trends, and month-end projections. An **AI-Powered Insights Engine** uses Gemini/Claude/OpenAI to generate plain-language observations, falling back on a rule-based engine when API limits are reached.
 
-Create monthly budgets with income, planned category allocations, and custom categories. Each category supports direct numeric editing, slider-based adjustment, icon selection, color-coded progress, and an allocation preview chart.
+### 🏆 Gamification & Achievements
+Earn XP, level up, and build streaks by maintaining budgets and logging expenses. Join daily challenges and unlock 20 badges (spanning disciplines, savings, streaks, and community milestones) managed by an idempotent backend events engine.
 
-Month navigation lets you move between past, current, and future budgets. New months are automatically seeded with sensible default categories.
+### 🔒 Feedback & Diagnostic System
+Engage with interactive onboarding checklists, What's New changelog alerts, coach mark overlays, non-blocking CSAT star ratings, and an NPS survey helper, coupled with local error diagnostics.
 
+<<<<<<< HEAD
 ### Expense Tracker
 
 Log expenses with category, amount, date, and notes. The tracker includes:
@@ -96,134 +143,123 @@ Exports include:
 ### Privacy-First Local Storage
 
 Spend Sense persists budgets, expenses, goals, contribution history, and preferences in browser `localStorage` through Zustand persistence. Your financial data stays on your device.
+=======
+---
+>>>>>>> 0dcbbe6 (Updation)
 
 ## Technology Stack
 
-- React 19 with TypeScript
-- Vite 6 for development and production builds
-- React Router 7 for client-side routing
-- Zustand for local app state and persistence
-- Tailwind CSS with a custom design system
-- Radix UI primitives and shadcn-style components
-- Lucide React icons
-- Recharts for charts and projections
-- Framer Motion for page and component transitions
-- React Hook Form and Zod
-- jsPDF and jspdf-autotable for PDF generation
-- Vitest and React Testing Library for tests
-- ESLint 9 for linting
+### Frontend
+- **React 19 & TypeScript**
+- **Vite 6** for fast development and building
+- **Zustand** for local state management and persistence
+- **Tailwind CSS** & **Framer Motion** for premium aesthetics and micro-animations
+- **Radix UI** & **Lucide React** icons
+- **Recharts** for interactive visual analytics
+- **jsPDF** & **jspdf-autotable** for PDF reports
+
+### Backend
+- **FastAPI** (Python 3.10+)
+- **SQLAlchemy 2.0 ORM** & **PostgreSQL** (via `psycopg3`)
+- **Alembic** for automated database migration scripting
+- **Pydantic v2** for robust type validation and serialization
+- **Pytest** for integration and unit test coverage
+- **SlowAPI** for endpoint rate-limiting and security
+- **Sentry SDK** for runtime error tracking
+
+---
 
 ## Quick Start
 
 ### Prerequisites
+- Node.js 18 or newer and npm.
+- Python 3.10 or newer (with virtualenv/venv).
+- PostgreSQL database instance.
 
-Install Node.js 18 or newer and npm.
+### 1. Frontend Setup
 
-### Install
-
+Install dependencies and run the development server:
 ```bash
-git clone https://github.com/SnehaDagwar/Spend-Sense.git
-cd Spend-Sense
 npm install
-```
-
-### Run locally
-
-```bash
 npm run dev
 ```
+Open `http://localhost:5173` to access the local-first application.
 
-Vite will print the local development URL, usually `http://localhost:5173`.
+### 2. Backend Setup
 
-### Build
+1. **Navigate to the backend directory and set up a virtual environment:**
+   ```bash
+   cd backend
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
 
+2. **Install Python packages:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Configure Environment Variables:**
+   Create a `.env` file in the `backend/` directory by copying `.env.example`:
+   ```bash
+   cp .env.example .env
+   ```
+   Update the connection string `DATABASE_URL` with your local PostgreSQL credentials, along with security parameters (`SECRET_KEY`).
+
+4. **Run Database Migrations:**
+   ```bash
+   alembic upgrade head
+   ```
+
+5. **Start the FastAPI server:**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+   Open `http://localhost:8000/docs` to view the interactive Swagger/OpenAPI documentation.
+
+---
+
+## Verification & Testing
+
+### Running Frontend Checks
 ```bash
-npm run build
+npm test          # Run Vitest test suites
+npm run lint      # Run ESLint validation
+npm run build     # Verify production bundler output
 ```
 
-Preview the production build:
-
+### Running Backend Checks
 ```bash
-npm run preview
+cd backend
+pytest                    # Run Pytest suites
+python -m compileall app  # Compile app to catch syntax errors
 ```
 
-### Test
+---
 
-```bash
-npm test
-```
+## Deployment
 
-### Lint
+- **Frontend**: Standard SPA deploy config included for **Vercel** (`vercel.json`).
+- **Backend**: Container and configuration blueprint provided for **Render** (`render.yaml`).
+- Database migrations are run automatically during backend deployments. Refer to [deployment.md](file:///d:/Projects/Spend%20Sense/docs/deployment.md) for full runbooks and rollback procedures.
 
-```bash
-npm run lint
-```
+---
 
-## Project Structure
+## Core Engineering Specifications
 
-```text
-src/
-  components/
-    budget/          Budget-specific widgets and savings target cards
-    goals/           Savings goal cards and add/edit dialogs
-    insights/        Insight widgets
-    layout/          App shell, sidebar, and page layout
-    tracker/         Quick expense entry components
-    ui/              Reusable UI primitives
-  constants/         Default categories and suggested budget plan
-  engine/            Prediction and insight generation logic
-  hooks/             Shared React hooks
-  lib/               Utility helpers
-  pages/             Dashboard, Budget, Tracker, Analytics, Insights, Reports, Goals
-  store/             Zustand app store with localStorage persistence
-  test/              Test setup and examples
-  types/             Shared TypeScript models
-  utils/             Formatting and storage helpers
-```
+For deeper details on backend phases, schemas, and endpoints:
+- Refer to [AGENTS.md](file:///d:/Projects/Spend%20Sense/AGENTS.md) for development rules.
+- Refer to [CODEX.md](file:///d:/Projects/Spend%20Sense/CODEX.md) for command lists.
+- Refer to [api-contracts.md](file:///d:/Projects/Spend%20Sense/docs/api-contracts.md) for API routes.
+- Refer to [postgresql-schema.md](file:///d:/Projects/Spend%20Sense/docs/postgresql-schema.md) for the database model layout.
+- Refer to [backend-roadmap.md](file:///d:/Projects/Spend%20Sense/docs/backend-roadmap.md) to review project phases.
 
-## Core Routes
+---
 
-| Route | Page |
-| --- | --- |
-| `/` | Dashboard |
-| `/budget` | Budget setup and category savings targets |
-| `/tracker` | Expense tracker |
-| `/analytics` | Charts, trends, and projections |
-| `/insights` | All generated insights |
-| `/reports` | Monthly reports and exports |
-| `/goals` | Savings goals overview |
-| `/goals/:id` | Savings goal detail page |
+## License & Author
 
-## Data Model
-
-Spend Sense stores:
-
-- Monthly budgets keyed by `YYYY-MM`
-- Category budgets with planned amounts, colors, icons, and custom-category flags
-- Expenses with category, amount, date, note, and month
-- Savings goals with target amount, current amount, contribution target, target date, color, icon, and history
-- User settings such as active month, hourly wage, and savings streak
-
-The persisted store key is `spend-sense-store-v1`.
-
-## Data Privacy
-
-All financial data is stored exclusively in your browser. Spend Sense does not send budgets, expenses, goals, or reports to a server.
-
-Clearing browser data or localStorage will remove saved Spend Sense data from that browser.
-
-## Browser Support
-
-Spend Sense is designed for modern evergreen browsers including Chrome, Edge, Firefox, and Safari.
-
-## Contributing
-
-Contributions are welcome. Read `CONTRIBUTING.md` for guidance on issues, feature suggestions, and pull requests.
-
-## License
-
-This project is licensed under the MIT License. See `LICENSE` for details.
-
-## Author
-
-Sneha Dagwar
+- **License**: MIT
+- **Author**: Sneha Dagwar & Megha Dagwar
