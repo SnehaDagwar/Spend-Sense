@@ -1,6 +1,6 @@
 # Spend Sense
 
-Spend Sense is a privacy-first personal finance intelligence app for tracking budgets, expenses, savings goals, month-end projections, and unlocking gamified achievements. It combines a local-first React frontend with a robust, production-ready FastAPI backend.
+Spend Sense is a privacy first personal finance intelligence app for tracking budgets, expenses, savings goals, month-end projections, and unlocking gamified achievements. It combines a local-first React frontend with a robust, production-ready FastAPI backend.
 
 Spend Sense helps you understand where your money is going, spot risky spending patterns early, earn XP and achievements for disciplined financial habits, and turn everyday transactions into practical financial decisions.
 
