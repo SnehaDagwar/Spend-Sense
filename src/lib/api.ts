@@ -20,8 +20,17 @@ export class ApiError extends Error {
 }
 
 // Memory cache for active access token
-let _accessToken: string | null = localStorage.getItem("spend_sense_access_token");
-let _refreshToken: string | null = localStorage.getItem("spend_sense_refresh_token");
+let _accessToken: string | null = null;
+let _refreshToken: string | null = null;
+
+try {
+  if (typeof localStorage !== "undefined") {
+    _accessToken = localStorage.getItem("spend_sense_access_token");
+    _refreshToken = localStorage.getItem("spend_sense_refresh_token");
+  }
+} catch (e) {
+  // Ignore in environments where localStorage is not available during load
+}
 
 export const getAccessToken = () => _accessToken;
 export const getRefreshToken = () => _refreshToken;

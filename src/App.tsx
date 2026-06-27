@@ -25,6 +25,7 @@ import Login from "./pages/Login";
 import FamilyWallet from "./pages/family/FamilyWallet";
 import FamilyMembers from "./pages/family/FamilyMembers";
 import SplitSettle from "./pages/family/SplitSettle";
+import AuthGate from "@/components/auth/AuthGate";
 
 const queryClient = new QueryClient();
 
@@ -63,17 +64,6 @@ const AnimatedRoutes = () => {
     );
   }
 
-  // If not logged in, show login screen
-  if (!isLoggedIn) {
-    return (
-      <AnimatePresence mode="wait">
-        <Routes location={location} key="login">
-          <Route path="*" element={<Login />} />
-        </Routes>
-      </AnimatePresence>
-    );
-  }
-
   // If onboarding not completed, only allow access to Onboarding page
   if (!onboardingCompleted) {
     return (
@@ -88,6 +78,7 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        <Route path="/login" element={<Login />} />
         <Route element={<AppLayout />}>
           <Route path="/" element={<PageWrapper><Dashboard /></PageWrapper>} />
           <Route path="/budget" element={<PageWrapper><BudgetSetup /></PageWrapper>} />
@@ -103,9 +94,9 @@ const AnimatedRoutes = () => {
           {/* Family Wallet Routes */}
           {settings.userType === "Family" && (
             <>
-              <Route path="/family" element={<PageWrapper><FamilyWallet /></PageWrapper>} />
-              <Route path="/family/members" element={<PageWrapper><FamilyMembers /></PageWrapper>} />
-              <Route path="/family/settle" element={<PageWrapper><SplitSettle /></PageWrapper>} />
+              <Route path="/family" element={<PageWrapper><AuthGate isLoggedIn={isLoggedIn} featureName="Family Sharing"><FamilyWallet /></AuthGate></PageWrapper>} />
+              <Route path="/family/members" element={<PageWrapper><AuthGate isLoggedIn={isLoggedIn} featureName="Family Members"><FamilyMembers /></AuthGate></PageWrapper>} />
+              <Route path="/family/settle" element={<PageWrapper><AuthGate isLoggedIn={isLoggedIn} featureName="Split & Settle"><SplitSettle /></AuthGate></PageWrapper>} />
             </>
           )}
         </Route>

@@ -38,7 +38,7 @@ const FEATURE_HIGHLIGHTS = [
   { icon: ShieldCheck, label: "Goal-based savings", color: "text-green-500 bg-green-50" },
 ];
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 2;
 
 function StepProgressBar({ current }: { current: number }) {
   return (
@@ -68,42 +68,55 @@ const Onboarding = () => {
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({
     userName: "",
-    income: 50000,
+    income: 0,
     currency: "INR" as "INR" | "USD" | "EUR",
+    profession: "Employee" as string,
     type: "Professional" as UserType,
     target: 20,
   });
 
   const { completeOnboarding } = useAppStore();
 
-  const userTypes: { type: UserType; icon: any; title: string; description: string; color: string }[] = [
+  const professions: { id: string; type: UserType; icon: any; title: string; description: string; color: string }[] = [
     { 
+      id: "Student",
       type: "Student", 
       icon: GraduationCap, 
       title: "Student", 
-      description: "Track pocket money, hostel expenses, subscriptions, and savings goals.",
+      description: "Track pocket money, college expenses, and savings goals.",
       color: "bg-primary/10 text-primary border-primary/20"
     },
     { 
-      type: "Family", 
-      icon: Users, 
-      title: "Family", 
-      description: "Manage household budgets, family expenses, groceries, and shared goals.",
-      color: "bg-secondary/10 text-secondary border-secondary/20"
-    },
-    { 
+      id: "Employee",
       type: "Professional", 
       icon: Briefcase, 
-      title: "Professional", 
-      description: "Track salary spending, investments, subscriptions, and monthly planning.",
-      color: "bg-muted text-muted-foreground border-border"
+      title: "Employee", 
+      description: "Track salary budgets, bills, subscriptions, and savings.",
+      color: "bg-violet-500/10 text-violet-500 border-violet-500/20"
     },
     { 
+      id: "Business",
+      type: "Professional", 
+      icon: Users, 
+      title: "Business Owner", 
+      description: "Manage business operations, cash flows, and growth targets.",
+      color: "bg-blue-500/10 text-blue-500 border-blue-500/20"
+    },
+    { 
+      id: "Freelancer",
       type: "Freelancer", 
       icon: Laptop, 
       title: "Freelancer", 
-      description: "Manage irregular income, project earnings, and financial stability.",
-      color: "bg-accent/10 text-accent border-accent/20"
+      description: "Track irregular client invoices, gig earnings, and savings.",
+      color: "bg-amber-500/10 text-amber-500 border-amber-500/20"
+    },
+    { 
+      id: "Other",
+      type: "Professional", 
+      icon: Sparkles, 
+      title: "Other", 
+      description: "General personal finance and custom milestone planning.",
+      color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
     },
   ];
 
@@ -115,7 +128,13 @@ const Onboarding = () => {
   const handleComplete = async () => {
     setIsCompleting(true);
     try {
-      await completeOnboarding(formData);
+      await completeOnboarding({
+        userName: formData.userName,
+        income: formData.income || 0,
+        currency: formData.currency,
+        type: formData.type,
+        target: formData.target,
+      });
     } finally {
       setIsCompleting(false);
     }
@@ -129,6 +148,10 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+      {/* Background ambient glowing blobs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10 animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: "2s" }} />
+
       {/* Step progress bar — visible on steps 1+ */}
       {step > 0 && <StepProgressBar current={step - 1} />}
 
@@ -192,121 +215,100 @@ const Onboarding = () => {
 
         {step === 1 && (
           <motion.div 
-            key="user-type"
+            key="profile-setup"
             variants={containerVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            className="max-w-4xl w-full space-y-8"
+            className="max-w-2xl w-full space-y-6 glass-card p-6 sm:p-8 border border-white/10 shadow-xl"
           >
-            <div className="text-center">
-              <h2 className="text-3xl font-display font-bold">Choose your profile</h2>
-              <p className="text-muted-foreground mt-2">We'll customize your experience based on your lifestyle.</p>
+            <div className="text-center mb-4">
+              <h2 className="text-3xl font-display font-bold">Tell us about yourself</h2>
+              <p className="text-muted-foreground mt-2">Let's customize Spend Sense to match your lifestyle.</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {userTypes.map((item) => (
-                <Card 
-                  key={item.type}
-                  onClick={() => setFormData({ ...formData, type: item.type })}
-                  className={cn(
-                    "relative p-6 cursor-pointer border-2 transition-all duration-300 rounded-2xl overflow-hidden group hover:shadow-xl",
-                    formData.type === item.type 
-                      ? "border-primary bg-primary/5 shadow-glow-sm" 
-                      : "border-transparent bg-white/50 hover:border-primary/20"
-                  )}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className={cn("p-3 rounded-2xl shrink-0 group-hover:scale-110 transition-transform", item.color)}>
-                      <item.icon className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
-                    </div>
-                  </div>
-                  {formData.type === item.type && (
-                    <motion.div 
-                      layoutId="check"
-                      className="absolute top-4 right-4 text-primary"
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="userName" className="text-sm font-semibold">What is your name?</Label>
+                <Input 
+                  id="userName"
+                  placeholder="e.g. Alex"
+                  value={formData.userName}
+                  onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+                  className="rounded-xl h-12 bg-white/50 border-white/20 focus:border-primary/50 text-base"
+                />
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <Label className="text-sm font-semibold">What is your profession?</Label>
+                <div className="grid grid-cols-1 gap-2.5 max-h-[280px] overflow-y-auto pr-1">
+                  {professions.map((item) => (
+                    <Card 
+                      key={item.id}
+                      onClick={() => setFormData({ ...formData, profession: item.id, type: item.type })}
+                      className={cn(
+                        "relative p-4 cursor-pointer border-2 transition-all duration-200 rounded-xl overflow-hidden group",
+                        formData.profession === item.id 
+                          ? "border-primary bg-primary/5 shadow-glow-sm" 
+                          : "border-transparent bg-white/40 hover:border-primary/20"
+                      )}
                     >
-                      <CheckCircle2 className="h-6 w-6 fill-primary text-white" />
-                    </motion.div>
-                  )}
-                </Card>
-              ))}
+                      <div className="flex items-center gap-3">
+                        <div className={cn("p-2.5 rounded-xl shrink-0 group-hover:scale-105 transition-transform", item.color)}>
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-sm text-foreground">{item.title}</h3>
+                          <p className="text-xs text-muted-foreground leading-normal mt-0.5">{item.description}</p>
+                        </div>
+                      </div>
+                      {formData.profession === item.id && (
+                        <motion.div 
+                          layoutId="check"
+                          className="absolute top-1/2 -translate-y-1/2 right-4 text-primary"
+                        >
+                          <CheckCircle2 className="h-5 w-5 fill-primary text-white" />
+                        </motion.div>
+                      )}
+                    </Card>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="flex justify-between items-center pt-8">
+            <div className="flex justify-between items-center pt-4 border-t border-white/10">
               <Button variant="ghost" onClick={prevStep} className="rounded-xl">
                 <ChevronLeft className="mr-2 h-4 w-4" /> Back
               </Button>
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    // Skip with Professional as default
-                    setFormData((d) => ({ ...d, type: "Professional" as UserType }));
-                    nextStep();
-                  }}
-                  className="rounded-xl text-muted-foreground text-sm"
-                >
-                  Skip
-                </Button>
-                <Button onClick={nextStep} size="lg" className="px-8 rounded-xl bg-gradient-primary text-white shadow-glow">
-                  Continue <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
+              <Button 
+                onClick={nextStep} 
+                disabled={!formData.userName.trim()}
+                size="lg" 
+                className="px-8 rounded-xl bg-gradient-primary text-white shadow-glow"
+              >
+                Continue <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
           </motion.div>
         )}
 
         {step === 2 && (
           <motion.div 
-            key="personalize"
+            key="financial-setup"
             variants={containerVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            className="max-w-md w-full space-y-8 glass-card p-8 md:p-10"
+            className="max-w-md w-full space-y-6 glass-card p-6 sm:p-8 border border-white/10 shadow-xl"
           >
             <div className="text-center">
-              <h2 className="text-3xl font-display font-bold">Personalize</h2>
-              <p className="text-muted-foreground mt-2">Just a few more details to set up your system.</p>
+              <h2 className="text-3xl font-display font-bold">Financial Setup</h2>
+              <p className="text-muted-foreground mt-2">Customize your default budget and goals.</p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="name">What should we call you?</Label>
-                <Input 
-                  id="name"
-                  placeholder="e.g. Alex"
-                  value={formData.userName}
-                  onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
-                  className="rounded-xl h-12 bg-white/50 border-white/20 focus:border-primary/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="income">Monthly Income ({formData.currency})</Label>
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    {formData.currency === "INR" && <IndianRupee className="h-4 w-4" />}
-                    {formData.currency === "USD" && <DollarSign className="h-4 w-4" />}
-                    {formData.currency === "EUR" && <Euro className="h-4 w-4" />}
-                  </div>
-                  <Input 
-                    id="income"
-                    type="number"
-                    value={formData.income}
-                    onChange={(e) => setFormData({ ...formData, income: Number(e.target.value) })}
-                    className="pl-10 rounded-xl h-12 bg-white/50 border-white/20 focus:border-primary/50"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="currency">Preferred Currency</Label>
+                <Label htmlFor="currency" className="text-sm font-semibold">Preferred Currency</Label>
                 <Select 
                   value={formData.currency} 
                   onValueChange={(v: any) => setFormData({ ...formData, currency: v })}
@@ -323,11 +325,35 @@ const Onboarding = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="income" className="text-sm font-semibold flex justify-between">
+                  Monthly Income <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+                </Label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    {formData.currency === "INR" && <IndianRupee className="h-4 w-4" />}
+                    {formData.currency === "USD" && <DollarSign className="h-4 w-4" />}
+                    {formData.currency === "EUR" && <Euro className="h-4 w-4" />}
+                  </div>
+                  <Input 
+                    id="income"
+                    type="number"
+                    placeholder="Enter monthly income"
+                    value={formData.income || ""}
+                    onChange={(e) => setFormData({ ...formData, income: Number(e.target.value) })}
+                    className="pl-10 rounded-xl h-12 bg-white/50 border-white/20 focus:border-primary/50 text-base"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="target">Monthly Savings Target</Label>
+                  <Label htmlFor="target" className="text-sm font-semibold flex justify-between w-full">
+                    Savings Target <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+                  </Label>
                   <span className="text-sm font-bold text-primary">{formData.target}%</span>
                 </div>
                 <input 
+                  id="target"
                   type="range"
                   min="5"
                   max="50"
@@ -336,19 +362,25 @@ const Onboarding = () => {
                   onChange={(e) => setFormData({ ...formData, target: Number(e.target.value) })}
                   className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                 />
-                <p className="text-[10px] text-muted-foreground italic text-center">
-                  We'll help you save {((formData.income * formData.target) / 100).toLocaleString()} per month.
-                </p>
+                {formData.income > 0 ? (
+                  <p className="text-[10px] text-muted-foreground italic text-center">
+                    We'll help you save {((formData.income * formData.target) / 100).toLocaleString(undefined, { style: "currency", currency: formData.currency, maximumFractionDigits: 0 })} per month.
+                  </p>
+                ) : (
+                  <p className="text-[10px] text-muted-foreground italic text-center">
+                    Set a monthly percentage-based goal to track your saving discipline.
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-4">
+            <div className="flex justify-between items-center pt-4 border-t border-white/10">
               <Button variant="ghost" onClick={prevStep} className="rounded-xl">
                 <ChevronLeft className="mr-2 h-4 w-4" /> Back
               </Button>
               <Button 
                 onClick={handleComplete} 
-                disabled={!formData.userName || isCompleting}
+                disabled={isCompleting}
                 size="lg" 
                 className="px-8 rounded-xl bg-gradient-primary text-white shadow-glow"
               >

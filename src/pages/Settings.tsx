@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   User, 
@@ -51,6 +51,7 @@ const Settings = () => {
   const { settings, updateSettings, logout, resetOnboarding, resetAll } = useAppStore();
   const [localSettings, setLocalSettings] = useState(settings);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const activeTab = searchParams.get("tab") || "profile";
 
   const handleTabChange = (value: string) => {
@@ -132,6 +133,27 @@ const Settings = () => {
             animate="visible"
             className="grid gap-6"
           >
+            {!settings.isLoggedIn && (
+              <motion.div variants={itemVariants}>
+                <Card className="border border-amber-500/20 bg-amber-500/5 relative overflow-hidden rounded-2xl p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-base text-amber-600 dark:text-amber-400">Cloud Sync & Backup Disabled</h4>
+                      <p className="text-sm text-muted-foreground max-w-xl">
+                        You are currently using Spend Sense locally. Create a free account or sign in to sync your budgets across devices and enable real-time collaboration.
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={() => navigate("/login")} 
+                      className="shrink-0 bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-glow-sm"
+                    >
+                      Enable Cloud Sync
+                    </Button>
+                  </div>
+                </Card>
+              </motion.div>
+            )}
+
             <motion.div variants={itemVariants}>
               <Card className="glass-card overflow-hidden border-white/10 shadow-xl">
                 <CardHeader className="bg-gradient-to-r from-primary/10 to-transparent border-b border-white/5">
@@ -344,15 +366,27 @@ const Settings = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-border">
-                    <div className="space-y-1">
-                      <div className="font-bold">End Session</div>
-                      <div className="text-xs text-muted-foreground">Log out of the current local session.</div>
+                  {settings.isLoggedIn ? (
+                    <div className="flex items-center justify-between p-4 rounded-xl border border-border">
+                      <div className="space-y-1">
+                        <div className="font-bold">End Session</div>
+                        <div className="text-xs text-muted-foreground">Log out of the current cloud session.</div>
+                      </div>
+                      <Button variant="outline" onClick={logout} className="rounded-xl gap-2">
+                        <LogOut className="h-4 w-4" /> Logout
+                      </Button>
                     </div>
-                    <Button variant="outline" onClick={logout} className="rounded-xl gap-2">
-                      <LogOut className="h-4 w-4" /> Logout
-                    </Button>
-                  </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-primary/5">
+                      <div className="space-y-1">
+                        <div className="font-bold text-primary">Enable Cloud Sync</div>
+                        <div className="text-xs text-muted-foreground">Sign in to save data to the cloud database and sync devices.</div>
+                      </div>
+                      <Button onClick={() => navigate("/login")} className="rounded-xl bg-gradient-primary text-white gap-2 shadow-glow">
+                        <User className="h-4 w-4" /> Log In / Register
+                      </Button>
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between p-4 rounded-xl border border-border">
                     <div className="space-y-1">

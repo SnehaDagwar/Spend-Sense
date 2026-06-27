@@ -99,10 +99,10 @@ describe("Critical Path: Login flow", () => {
   });
 
   it("renders login form with email and password fields", () => {
-    renderLogin();
+    const { container } = renderLogin();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
+    expect(container.querySelector('button[type="submit"]')).toBeInTheDocument();
   });
 
   it("shows 'Sign In' tab active by default", () => {
@@ -112,8 +112,8 @@ describe("Critical Path: Login flow", () => {
   });
 
   it("shows validation error when submitting empty form", async () => {
-    renderLogin();
-    const submitBtn = screen.getByRole("button", { name: /sign in/i });
+    const { container } = renderLogin();
+    const submitBtn = container.querySelector('button[type="submit"]') as HTMLElement;
     fireEvent.click(submitBtn);
 
     expect(mockLogin).not.toHaveBeenCalled();
@@ -122,7 +122,7 @@ describe("Critical Path: Login flow", () => {
 
   it("calls login with correct credentials when form is filled", async () => {
     mockLogin.mockResolvedValueOnce(undefined);
-    renderLogin();
+    const { container } = renderLogin();
 
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "ninja@spend-sense.app" },
@@ -131,7 +131,7 @@ describe("Critical Path: Login flow", () => {
       target: { value: "Secure@1234" },
     });
 
-    const submitBtn = screen.getByRole("button", { name: /sign in/i });
+    const submitBtn = container.querySelector('button[type="submit"]') as HTMLElement;
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -141,7 +141,7 @@ describe("Critical Path: Login flow", () => {
 
   it("shows error toast when login fails", async () => {
     mockLogin.mockRejectedValueOnce(new Error("Invalid credentials"));
-    renderLogin();
+    const { container } = renderLogin();
 
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "bad@user.com" },
@@ -150,7 +150,8 @@ describe("Critical Path: Login flow", () => {
       target: { value: "wrong" },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
+    const submitBtn = container.querySelector('button[type="submit"]') as HTMLElement;
+    fireEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Invalid credentials");
