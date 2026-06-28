@@ -145,7 +145,6 @@ Exports include:
 Spend Sense persists budgets, expenses, goals, contribution history, and preferences in browser `localStorage` through Zustand persistence. Your financial data stays on your device.
 =======
 ---
->>>>>>> 0dcbbe6 (Updation)
 
 ## Technology Stack
 
