@@ -53,7 +53,7 @@ Spend-Sense/
 
 ---
 
-###Features
+##Features
 
 ### 📊 Financial Dashboard
 Summarizes the active month with income, total spent, remaining budget, savings rate, projected month-end spend, and projected savings. A spend velocity ring shows how quickly the budget is being used, while a seven-day spending chart highlights recent behavior.
