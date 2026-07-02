@@ -1,5 +1,5 @@
 import type { Expense, MonthlyBudget } from "@/types";
-import { currentMonth } from "./formatters";
+
 
 /**
  * Calculates the current daily logging streak.
@@ -11,7 +11,7 @@ export const calculateLoggingStreak = (expenses: Expense[]) => {
   const dates = new Set(expenses.map(e => e.date.split('T')[0]));
   const today = new Date();
   let streak = 0;
-  let currentDate = new Date(today);
+  const currentDate = new Date(today);
 
   // Check if anything logged today or yesterday to continue the streak
   const todayStr = today.toISOString().split('T')[0];
@@ -46,7 +46,7 @@ export const calculateSpendingStreak = (expenses: Expense[], discretionaryIds: s
   
   const today = new Date();
   let streak = 0;
-  let currentDate = new Date(today);
+  const currentDate = new Date(today);
 
   // If spent unnecessarily today, streak is 0
   const todayStr = today.toISOString().split('T')[0];

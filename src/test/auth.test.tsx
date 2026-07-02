@@ -20,9 +20,9 @@ vi.mock("@/store/useAppStore", () => ({
 // Mock Framer Motion to bypass animation issues in tests
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <div {...props}>{children}</div>,
   },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 describe("Login Component Tests", () => {
@@ -104,4 +104,3 @@ describe("Login Component Tests", () => {
     });
   });
 });
-

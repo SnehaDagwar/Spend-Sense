@@ -121,7 +121,7 @@ export default function Reports() {
         <div className="mt-8">
           <h3 className="font-display font-bold mb-3">Top spending categories</h3>
           <div className="space-y-2">
-            {topCats.map((c, i) => (
+            {topCats.map((c) => (
               <div key={c.categoryId} className="flex items-center gap-3 rounded-xl border border-border/60 p-3 hover:bg-muted/30 transition-colors">
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <CategoryIcon name={c.icon} className="h-5 w-5 text-primary" />

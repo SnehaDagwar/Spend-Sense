@@ -4,16 +4,11 @@ import { motion } from "framer-motion";
 import { 
   User, 
   Bell, 
-  ChevronRight, 
   Save, 
-  UserCircle, 
   CircleDollarSign, 
-  Calendar, 
-  Target,
   ShieldCheck,
   Zap,
   Clock,
-  Layout,
   Trophy,
   ShieldAlert,
   LogOut,
@@ -63,14 +58,14 @@ const Settings = () => {
     toast.success("Settings saved successfully!");
   };
 
-  const updateProfile = (field: keyof typeof settings.profile, value: any) => {
+  const updateProfile = (field: keyof typeof settings.profile, value: string | number | boolean) => {
     setLocalSettings((prev) => ({
       ...prev,
       profile: { ...prev.profile, [field]: value },
     }));
   };
 
-  const updateNotifications = (field: keyof typeof settings.notifications, value: any) => {
+  const updateNotifications = (field: keyof typeof settings.notifications, value: boolean) => {
     setLocalSettings((prev) => ({
       ...prev,
       notifications: { ...prev.notifications, [field]: value },

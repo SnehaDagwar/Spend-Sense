@@ -123,8 +123,8 @@ export function FeatureRequestBoard() {
 
   // Sort: voted first, then by community count descending
   const sorted = [...FEATURE_REQUESTS].sort((a, b) => {
-    const aVoted = !!featureVotes[a.id] ? 1 : 0;
-    const bVoted = !!featureVotes[b.id] ? 1 : 0;
+    const aVoted = featureVotes[a.id] ? 1 : 0;
+    const bVoted = featureVotes[b.id] ? 1 : 0;
     if (aVoted !== bVoted) return bVoted - aVoted;
     return communityBase(b.id) - communityBase(a.id);
   });

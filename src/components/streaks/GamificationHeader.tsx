@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useAppStore } from "@/store/useAppStore";
-import { Trophy, Star, Shield, Flame, Target, Zap, Lock, Sparkles, Award } from "lucide-react";
+import { Star, Shield, Flame, Target, Zap, Lock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ALL_POSSIBLE_BADGES = [

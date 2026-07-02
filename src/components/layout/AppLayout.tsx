@@ -19,15 +19,6 @@ import { OnboardingChecklist } from "@/components/feedback/OnboardingChecklist";
 import { useNPSTrigger } from "@/hooks/useNPSTrigger";
 import { AnimatePresence } from "framer-motion";
 
-const TITLES: Record<string, { title: string; sub: string }> = {
-  "/": { title: "Dashboard", sub: "Your money at a glance" },
-  "/budget": { title: "Budget Setup", sub: "Plan your month" },
-  "/tracker": { title: "Expense Tracker", sub: "Log every rupee" },
-  "/analytics": { title: "Analytics", sub: "Patterns in your spending" },
-  "/insights": { title: "Insights", sub: "Smart suggestions, just for you" },
-  "/reports": { title: "Reports", sub: "Export and share" },
-  "/streaks": { title: "Your Streaks", sub: "Track your consistency" },
-};
 
 export default function AppLayout() {
   const { pathname } = useLocation();

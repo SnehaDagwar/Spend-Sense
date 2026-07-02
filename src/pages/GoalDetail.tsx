@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/useAppStore";
 import { formatINR } from "@/utils/formatters";
 import { 
@@ -9,8 +9,7 @@ import {
   Edit3, 
   TrendingUp, 
   Calendar, 
-  Zap, 
-  ChevronRight,
+  Zap,
   ShieldAlert, 
   Plane, 
   Home, 
@@ -23,11 +22,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
 import { format, addMonths, isAfter, startOfMonth, parseISO, eachMonthOfInterval, subMonths } from "date-fns";
 import { 
   BarChart, Bar, 
-  LineChart, Line, 
   XAxis, YAxis, 
   CartesianGrid, Tooltip, 
   ResponsiveContainer, AreaChart, Area 
@@ -46,14 +43,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AddGoalDialog } from "@/components/goals/AddGoalDialog";
 
-const iconMap: Record<string, any> = {
+import React from "react";
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Target, ShieldAlert, Plane, Home, Car, GraduationCap, Laptop,
 };
 
 export default function GoalDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { goals, deleteGoal, updateGoal } = useAppStore();
+  const { goals, deleteGoal } = useAppStore();
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   const goal = useMemo(() => goals.find((g) => g.id === id), [goals, id]);

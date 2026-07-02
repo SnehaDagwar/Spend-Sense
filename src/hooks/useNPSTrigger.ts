@@ -9,7 +9,7 @@ import { useFeedbackStore, shouldShowNPS } from "./useFeedbackStore";
  * Returns whether the NPS survey should be shown right now.
  */
 export function useNPSTrigger() {
-  const { sessionCount, npsLastAskedAt, incrementSession, markNPSShown } =
+  const { incrementSession, markNPSShown } =
     useFeedbackStore();
 
   useEffect(() => {

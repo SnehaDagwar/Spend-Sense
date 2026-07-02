@@ -6,8 +6,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import React from "react";
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -23,9 +24,9 @@ vi.mock("@/store/useAppStore", () => ({
 
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <div {...props}>{children}</div>,
   },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("sonner", () => ({
@@ -43,12 +44,30 @@ import { useAppStore, useActiveBudget, useMonthExpenses } from "@/store/useAppSt
 import ExpenseTracker from "@/pages/ExpenseTracker";
 import { toast } from "sonner";
 
-const MOCK_CATEGORIES = [
+interface MockCategory {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  planned: number;
+  actual: number;
+}
+
+interface MockExpense {
+  id: string;
+  amount: number;
+  categoryId: string;
+  date: string;
+  note: string;
+  month: string;
+}
+
+const MOCK_CATEGORIES: MockCategory[] = [
   { id: "cat-food", name: "Food", icon: "Utensils", color: "#FF6B6B", planned: 10000, actual: 6000 },
   { id: "cat-transport", name: "Transport", icon: "Car", color: "#6B8EFF", planned: 5000, actual: 2000 },
 ];
 
-const MOCK_EXPENSES = [
+const MOCK_EXPENSES: MockExpense[] = [
   { id: "e1", amount: 500, categoryId: "cat-food", date: "2026-06-15", note: "Lunch at office", month: "2026-06" },
   { id: "e2", amount: 120, categoryId: "cat-transport", date: "2026-06-14", note: "Cab fare", month: "2026-06" },
 ];
@@ -57,23 +76,23 @@ function setupMocks({
   expenses = MOCK_EXPENSES,
   categories = MOCK_CATEGORIES,
 }: {
-  expenses?: any[];
-  categories?: any[];
+  expenses?: MockExpense[];
+  categories?: MockCategory[];
 } = {}) {
   vi.mocked(useActiveBudget).mockReturnValue({
     id: "b1",
     month: "2026-06",
     income: 50000,
     categories,
-  } as any);
-  vi.mocked(useMonthExpenses).mockReturnValue(expenses as any);
+  } as ReturnType<typeof useActiveBudget>);
+  vi.mocked(useMonthExpenses).mockReturnValue(expenses as ReturnType<typeof useMonthExpenses>);
   vi.mocked(useAppStore).mockReturnValue({
     addExpense: mockAddExpense,
     deleteExpense: mockDeleteExpense,
     updateExpense: mockUpdateExpense,
     settings: { userType: "Individual" },
     familyMembers: [],
-  } as any);
+  } as ReturnType<typeof useAppStore>);
 }
 
 function renderTracker() {
@@ -203,7 +222,7 @@ describe("ExpenseTracker", () => {
       updateExpense: mockUpdateExpense,
       settings: { userType: "Family" },
       familyMembers: [{ id: "m1", name: "Sneha" }, { id: "m2", name: "Megha" }],
-    } as any);
+    } as ReturnType<typeof useAppStore>);
 
     renderTracker();
     expect(screen.getByText(/paid by/i)).toBeInTheDocument();

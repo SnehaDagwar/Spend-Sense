@@ -27,7 +27,7 @@ const Streaks = () => {
 
   useEffect(() => {
     generateDailyChallenges();
-  }, []);
+  }, [generateDailyChallenges]);
 
   // Update challenge statuses based on latest expenses
   useEffect(() => {
@@ -39,7 +39,7 @@ const Streaks = () => {
         }
       }
     });
-  }, [expenses]);
+  }, [expenses, challenges, completeChallenge]);
 
   const loggingStreak = calculateLoggingStreak(expenses);
   const spendingStreak = calculateSpendingStreak(expenses);

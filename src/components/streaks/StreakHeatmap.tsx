@@ -22,7 +22,6 @@ export const StreakHeatmap = ({
 }: StreakHeatmapProps) => {
   // Group by weeks for the grid
   const weeks: HeatmapData[][] = [];
-  let currentWeek: HeatmapData[] = [];
 
   // We want to show the data in a grid (7 rows for days of week, cols for weeks)
   // But standard GitHub style is columns are weeks.

@@ -5,7 +5,7 @@
  * - challengeUtils (getDailyChallenges)
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect } from "vitest";
 
 // ─── Formatter Utils ─────────────────────────────────────────────────────────
 
@@ -153,16 +153,16 @@ describe("calculateLoggingStreak", () => {
 
   it("returns 1 for single expense today", () => {
     const today = new Date().toISOString().slice(0, 10);
-    const expenses = [{ date: today, amount: 100, categoryId: "c1" }] as any[];
-    expect(calculateLoggingStreak(expenses)).toBeGreaterThanOrEqual(1);
+    const expenses = [{ date: today, amount: 100, categoryId: "c1" }] as Pick<import("@/types").Expense, "date" | "amount" | "categoryId">[];
+    expect(calculateLoggingStreak(expenses as import("@/types").Expense[])).toBeGreaterThanOrEqual(1);
   });
 
   it("returns 0 when most recent expense was 2+ days ago", () => {
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
       .toISOString()
       .slice(0, 10);
-    const expenses = [{ date: threeDaysAgo, amount: 50, categoryId: "c1" }] as any[];
-    expect(calculateLoggingStreak(expenses)).toBe(0);
+    const expenses = [{ date: threeDaysAgo, amount: 50, categoryId: "c1" }] as Pick<import("@/types").Expense, "date" | "amount" | "categoryId">[];
+    expect(calculateLoggingStreak(expenses as import("@/types").Expense[])).toBe(0);
   });
 
   it("counts consecutive days correctly", () => {
@@ -175,9 +175,9 @@ describe("calculateLoggingStreak", () => {
       { date: todayStr, amount: 100, categoryId: "c1" },
       { date: yesterdayStr, amount: 200, categoryId: "c2" },
       { date: dayBeforeStr, amount: 50, categoryId: "c1" },
-    ] as any[];
+    ] as Pick<import("@/types").Expense, "date" | "amount" | "categoryId">[];
 
-    expect(calculateLoggingStreak(expenses)).toBe(3);
+    expect(calculateLoggingStreak(expenses as import("@/types").Expense[])).toBe(3);
   });
 });
 
@@ -188,16 +188,16 @@ describe("calculateBudgetStreak", () => {
 
   it("returns 1 when current month is under budget", () => {
     const month = "2026-06";
-    const budgets = { [month]: { id: "b1", month, income: 50000, categories: [] } } as any;
-    const expenses = [{ id: "e1", amount: 30000, date: "2026-06-15", month, categoryId: "c1" }] as any[];
+    const budgets = { [month]: { id: "b1", month, income: 50000, categories: [] } } as Record<string, import("@/types").MonthlyBudget>;
+    const expenses = [{ id: "e1", amount: 30000, date: "2026-06-15", month, categoryId: "c1", note: "" }] as import("@/types").Expense[];
 
     expect(calculateBudgetStreak(budgets, expenses)).toBe(1);
   });
 
   it("returns 0 when current month is over budget", () => {
     const month = "2026-06";
-    const budgets = { [month]: { id: "b1", month, income: 10000, categories: [] } } as any;
-    const expenses = [{ id: "e1", amount: 15000, date: "2026-06-15", month, categoryId: "c1" }] as any[];
+    const budgets = { [month]: { id: "b1", month, income: 10000, categories: [] } } as Record<string, import("@/types").MonthlyBudget>;
+    const expenses = [{ id: "e1", amount: 15000, date: "2026-06-15", month, categoryId: "c1", note: "" }] as import("@/types").Expense[];
 
     expect(calculateBudgetStreak(budgets, expenses)).toBe(0);
   });
@@ -217,9 +217,9 @@ describe("generateHeatmapData", () => {
   it("counts expenses per date correctly", () => {
     const today = new Date().toISOString().slice(0, 10);
     const expenses = [
-      { date: today, amount: 100, categoryId: "c1" },
-      { date: today, amount: 200, categoryId: "c2" },
-    ] as any[];
+      { date: today, amount: 100, categoryId: "c1", id: "e1", note: "", month: today.slice(0, 7) },
+      { date: today, amount: 200, categoryId: "c2", id: "e2", note: "", month: today.slice(0, 7) },
+    ] as import("@/types").Expense[];
 
     const result = generateHeatmapData(expenses, 7);
     const todayEntry = result.find((r) => r.date === today);

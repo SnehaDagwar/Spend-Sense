@@ -77,7 +77,7 @@ const Onboarding = () => {
 
   const { completeOnboarding } = useAppStore();
 
-  const professions: { id: string; type: UserType; icon: any; title: string; description: string; color: string }[] = [
+  const professions: { id: string; type: UserType; icon: React.ComponentType<{ className?: string }>; title: string; description: string; color: string }[] = [
     { 
       id: "Student",
       type: "Student", 
@@ -311,7 +311,7 @@ const Onboarding = () => {
                 <Label htmlFor="currency" className="text-sm font-semibold">Preferred Currency</Label>
                 <Select 
                   value={formData.currency} 
-                  onValueChange={(v: any) => setFormData({ ...formData, currency: v })}
+                  onValueChange={(v: "INR" | "USD" | "EUR") => setFormData({ ...formData, currency: v })}
                 >
                   <SelectTrigger className="rounded-xl h-12 bg-white/50 border-white/20">
                     <SelectValue />
@@ -409,6 +409,6 @@ const Onboarding = () => {
   );
 };
 
-const cn = (...classes: any[]) => classes.filter(Boolean).join(" ");
+const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(" ");
 
 export default Onboarding;

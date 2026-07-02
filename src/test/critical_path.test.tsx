@@ -45,7 +45,7 @@ const mockStoreState = {
 };
 
 vi.mock("@/store/useAppStore", () => ({
-  useAppStore: vi.fn((selector?: any) => {
+  useAppStore: vi.fn((selector?: (s: typeof mockStoreState) => unknown) => {
     if (selector) return selector(mockStoreState);
     return mockStoreState;
   }),
@@ -62,10 +62,10 @@ vi.mock("@/store/useAppStore", () => ({
 
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+    div: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <div {...props}>{children}</div>,
+    button: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <button {...props}>{children}</button>,
   },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("sonner", () => ({
@@ -76,7 +76,7 @@ vi.mock("sonner", () => ({
 }));
 
 vi.mock("@/components/ui/CategoryIcon", () => ({
-  CategoryIcon: ({ name }: any) => <span>{name}</span>,
+  CategoryIcon: ({ name }: { name: string }) => <span>{name}</span>,
 }));
 
 // ── Login page ────────────────────────────────────────────────────────────────

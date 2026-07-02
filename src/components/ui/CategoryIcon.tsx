@@ -46,7 +46,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const ICON_MAP: Record<string, any> = {
+export const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   UtensilsCrossed,
   ShoppingBag,
   Smartphone,

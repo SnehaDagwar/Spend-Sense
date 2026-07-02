@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAppStore, useActiveBudget, useMonthExpenses } from "@/store/useAppStore";
 import { computeStats } from "@/engine/predictionEngine";
-import { formatINR, formatPercent } from "@/utils/formatters";
-import { Wallet, Users, Clock, Briefcase, Plus, Settings, ChevronRight, X, Calendar, CheckCircle2 } from "lucide-react";
+import { formatINR } from "@/utils/formatters";
+import { Wallet, Users, Clock, Plus, Settings, ChevronRight, X, Calendar, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {

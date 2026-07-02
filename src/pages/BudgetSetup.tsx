@@ -21,7 +21,7 @@ const shiftMonth = (m: string, by: number) => {
 
 export default function BudgetSetup() {
   const budget = useActiveBudget();
-  const { activeMonth, setActiveMonth, setIncome, setCategoryPlanned, addCategory, removeCategory, hourlyWage, setHourlyWage } = useAppStore();
+  const { activeMonth, setActiveMonth, setIncome, setCategoryPlanned, addCategory, removeCategory } = useAppStore();
   const [addOpen, setAddOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newIcon, setNewIcon] = useState("Home");

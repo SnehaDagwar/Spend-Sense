@@ -7,8 +7,6 @@ import {
   Send,
   Bug,
   Lightbulb,
-  ChevronRight,
-  CheckCircle2,
   Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -58,7 +56,6 @@ export function trackRouteHistory(path: string) {
 export function FeedbackWidget() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("feedback");
-  const [submitted, setSubmitted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { addFeedbackEntry, featureVotes, toggleFeatureVote } = useFeedbackStore();
 
@@ -91,7 +88,7 @@ export function FeedbackWidget() {
     setRating(0); setHoverRating(0); setCategory("General");
     setFeedbackText(""); setEmail("");
     setSeverity("Medium"); setBugSteps(""); setBugExpected(""); setBugActual("");
-    setFeatureNote(""); setSubmitted(false);
+    setFeatureNote("");
   };
 
   const handleClose = () => { setOpen(false); setTimeout(resetForm, 300); };
@@ -125,7 +122,6 @@ export function FeedbackWidget() {
       appVersion: APP_VERSION,
     });
     window.location.href = buildMailtoFeedback();
-    setSubmitted(true);
     toast.success("Thanks! Your email client will open with your feedback.", { duration: 4000 });
     setTimeout(handleClose, 1500);
   };
@@ -141,7 +137,6 @@ export function FeedbackWidget() {
       appVersion: APP_VERSION,
     });
     window.location.href = buildMailtoBug();
-    setSubmitted(true);
     toast.success("Thanks for the report! Your email client will open.", { duration: 4000 });
     setTimeout(handleClose, 1500);
   };
@@ -159,7 +154,6 @@ export function FeedbackWidget() {
       appVersion: APP_VERSION,
     });
     window.location.href = `mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
-    setSubmitted(true);
     toast.success("Feature request sent! We read every one. 🙌", { duration: 4000 });
     setTimeout(handleClose, 1500);
   };

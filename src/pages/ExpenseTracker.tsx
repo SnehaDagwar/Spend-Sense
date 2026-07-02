@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { formatINR } from "@/utils/formatters";
-import * as Icons from "lucide-react";
 import { Search, Trash2, Pencil, Check, X, Receipt } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";

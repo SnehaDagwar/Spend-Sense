@@ -54,7 +54,7 @@ interface AppState {
   removeFamilyMember: (id: string) => Promise<void>;
 
   updateSettings: (settings: Partial<UserSettings> | ((s: UserSettings) => UserSettings)) => Promise<void>;
-  completeOnboarding: (data: { userName: string, income: number, currency: any, type: any, target?: number }) => Promise<void>;
+  completeOnboarding: (data: { userName: string, income: number, currency: "INR" | "USD" | "EUR", type: UserType, target?: number }) => Promise<void>;
   
   // Real authentication actions
   login: (email: string, password: string) => Promise<void>;
@@ -100,11 +100,97 @@ const defaultSettings: UserSettings = {
 // Backend Data Mapping Helpers
 // ---------------------------------------------------------------------------
 
-const mapBackendBudget = (b: any): MonthlyBudget => ({
+interface BackendCategory {
+  category: { id: string; name: string; icon: string; color: string; isSystem: boolean };
+  plannedAmount: string | number;
+  displayOrder?: number;
+}
+
+interface BackendBudget {
+  id: string;
+  month: string;
+  income: string | number;
+  categories?: BackendCategory[];
+}
+
+interface BackendExpense {
+  id: string;
+  categoryId: string;
+  amount: string | number;
+  expenseDate: string;
+  note?: string;
+  paidByMemberId?: string;
+  splitBetweenMemberIds?: string[];
+}
+
+interface BackendContribution {
+  contributedAt?: string;
+  date?: string;
+  amount: string | number;
+}
+
+interface BackendGoal {
+  id: string;
+  name: string;
+  icon: string;
+  targetAmount: string | number;
+  currentAmount: string | number;
+  monthlyContribution: string | number;
+  targetDate?: string | null;
+  color?: string | null;
+  contributions?: BackendContribution[];
+}
+
+interface BackendUser {
+  onboardingCompleted: boolean;
+  userType: UserType;
+  displayName: string;
+}
+
+interface BackendPreferences {
+  defaultMonthlyIncome: string | number;
+  currency: string;
+  financialGoalsPreference: string;
+  preferredStartDay: number;
+  avatarUrl?: string;
+  monthlySavingTargetPercent?: string | number;
+}
+
+interface BackendNotifications {
+  budgetLimit: boolean;
+  overspending: boolean;
+  goalReminders: boolean;
+  dailySpending: boolean;
+  weeklySummary: boolean;
+  achievements: boolean;
+  subscriptionRenewal: boolean;
+  timing: "Morning" | "Evening" | "Custom";
+  customTime?: string;
+}
+
+interface BackendChallenge {
+  id: string;
+  title: string;
+  description: string;
+  rewardXp: number;
+  challengeType: Challenge["type"];
+  date: string;
+  status: Challenge["status"];
+}
+
+interface BackendFamilyMember {
+  id: string;
+  displayName: string;
+  role: FamilyMember["role"];
+  email?: string;
+  spendingLimit?: string | number;
+}
+
+const mapBackendBudget = (b: BackendBudget): MonthlyBudget => ({
   id: b.id,
   month: b.month.slice(0, 7), // Convert YYYY-MM-DD to YYYY-MM
   income: Number(b.income),
-  categories: (b.categories || []).map((c: any) => ({
+  categories: (b.categories || []).map((c: BackendCategory) => ({
     id: c.category.id,
     name: c.category.name,
     icon: c.category.icon,
@@ -114,7 +200,7 @@ const mapBackendBudget = (b: any): MonthlyBudget => ({
   })),
 });
 
-const mapBackendExpense = (e: any): Expense => ({
+const mapBackendExpense = (e: BackendExpense): Expense => ({
   id: e.id,
   categoryId: e.categoryId,
   amount: Number(e.amount),
@@ -125,7 +211,7 @@ const mapBackendExpense = (e: any): Expense => ({
   splitBetween: e.splitBetweenMemberIds,
 });
 
-const mapBackendGoal = (g: any): SavingsGoal => ({
+const mapBackendGoal = (g: BackendGoal): SavingsGoal => ({
   id: g.id,
   name: g.name,
   icon: g.icon,
@@ -134,20 +220,20 @@ const mapBackendGoal = (g: any): SavingsGoal => ({
   monthlyContribution: Number(g.monthlyContribution),
   targetDate: g.targetDate || undefined,
   color: g.color || undefined,
-  history: (g.contributions || []).map((c: any) => ({
-    date: c.contributedAt || c.date,
+  history: (g.contributions || []).map((c: BackendContribution) => ({
+    date: c.contributedAt || c.date || "",
     amount: Number(c.amount),
   })),
 });
 
-const mapBackendSettings = (user: any, prefs: any, notifs: any): UserSettings => ({
+const mapBackendSettings = (user: BackendUser, prefs: BackendPreferences | null, notifs: BackendNotifications | null): UserSettings => ({
   onboardingCompleted: user.onboardingCompleted,
   isLoggedIn: true,
   userType: user.userType,
   profile: {
     userName: user.displayName,
     defaultMonthlyIncome: prefs ? Number(prefs.defaultMonthlyIncome) : 50000,
-    currency: (prefs ? prefs.currency : "INR") as any,
+    currency: (prefs ? prefs.currency : "INR") as "INR" | "USD" | "EUR",
     financialGoalsPreference: prefs ? prefs.financialGoalsPreference : "Balanced",
     preferredStartDay: prefs ? prefs.preferredStartDay : 1,
     avatar: prefs ? prefs.avatarUrl : undefined,
@@ -213,7 +299,7 @@ export const useAppStore = create<AppState>()(
         if (!get().settings.isLoggedIn) return;
         try {
           // Find if budget exists on server
-          const budgetsList = await apiClient.get(`/budgets?from=${month}&to=${month}`);
+          const budgetsList = await apiClient.get(`/budgets?from=${month}&to=${month}`) as { items: Array<{ id: string }> };
           if (budgetsList.items && budgetsList.items.length > 0) {
             const serverId = budgetsList.items[0].id;
             await apiClient.patch(`/budgets/${serverId}`, {
@@ -238,9 +324,9 @@ export const useAppStore = create<AppState>()(
 
         if (!get().settings.isLoggedIn) return;
         try {
-          const budgetsList = await apiClient.get(`/budgets?from=${month}&to=${month}`);
-          if (budgetsList.items && budgetsList.items.length > 0) {
-            await apiClient.patch(`/budgets/${budgetsList.items[0].id}`, { income });
+          const budgetsList2 = await apiClient.get(`/budgets?from=${month}&to=${month}`) as { items: Array<{ id: string }> };
+          if (budgetsList2.items && budgetsList2.items.length > 0) {
+            await apiClient.patch(`/budgets/${budgetsList2.items[0].id}`, { income });
           } else {
             await apiClient.post("/budgets", { month, income });
           }
@@ -262,23 +348,24 @@ export const useAppStore = create<AppState>()(
         if (!get().settings.isLoggedIn) return;
         try {
           // Fetch server budget to update allocation
-          const budgetsList = await apiClient.get(`/budgets?from=${month}&to=${month}`);
+          const budgetsList3 = await apiClient.get(`/budgets?from=${month}&to=${month}`) as { items: Array<{ id: string }> };
           let serverBudget;
-          if (budgetsList.items && budgetsList.items.length > 0) {
-            serverBudget = await apiClient.get(`/budgets/${budgetsList.items[0].id}`);
+          if (budgetsList3.items && budgetsList3.items.length > 0) {
+            serverBudget = await apiClient.get(`/budgets/${budgetsList3.items[0].id}`);
           } else {
             serverBudget = await apiClient.post("/budgets", { month, income: existing.income });
           }
 
           // Create full list of allocations for replace_all_allocations or update single allocation
-          const existingAllocations = serverBudget.categories.map((c: any) => ({
+          const serverBudgetData = serverBudget as BackendBudget;
+          const existingAllocations = (serverBudgetData.categories || []).map((c: BackendCategory) => ({
             category_id: c.category.id,
             planned_amount: c.category.id === categoryId ? planned : Number(c.plannedAmount),
             display_order: c.displayOrder,
           }));
 
           // If current category is not in server budget category list, append it
-          if (!existingAllocations.some((a: any) => a.category_id === categoryId)) {
+          if (!existingAllocations.some((a: { category_id: string }) => a.category_id === categoryId)) {
             existingAllocations.push({
               category_id: categoryId,
               planned_amount: planned,
@@ -287,8 +374,8 @@ export const useAppStore = create<AppState>()(
           }
 
           // Re-update full allocations to DB
-          await apiClient.patch(`/budgets/${serverBudget.id}`, {
-            income: Number(serverBudget.income),
+          await apiClient.patch(`/budgets/${serverBudgetData.id}`, {
+            income: Number(serverBudgetData.income),
             categories: existingAllocations,
           });
         } catch (err) {
@@ -320,12 +407,13 @@ export const useAppStore = create<AppState>()(
           // 2. Replace temp id with server id in Zustand state
           const state = get();
           const activeBudget = state.budgets[month];
+          const serverCatData = serverCat as { id: string };
           if (activeBudget) {
-            const mappedCats = activeBudget.categories.map(c => c.id === tempId ? { ...c, id: serverCat.id } : c);
+            const mappedCats = activeBudget.categories.map(c => c.id === tempId ? { ...c, id: serverCatData.id } : c);
             set({ budgets: { ...state.budgets, [month]: { ...activeBudget, categories: mappedCats } } });
             
             // 3. Add allocation for it
-            await state.setCategoryPlanned(month, serverCat.id, cat.planned);
+            await state.setCategoryPlanned(month, serverCatData.id, cat.planned);
           }
         } catch (err) {
           toast.error("Failed to add category to server.");
@@ -380,13 +468,13 @@ export const useAppStore = create<AppState>()(
 
           // Update Zustand store with the real server-returned expense (with real ID)
           set({
-            expenses: get().expenses.map((item) => item.id === tempId ? mapBackendExpense(res) : item),
+            expenses: get().expenses.map((item) => item.id === tempId ? mapBackendExpense(res as BackendExpense) : item),
           });
           toast.success("Expense tracked!");
-        } catch (err: any) {
+        } catch (err: unknown) {
           // Rollback on failure
           set({ expenses: get().expenses.filter((item) => item.id !== tempId) });
-          toast.error(err.message || "Failed to save expense.");
+          toast.error(err instanceof Error ? err.message : "Failed to save expense.");
         }
       },
 
@@ -404,7 +492,7 @@ export const useAppStore = create<AppState>()(
 
         if (!get().settings.isLoggedIn) return;
         try {
-          const payload: any = {};
+          const payload: Record<string, unknown> = {};
           if (patch.categoryId) payload.categoryId = patch.categoryId;
           if (patch.amount) payload.amount = patch.amount;
           if (patch.date) payload.expenseDate = patch.date;
@@ -419,9 +507,9 @@ export const useAppStore = create<AppState>()(
 
           const res = await apiClient.patch(`/expenses/${id}`, payload);
           set({
-            expenses: get().expenses.map((e) => e.id === id ? mapBackendExpense(res) : e),
+            expenses: get().expenses.map((e) => e.id === id ? mapBackendExpense(res as BackendExpense) : e),
           });
-        } catch (err: any) {
+        } catch {
           // Rollback
           set({ expenses: previousExpenses });
           toast.error("Failed to update expense.");
@@ -440,7 +528,7 @@ export const useAppStore = create<AppState>()(
         try {
           await apiClient.delete(`/expenses/${id}`);
           toast.success("Expense deleted.");
-        } catch (err) {
+        } catch {
           // Rollback
           set({ expenses: previousExpenses });
           toast.error("Failed to delete expense.");
@@ -468,10 +556,10 @@ export const useAppStore = create<AppState>()(
           });
 
           set({
-            goals: get().goals.map((g) => g.id === tempId ? mapBackendGoal(res) : g),
+            goals: get().goals.map((g) => g.id === tempId ? mapBackendGoal(res as BackendGoal) : g),
           });
           toast.success("Savings goal created!");
-        } catch (err) {
+        } catch {
           set({ goals: get().goals.filter((g) => g.id !== tempId) });
           toast.error("Failed to create savings goal.");
         }
@@ -485,7 +573,7 @@ export const useAppStore = create<AppState>()(
 
         if (!get().settings.isLoggedIn) return;
         try {
-          const payload: any = {};
+          const payload: Record<string, unknown> = {};
           if (patch.name) payload.name = patch.name;
           if (patch.icon) payload.icon = patch.icon;
           if (patch.targetAmount) payload.targetAmount = patch.targetAmount;
@@ -496,9 +584,9 @@ export const useAppStore = create<AppState>()(
 
           const res = await apiClient.patch(`/goals/${id}`, payload);
           set({
-            goals: get().goals.map((g) => g.id === id ? mapBackendGoal(res) : g),
+            goals: get().goals.map((g) => g.id === id ? mapBackendGoal(res as BackendGoal) : g),
           });
-        } catch (err) {
+        } catch {
           set({ goals: prevGoals });
           toast.error("Failed to update goal.");
         }
@@ -515,7 +603,7 @@ export const useAppStore = create<AppState>()(
         try {
           await apiClient.delete(`/goals/${id}`);
           toast.success("Goal deleted.");
-        } catch (err) {
+        } catch {
           set({ goals: prevGoals });
           toast.error("Failed to delete goal.");
         }
@@ -546,10 +634,10 @@ export const useAppStore = create<AppState>()(
             note: "Contribution",
           });
           set({
-            goals: get().goals.map((g) => g.id === goalId ? mapBackendGoal(res) : g),
+            goals: get().goals.map((g) => g.id === goalId ? mapBackendGoal(res as BackendGoal) : g),
           });
           toast.success("Contribution added!");
-        } catch (err) {
+        } catch {
           set({ goals: prevGoals });
           toast.error("Failed to add contribution.");
         }
@@ -644,15 +732,15 @@ export const useAppStore = create<AppState>()(
         try {
           const list = await apiClient.get("/gamification/challenges");
           set({
-            challenges: list.items.map((c: any) => ({
-              id: c.id,
-              title: c.title,
-              description: c.description,
-              rewardXP: c.rewardXp,
-              type: c.challengeType,
-              date: c.date,
-              status: c.status,
-            })),
+            challenges: (list as { items: BackendChallenge[] }).items.map((c: BackendChallenge) => ({
+            id: c.id,
+            title: c.title,
+            description: c.description,
+            rewardXP: c.rewardXp,
+            type: c.challengeType,
+            date: c.date,
+            status: c.status,
+          })),
           });
         } catch (err) {
           console.error("Failed to sync challenges from server", err);
@@ -667,13 +755,13 @@ export const useAppStore = create<AppState>()(
         if (!get().settings.isLoggedIn) return;
         try {
           // 1. Get user family details
-          const families = await apiClient.get("/family/memberships");
+          const families = await apiClient.get("/family/memberships") as { items: Array<{ familyId: string }> };
           let familyId;
           if (families.items && families.items.length > 0) {
             familyId = families.items[0].familyId;
           } else {
             // Create family
-            const fam = await apiClient.post("/family", { name: "Family Wallet" });
+            const fam = await apiClient.post("/family", { name: "Family Wallet" }) as { id: string };
             familyId = fam.id;
           }
 
@@ -683,7 +771,7 @@ export const useAppStore = create<AppState>()(
             role: member.role,
             email: member.email || undefined,
             spendingLimit: member.spendingLimit || null,
-          });
+          }) as BackendFamilyMember;
 
           set({
             familyMembers: get().familyMembers.map((m) => m.id === tempId ? {
@@ -695,7 +783,7 @@ export const useAppStore = create<AppState>()(
             } : m),
           });
           toast.success("Family member added.");
-        } catch (err) {
+        } catch {
           set({ familyMembers: prevMembers });
           toast.error("Failed to add family member.");
         }
@@ -709,15 +797,15 @@ export const useAppStore = create<AppState>()(
 
         if (!get().settings.isLoggedIn) return;
         try {
-          const families = await apiClient.get("/family/memberships");
-          if (families.items && families.items.length > 0) {
-            const familyId = families.items[0].familyId;
+          const familiesData = await apiClient.get("/family/memberships") as { items: Array<{ familyId: string }> };
+          if (familiesData.items && familiesData.items.length > 0) {
+            const familyId = familiesData.items[0].familyId;
             await apiClient.patch(`/family/${familyId}/member/${id}`, {
               role: patch.role,
               spendingLimit: patch.spendingLimit !== undefined ? patch.spendingLimit : undefined,
             });
           }
-        } catch (err) {
+        } catch {
           set({ familyMembers: prevMembers });
           toast.error("Failed to update family member.");
         }
@@ -729,13 +817,13 @@ export const useAppStore = create<AppState>()(
 
         if (!get().settings.isLoggedIn) return;
         try {
-          const families = await apiClient.get("/family/memberships");
-          if (families.items && families.items.length > 0) {
-            const familyId = families.items[0].familyId;
+          const familiesData2 = await apiClient.get("/family/memberships") as { items: Array<{ familyId: string }> };
+          if (familiesData2.items && familiesData2.items.length > 0) {
+            const familyId = familiesData2.items[0].familyId;
             await apiClient.delete(`/family/${familyId}/member/${id}`);
             toast.success("Family member removed.");
           }
-        } catch (err) {
+        } catch {
           set({ familyMembers: prevMembers });
           toast.error("Failed to remove family member.");
         }
@@ -825,44 +913,36 @@ export const useAppStore = create<AppState>()(
           const state = get();
           await state.initializeFromBackend();
           toast.success("Onboarding completed successfully!");
-        } catch (err: any) {
-          toast.error(err.message || "Failed to complete onboarding.");
+        } catch (err: unknown) {
+          toast.error(err instanceof Error ? err.message : "Failed to complete onboarding.");
         }
       },
 
       login: async (email, password) => {
-        try {
-          const res = await apiClient.post("/auth/login", { email, password });
-          setTokens(res.accessToken, res.refreshToken);
+        const res = await apiClient.post("/auth/login", { email, password }) as { accessToken: string; refreshToken: string; user: BackendUser };
+        setTokens(res.accessToken, res.refreshToken);
 
-          const mappedSettings = mapBackendSettings(res.user, null, null);
-          set({ settings: mappedSettings });
-          
-          await get().initializeFromBackend();
-          toast.success("Logged in successfully!");
-        } catch (err: any) {
-          throw err;
-        }
+        const mappedSettings = mapBackendSettings(res.user, null, null);
+        set({ settings: mappedSettings });
+        
+        await get().initializeFromBackend();
+        toast.success("Logged in successfully!");
       },
 
       register: async (email, password, displayName, userType) => {
-        try {
-          const res = await apiClient.post("/auth/register", {
-            email,
-            password,
-            displayName,
-            userType,
-          });
-          setTokens(res.accessToken, res.refreshToken);
+        const res = await apiClient.post("/auth/register", {
+          email,
+          password,
+          displayName,
+          userType,
+        }) as { accessToken: string; refreshToken: string; user: BackendUser };
+        setTokens(res.accessToken, res.refreshToken);
 
-          const mappedSettings = mapBackendSettings(res.user, null, null);
-          set({ settings: mappedSettings });
-          
-          await get().initializeFromBackend();
-          toast.success("Account created successfully!");
-        } catch (err: any) {
-          throw err;
-        }
+        const mappedSettings = mapBackendSettings(res.user, null, null);
+        set({ settings: mappedSettings });
+        
+        await get().initializeFromBackend();
+        toast.success("Account created successfully!");
       },
 
       logout: async () => {
@@ -895,24 +975,24 @@ export const useAppStore = create<AppState>()(
           const localBudgets = get().budgets;
 
           // 1. Fetch current profile preferences
-          const profile = await apiClient.get("/me");
+          const profile = await apiClient.get("/me") as { user: BackendUser; preferences: BackendPreferences | null; notifications: BackendNotifications | null };
           const mappedSettings = mapBackendSettings(
             profile.user,
             profile.preferences,
             profile.notifications
           );
 
-          // 2. Fetch categories
-          const cats = await apiClient.get("/categories");
+          // 2. Fetch categories (used to validate sync state)
+          await apiClient.get("/categories");
           
           // 3. Fetch budgets
-          const budgetsList = await apiClient.get("/budgets");
+          const budgetsList = await apiClient.get("/budgets") as { items: Array<{ id: string; month: string }> };
           const mappedBudgets: Record<string, MonthlyBudget> = {};
           
           // Hydrate each budget with full category details
           for (const b of budgetsList.items || []) {
             const detail = await apiClient.get(`/budgets/${b.id}`);
-            mappedBudgets[b.month.slice(0, 7)] = mapBackendBudget(detail);
+            mappedBudgets[b.month.slice(0, 7)] = mapBackendBudget(detail as BackendBudget);
           }
 
           // If current month budget doesn't exist, create/seed it
@@ -922,17 +1002,17 @@ export const useAppStore = create<AppState>()(
           }
 
           // 4. Fetch expenses
-          const expensesList = await apiClient.get("/expenses?limit=200");
+          const expensesList = await apiClient.get("/expenses?limit=200") as { items: BackendExpense[] };
           const mappedExpenses = (expensesList.items || []).map(mapBackendExpense);
 
           // 5. Fetch savings goals
-          const goalsList = await apiClient.get("/goals");
+          const goalsList = await apiClient.get("/goals") as { items: BackendGoal[] };
           const mappedGoals = (goalsList.items || []).map(mapBackendGoal);
 
           // 6. Fetch gamification profile (XP, Level, Streak)
           let xp = 0, level = 1, savingsStreak = 0;
           try {
-            const gamificationProfile = await apiClient.get("/gamification/profile");
+            const gamificationProfile = await apiClient.get("/gamification/profile") as { xp: number; level: number; currentStreak: number };
             xp = gamificationProfile.xp || 0;
             level = gamificationProfile.level || 1;
             savingsStreak = gamificationProfile.currentStreak || 0;
@@ -944,11 +1024,12 @@ export const useAppStore = create<AppState>()(
           let mappedFamilyMembers: FamilyMember[] = [];
           if (profile.user.userType === "Family") {
             try {
-              const memberships = await apiClient.get("/family/memberships");
+              const memberships = await apiClient.get("/family/memberships") as { items: Array<{ familyId: string }> };
               if (memberships.items && memberships.items.length > 0) {
                 const familyId = memberships.items[0].familyId;
                 const fam = await apiClient.get(`/family/${familyId}`);
-                mappedFamilyMembers = (fam.members || []).map((m: any) => ({
+                const famData = fam as { members?: BackendFamilyMember[] };
+                mappedFamilyMembers = (famData.members || []).map((m: BackendFamilyMember) => ({
                   id: m.id,
                   name: m.displayName,
                   role: m.role,
@@ -1075,8 +1156,7 @@ export const useAppStore = create<AppState>()(
             if (!hasCat) customCategories.add(e.categoryId);
           });
 
-          // Map local category UUIDs to server category UUIDs
-          const categoryIdMap: Record<string, string> = {};
+          // Map local category UUIDs to server category UUIDs (reserved for future use)
 
           // 2. Sync budgets
           for (const m of Object.keys(state.budgets)) {
@@ -1089,7 +1169,7 @@ export const useAppStore = create<AppState>()(
           // 3. Sync expenses
           for (const e of state.expenses) {
             // Find category
-            let catId = e.categoryId;
+            const catId = e.categoryId;
             // Send request
             await apiClient.post("/expenses", {
               categoryId: catId,

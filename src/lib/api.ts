@@ -10,7 +10,7 @@ export class ApiError extends Error {
   code?: string;
   details?: Array<{ field: string; message: string }>;
 
-  constructor(message: string, status: number, code?: string, details?: any[]) {
+  constructor(message: string, status: number, code?: string, details?: Array<{ field: string; message: string }>) {
     super(message);
     this.name = "ApiError";
     this.status = status;
@@ -28,7 +28,7 @@ try {
     _accessToken = localStorage.getItem("spend_sense_access_token");
     _refreshToken = localStorage.getItem("spend_sense_refresh_token");
   }
-} catch (e) {
+} catch {
   // Ignore in environments where localStorage is not available during load
 }
 
@@ -52,12 +52,12 @@ export const clearTokens = () => {
 // Queue for request retries while token is refreshing
 let isRefreshing = false;
 let failedQueue: Array<{
-  resolve: (value: any) => void;
-  reject: (reason: any) => void;
-  request: () => Promise<any>;
+  resolve: (value: unknown) => void;
+  reject: (reason: unknown) => void;
+  request: () => Promise<unknown>;
 }> = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -65,11 +65,13 @@ const processQueue = (error: any, token: string | null = null) => {
       prom.resolve(prom.request());
     }
   });
+  // token parameter kept for potential future use
+  void token;
   failedQueue = [];
 };
 
 export const apiClient = {
-  async request(path: string, options: RequestInit = {}): Promise<any> {
+  async request(path: string, options: RequestInit = {}): Promise<unknown> {
     const url = `${BASE_URL}${path}`;
     const headers = new Headers(options.headers || {});
 
@@ -88,24 +90,25 @@ export const apiClient = {
       headers,
     };
 
-    const executeRequest = async () => {
+    const executeRequest = async (): Promise<unknown> => {
       const response = await fetch(url, fetchOptions);
       
       if (response.status === 204) {
         return null;
       }
 
-      let data: any = null;
+      let data: unknown = null;
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
+        data = await response.json() as unknown;
       }
 
       if (!response.ok) {
         // Handle standardized error structure from FastAPI backend
-        const errorMessage = data?.error?.message || data?.detail || `HTTP error ${response.status}`;
-        const errorCode = data?.error?.code || "bad_request";
-        const errorDetails = data?.error?.details || [];
+        const dataRecord = data as Record<string, Record<string, unknown>> | null;
+        const errorMessage = (dataRecord?.error?.message as string) || (dataRecord?.detail as string) || `HTTP error ${response.status}`;
+        const errorCode = (dataRecord?.error?.code as string) || "bad_request";
+        const errorDetails = (dataRecord?.error?.details as Array<{ field: string; message: string }>) || [];
         
         throw new ApiError(errorMessage, response.status, errorCode, errorDetails);
       }
@@ -115,7 +118,7 @@ export const apiClient = {
 
     try {
       return await executeRequest();
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If error is 401, attempt to refresh the token
       if (error instanceof ApiError && error.status === 401 && _refreshToken) {
         // If already refreshing, queue this request
@@ -152,7 +155,7 @@ export const apiClient = {
             throw new ApiError("Session expired. Please log in again.", 401);
           }
 
-          const refreshData = await refreshResponse.json();
+          const refreshData = await refreshResponse.json() as TokenInfo;
           setTokens(refreshData.accessToken, refreshData.refreshToken);
           isRefreshing = false;
 
@@ -164,9 +167,9 @@ export const apiClient = {
           return await fetch(url, { ...options, headers }).then(async (res) => {
             if (res.status === 204) return null;
             const text = await res.text();
-            return text ? JSON.parse(text) : null;
+            return text ? JSON.parse(text) as unknown : null;
           });
-        } catch (refreshError) {
+        } catch (refreshError: unknown) {
           isRefreshing = false;
           clearTokens();
           processQueue(refreshError, null);
@@ -179,11 +182,11 @@ export const apiClient = {
     }
   },
 
-  get(path: string, options: RequestInit = {}): Promise<any> {
+  get(path: string, options: RequestInit = {}): Promise<unknown> {
     return this.request(path, { ...options, method: "GET" });
   },
 
-  post(path: string, body: any, options: RequestInit = {}): Promise<any> {
+  post(path: string, body: unknown, options: RequestInit = {}): Promise<unknown> {
     return this.request(path, {
       ...options,
       method: "POST",
@@ -191,7 +194,7 @@ export const apiClient = {
     });
   },
 
-  put(path: string, body: any, options: RequestInit = {}): Promise<any> {
+  put(path: string, body: unknown, options: RequestInit = {}): Promise<unknown> {
     return this.request(path, {
       ...options,
       method: "PUT",
@@ -199,7 +202,7 @@ export const apiClient = {
     });
   },
 
-  patch(path: string, body: any, options: RequestInit = {}): Promise<any> {
+  patch(path: string, body: unknown, options: RequestInit = {}): Promise<unknown> {
     return this.request(path, {
       ...options,
       method: "PATCH",
@@ -207,7 +210,7 @@ export const apiClient = {
     });
   },
 
-  delete(path: string, options: RequestInit = {}): Promise<any> {
+  delete(path: string, options: RequestInit = {}): Promise<unknown> {
     return this.request(path, { ...options, method: "DELETE" });
   },
 };

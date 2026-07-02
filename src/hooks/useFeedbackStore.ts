@@ -186,7 +186,7 @@ interface FeedbackState {
 
 export const useFeedbackStore = create<FeedbackState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       sessionCount: 0,
       npsLastAskedAt: null,
       npsSubmittedAt: null,

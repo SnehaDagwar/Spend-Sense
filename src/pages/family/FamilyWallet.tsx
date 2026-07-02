@@ -1,7 +1,7 @@
 import React from "react";
 import { useAppStore, useActiveBudget, useMonthExpenses } from "@/store/useAppStore";
 import { Card } from "@/components/ui/card";
-import { Users, IndianRupee, Sparkles, TrendingUp, PiggyBank, Heart } from "lucide-react";
+import { Users, Sparkles, TrendingUp, PiggyBank, Heart } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 const FamilyWallet = () => {

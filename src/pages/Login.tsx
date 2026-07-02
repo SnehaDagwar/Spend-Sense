@@ -52,8 +52,8 @@ const Login = () => {
       } else {
         await register(email, password, displayName, userType);
       }
-    } catch (err: any) {
-      toast.error(err.message || "Authentication failed. Please check your details.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Authentication failed. Please check your details.");
     } finally {
       setIsLoading(false);
     }

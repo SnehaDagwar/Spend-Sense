@@ -43,14 +43,23 @@ vi.mock("@/engine/predictionEngine", () => ({
 // ── Mock framer-motion to skip animation in JSDOM ────────────────────────────
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: React.ComponentPropsWithoutRef<"div">) => <div {...props}>{children}</div>,
   },
 }));
 
 import Dashboard from "@/pages/Dashboard";
 
+interface MockStoreState {
+  settings: {
+    profile: {
+      userName: string;
+    };
+  };
+  savingsStreak: number;
+}
+
 function renderDashboard() {
-  vi.mocked(useAppStore).mockImplementation((selector: any) =>
+  vi.mocked(useAppStore).mockImplementation((selector: (state: MockStoreState) => unknown) =>
     selector({
       settings: {
         profile: { userName: "Finance Ninja" },

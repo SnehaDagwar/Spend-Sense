@@ -6,7 +6,7 @@
  * Store action integration is covered by the critical_path and component tests.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 // ── Mock the API client ────────────────────────────────────────────────────────
 vi.mock("@/lib/api", () => ({
@@ -96,7 +96,7 @@ describe("Backend → Frontend goal mapping (mapBackendGoal logic)", () => {
       targetAmount: parseFloat(backendGoal.targetAmount),
       currentAmount: parseFloat(backendGoal.currentAmount),
       monthlyContribution: parseFloat(backendGoal.monthlyContribution),
-      history: backendGoal.contributions.map((c: any) => ({
+      history: (backendGoal.contributions as Array<{ contributedAt?: string; amount?: string }>).map((c) => ({
         date: c.contributedAt?.slice(0, 10) ?? "",
         amount: parseFloat(c.amount ?? "0"),
       })),
@@ -185,7 +185,7 @@ describe("seedBudget default structure", () => {
 
 describe("setActiveMonth state transition", () => {
   it("does not overwrite existing budget data when switching to known month", () => {
-    const existingBudgets: Record<string, any> = {
+    const existingBudgets: Record<string, import("@/types").MonthlyBudget> = {
       "2026-06": { id: "b1", month: "2026-06", income: 50000, categories: [] },
     };
 
@@ -198,7 +198,7 @@ describe("setActiveMonth state transition", () => {
   });
 
   it("creates a new seed budget when switching to unseen month", () => {
-    const existingBudgets: Record<string, any> = {};
+    const existingBudgets: Record<string, import("@/types").MonthlyBudget> = {};
     const targetMonth = "2026-07";
 
     const needsSeed = !existingBudgets[targetMonth];

@@ -1,9 +1,8 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { Challenge } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Circle, Clock, Zap, Gift } from "lucide-react";
+import { CheckCircle2, Clock, Zap, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/useAppStore";
 

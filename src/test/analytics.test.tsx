@@ -13,22 +13,27 @@ vi.mock("@/store/useAppStore", () => ({
   }),
 }));
 
+interface WithChildren { children: React.ReactNode; className?: string; style?: React.CSSProperties }
+interface TabProps extends WithChildren { defaultValue?: string; activeTab?: string; setActiveTab?: (v: string) => void }
+interface TabTriggerProps extends WithChildren { value: string; activeTab?: string; setActiveTab?: (v: string) => void; className?: string }
+interface TabContentProps extends WithChildren { value: string; activeTab?: string; className?: string }
+
 // Mock Recharts to avoid layout issues in JSDOM environment
 vi.mock("recharts", () => {
   return {
-    ResponsiveContainer: ({ children }: any) => <div style={{ width: 400, height: 300 }}>{children}</div>,
-    PieChart: ({ children }: any) => <svg>{children}</svg>,
+    ResponsiveContainer: ({ children }: WithChildren) => <div style={{ width: 400, height: 300 }}>{children}</div>,
+    PieChart: ({ children }: WithChildren) => <svg>{children}</svg>,
     Pie: () => <g></g>,
     Cell: () => <path></path>,
-    BarChart: ({ children }: any) => <svg>{children}</svg>,
+    BarChart: ({ children }: WithChildren) => <svg>{children}</svg>,
     Bar: () => <rect></rect>,
     XAxis: () => <g></g>,
     YAxis: () => <g></g>,
     CartesianGrid: () => <g></g>,
     Legend: () => <g></g>,
-    LineChart: ({ children }: any) => <svg>{children}</svg>,
+    LineChart: ({ children }: WithChildren) => <svg>{children}</svg>,
     Line: () => <path></path>,
-    AreaChart: ({ children }: any) => <svg>{children}</svg>,
+    AreaChart: ({ children }: WithChildren) => <svg>{children}</svg>,
     Area: () => <path></path>,
     ReferenceLine: () => <line></line>,
     Tooltip: () => <div></div>,
@@ -38,47 +43,47 @@ vi.mock("recharts", () => {
 // Mock Framer Motion
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <div {...props}>{children}</div>,
   },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 // Mock Tabs component to handle tabs switching directly in tests
 vi.mock("@/components/ui/tabs", () => {
   return {
-    Tabs: ({ children, defaultValue, className }: any) => {
+    Tabs: ({ children, defaultValue, className }: TabProps) => {
       const [active, setActive] = React.useState(defaultValue);
       return (
         <div className={className} data-active-tab={active}>
           {React.Children.map(children, (child) => {
             if (React.isValidElement(child)) {
-              return React.cloneElement(child as React.ReactElement<any>, { activeTab: active, setActiveTab: setActive });
+              return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, { activeTab: active, setActiveTab: setActive });
             }
             return child;
           })}
         </div>
       );
     },
-    TabsList: ({ children, activeTab, setActiveTab, className }: any) => (
+    TabsList: ({ children, activeTab, setActiveTab, className }: TabProps & { activeTab?: string; setActiveTab?: (v: string) => void }) => (
       <div className={className} role="tablist">
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
-            return React.cloneElement(child as React.ReactElement<any>, { activeTab, setActiveTab });
+            return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, { activeTab, setActiveTab });
           }
           return child;
         })}
       </div>
     ),
-    TabsTrigger: ({ children, value, activeTab, setActiveTab, className }: any) => (
+    TabsTrigger: ({ children, value, activeTab, setActiveTab, className }: TabTriggerProps) => (
       <button
         role="tab"
         className={`${className} ${activeTab === value ? "active" : ""}`}
-        onClick={() => setActiveTab(value)}
+        onClick={() => setActiveTab?.(value)}
       >
         {children}
       </button>
     ),
-    TabsContent: ({ children, value, activeTab, className }: any) => {
+    TabsContent: ({ children, value, activeTab, className }: TabContentProps) => {
       if (activeTab !== value) return null;
       return <div className={className}>{children}</div>;
     },
